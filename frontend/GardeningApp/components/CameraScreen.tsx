@@ -23,6 +23,10 @@ const CameraScreen: React.FC = () => {
   
   const cameraRef = useRef<CameraView>(null);
 
+  function addPlant(image_file: string) {
+
+  }
+
   const takePhoto = async () => {
     if (!cameraRef.current) return;
     
@@ -51,6 +55,10 @@ const CameraScreen: React.FC = () => {
   };
 
   const savePhoto = () => {
+    if (capturedPhoto) {
+      addPlant(capturedPhoto);
+    }
+  
     Alert.alert('Photo Captured', 'Your photo has been captured successfully!', [
       {
         text: 'Take Another',
@@ -62,6 +70,7 @@ const CameraScreen: React.FC = () => {
       },
     ]);
   };
+  
 
   const toggleCameraType = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
