@@ -1,11 +1,11 @@
-import CameraScreen from "@/components/CameraScreen";
-import { View } from "react-native";
 import React from "react";
+import { View } from "react-native";
+import HomeScreen from "./HomeScreen";
 
 export default function Index() {
   return (
     <View style={{ flex: 1 }}>
-      <CameraScreen />
+      <HomeScreen />
     </View>
   );
 }
