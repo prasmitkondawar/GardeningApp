@@ -2,15 +2,18 @@ import React, { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CameraScreen from "@/components/CameraScreen";
+import PlantDirectory from "@/components/PlantDirectory";
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "profile">("home");
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "profile">("home");
 
   // Render the active child-screen
   let ScreenComponent;
     if (activeScreen === "camera") {
         ScreenComponent = <CameraScreen />;
+    } else if (activeScreen == "plant_directory") {
+        ScreenComponent = <PlantDirectory></PlantDirectory>
     }
 
   return (
@@ -21,9 +24,20 @@ export default function HomeScreen() {
 
       {/* Bottom bar */}
       <View style={styles.bottomBar}>
+        <TouchableOpacity 
+          style={styles.plusButton} 
+          onPress={() => setActiveScreen("plant_directory")}
+        >
+          <Ionicons 
+            name="folder"            // <-- folder icon instead of add-circle
+            size={54} 
+            color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
+          />
+        </TouchableOpacity>
         <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
           <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
         </TouchableOpacity>
+
       </View>
     </View>
   );

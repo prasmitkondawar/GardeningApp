@@ -13,8 +13,7 @@ CREATE TABLE Plants (
     plant_name VARCHAR(75),
     scientific_name VARCHAR(100),
     species VARCHAR(100),
-    image_data BYTEA,      
-    image_mime VARCHAR(50),
+    image_url VARCHAR(100),
     user_id INTEGER REFERENCES Users(id),
     added_at TIMESTAMP DEFAULT NOW()
 );

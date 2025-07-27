@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
+import supabase from '../config/supabase';
+import * as FileSystem from 'expo-file-system';
+
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -21,11 +24,89 @@ const CameraScreen: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [facing, setFacing] = useState<CameraType>('back');
   
+  
   const cameraRef = useRef<CameraView>(null);
 
-  function addPlant(image_file: string) {
-
+  async function sendPlantPhoto(photoUri: string) {
+    try {
+      console.log("Uploading photo to Firebase Storage...");
+  
+      // Generate a unique id for the plant image, you can use UUID or timestamp
+      const plantId = Date.now().toString();
+  
+      // Upload the photo and get URL
+      const photoUrl = await uploadPhotoAsync(photoUri, plantId);
+  
+      console.log("Photo uploaded, URL:", photoUrl);
+  
+      // Prepare payload with photo URL (not base64 anymore)
+      const payload = {
+        image_url: photoUrl,  // your backend expects this field now
+        plant_name: "test plant name",
+        scientific_name: "test scientific name",
+        species: "test species",
+      };
+  
+      // Send to backend including JWT token, adjust headers as needed
+      const response = await fetch("http://192.168.68.108:8000/add-plant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("Response from backend:", data);
+  
+      return data;
+    } catch (error) {
+      console.error("Error sending plant photo:", error);
+      throw error;
+    }
   }
+  
+
+  async function uploadPhotoAsync(uri: string, plantId: string): Promise<string> {
+    // Fetch the file from local URI and get blob
+    const response = await fetch(uri);
+    const blob = await response.blob();
+  
+    // Define the path inside the bucket, e.g., "plants/{plantId}.jpg"
+    const filePath = `plants/${plantId}.jpg`;
+  
+    // Upload the blob to Supabase Storage bucket (make sure the bucket 'plant-photos' exists)
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('plant-photos') // replace with your actual bucket name if different
+      .upload(filePath, blob, {
+        cacheControl: '3600',
+        upsert: true, // Overwrite file if it exists
+      });
+  
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
+      throw uploadError;
+    }
+  
+    // Get the public URL for the uploaded image
+    const { data } = supabase.storage
+    .from('plant-photos')
+    .getPublicUrl(filePath);
+    
+    const publicURL = data.publicUrl; // Note: lower camelCase 'publicUrl'
+    
+    if (!publicURL) {
+      throw new Error("Failed to get public URL of uploaded image.");
+    }
+    
+    return publicURL;
+  
+  }
+  
 
   const takePhoto = async () => {
     if (!cameraRef.current) return;
@@ -56,7 +137,7 @@ const CameraScreen: React.FC = () => {
 
   const savePhoto = () => {
     if (capturedPhoto) {
-      addPlant(capturedPhoto);
+      sendPlantPhoto(capturedPhoto);
     }
   
     Alert.alert('Photo Captured', 'Your photo has been captured successfully!', [
