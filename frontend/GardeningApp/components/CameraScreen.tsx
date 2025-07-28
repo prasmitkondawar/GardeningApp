@@ -81,7 +81,7 @@ const CameraScreen: React.FC = () => {
   
     // Upload the blob to Supabase Storage bucket (make sure the bucket 'plant-photos' exists)
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('plant-photos') // replace with your actual bucket name if different
+      .from('plant-images') // replace with your actual bucket name if different
       .upload(filePath, blob, {
         cacheControl: '3600',
         upsert: true, // Overwrite file if it exists
@@ -93,18 +93,16 @@ const CameraScreen: React.FC = () => {
     }
   
     // Get the public URL for the uploaded image
-    const { data } = supabase.storage
-    .from('plant-photos')
-    .getPublicUrl(filePath);
-    
-    const publicURL = data.publicUrl; // Note: lower camelCase 'publicUrl'
-    
-    if (!publicURL) {
-      throw new Error("Failed to get public URL of uploaded image.");
+    // If bucket is private, replace getPublicUrl with createSignedUrl:
+    const { data: signedData, error: signedError } = await supabase.storage
+      .from('plant-photos')
+      .createSignedUrl(filePath, 60 * 60);  // valid for 1 hour
+
+    if (signedError) {
+      throw signedError;
     }
-    
-    return publicURL;
-  
+
+    return signedData.signedUrl;
   }
   
 
