@@ -16,12 +16,7 @@ type DatabaseHandler struct {
 	Db *sql.DB
 }
 
-func InitDatabaseHandler(server_str, port_str, user_str, password_str, database_str string) error {
-	connString := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		server_str, port_str, user_str, password_str, database_str,
-	)
-
+func InitDatabaseHandler(connString string) error {
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
@@ -37,13 +32,8 @@ func InitDatabaseHandler(server_str, port_str, user_str, password_str, database_
 }
 
 func main() {
-	err := InitDatabaseHandler(
-		"localhost",  // host (since only DB is in Docker)
-		"5432",       // port
-		"myuser",     // user
-		"mypassword", // password
-		"mydatabase", // database
-	)
+	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
+	err := InitDatabaseHandler(connString)
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
