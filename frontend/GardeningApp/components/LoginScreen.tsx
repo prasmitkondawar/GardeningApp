@@ -1,23 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
-import { supabase } from './lib/supabase';
-import Auth from './components/Auth'; // adjust path as needed
+import React, { useState } from 'react';
+import { View, Alert } from 'react-native';
+import supabase from '../config/supabase';
+import { Button, Input } from '@rneui/themed';
 
-export default function App() {
-  const [session, setSession] = useState(null);
+export default function Auth() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+  async function signInWithEmail() {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password 
     });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-  }, []);
+    if (error) Alert.alert(error.message);
+    setLoading(false);
+  }
 
   return (
     <View>
-      {!session ? <Auth /> : <Text>Welcome, User!</Text>}
+      <Input
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+      />
+      <Input
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <Button
+        title={loading ? 'Loading...' : 'Sign In'}
+        onPress={signInWithEmail}
+        disabled={loading}
+      />
     </View>
   );
 }
