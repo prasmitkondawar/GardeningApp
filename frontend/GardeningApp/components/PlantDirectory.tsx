@@ -1,3 +1,9 @@
+import React, { useState, useRef, useEffect } from 'react';
+
+interface PlantCard {
+  Image: string
+  
+}
 const PlantDirectory: React.FC = () => {
 
     async function fetchPlants(uuid: string) {

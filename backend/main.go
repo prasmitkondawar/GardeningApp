@@ -47,6 +47,7 @@ func main() {
 	})
 
 	router.POST("/add-plant", HandleAddPlant)
+	router.GET("/can-add-plant", HandleCanAddPlant)
 	// Example: simple endpoint to check DB connectivity
 	router.GET("/dbcheck", func(c *gin.Context) {
 		var now string

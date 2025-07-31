@@ -16,6 +16,8 @@
     "@react-navigation/bottom-tabs": "^7.4.4",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.16",
+    "@rneui/base": "^4.0.0-rc.8",
+    "@rneui/themed": "^4.0.0-rc.8",
     "@supabase/supabase-js": "^2.52.1",
     "expo": "~53.0.20",
     "expo-blur": "~14.1.5",

@@ -57,6 +57,24 @@ const CameraScreen: React.FC = () => {
 
   async function sendPlantPhoto(photoUri: string) {
     try {
+      // Step 1: Check if user can add more plants
+      const checkResponse = await fetch("http://192.168.68.114:8000/can-add-plant", {
+        method: "GET", // or POST if needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // You can add authentication headers if needed, e.g. JWT token
+      });
+
+      const checkData = await checkResponse.json();  // parse response body JSON
+
+      if (checkData["can add plants"]) {
+        // proceed to upload or add plant
+      } else {
+        Alert.alert("Plant limit reached", "You cannot add more plants.");
+        // Skip upload
+      }
+
       setIsUploading(true);
       console.log("Uploading photo to Supabase Storage...");
 
@@ -84,10 +102,6 @@ const CameraScreen: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       const data = await response.json();
       console.log("Response from backend:", data);
@@ -194,7 +208,6 @@ const CameraScreen: React.FC = () => {
     }
   }
   
-
   const takePhoto = async () => {
     if (!cameraRef.current) return;
     

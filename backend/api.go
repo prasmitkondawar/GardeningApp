@@ -52,6 +52,7 @@ func HandleAddPlant(c *gin.Context) {
 		req.ImageURL, // image URL instead of binary data
 	)
 	if err != nil {
+		fmt.Println(msg)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
 	}
@@ -88,4 +89,34 @@ func FetchPlants(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"plants": plants})
 
+}
+
+func HandleCanAddPlant(c *gin.Context) {
+	// You can uncomment JWT handling if needed:
+	/*
+	   jwtToken := c.GetHeader("JWT_Token")
+	   if jwtToken == "" {
+	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+	       return
+	   }
+
+	   userID, err := ExtractIDFromJWT(jwtToken)
+	   if err != nil {
+	       c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+	       return
+	   }
+	   fmt.Println("User ID from JWT:", userID)
+	*/
+	msg, err := Handler.LengthPlants(
+		1,
+	)
+	if err != nil {
+		fmt.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"can add plants": msg,
+	})
 }

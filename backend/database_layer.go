@@ -9,15 +9,18 @@ func (handler *DatabaseHandler) AddPlant(
 	species string,
 	image_url string,
 ) (string, error) {
-	query := `
-        INSERT INTO Plants 
+	// Step 3: Insert new plant if under limit
+	insertQuery := `
+        INSERT INTO plants 
         (user_id, plant_name, scientific_name, species, image_url)
         VALUES ($1, $2, $3, $4, $5)
     `
-	_, err := handler.Db.Exec(query, user_id, plant_name, scientific_name, species, image_url)
+	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url)
 	if err != nil {
+		fmt.Println("ERROR inserting plant:", err)
 		return "Failed to add plant", err
 	}
+
 	return "Plant added successfully", nil
 }
 
@@ -53,4 +56,16 @@ func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 	}
 
 	return plants, nil
+}
+
+func (handler *DatabaseHandler) LengthPlants(user_id int) (bool, error) {
+	var count int
+	query := "SELECT COUNT(*) FROM plants WHERE user_id = $1"
+
+	err := handler.Db.QueryRow(query, user_id).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	return count < 5, nil
 }
