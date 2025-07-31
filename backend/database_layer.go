@@ -29,13 +29,13 @@ type Plant struct {
 	PlantName      string `json:"plant_name"`
 	ScientificName string `json:"scientific_name"`
 	Species        string `json:"species"`
-	ImageData      string `json:"image_data"`
-	ImageMime      string `json:"image_mime"`
+	ImageURL       string `json:"image_url"`
+	PlantPetName   string `json:"plant_pet_name"`
 }
 
 func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 	query :=
-		`SELECT plant_id, plant_name, scientific_name, species, image_data, image_mime
+		`SELECT plant_id, plant_name, scientific_name, species, image_url, plant_pet_name
 	FROM plants
 	WHERE user_id = $1`
 
@@ -48,7 +48,7 @@ func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 	var plants []Plant
 	for rows.Next() {
 		var plant Plant
-		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageData, &plant.ImageMime)
+		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageURL, &plant.PlantPetName)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan todo: %w", err)
 		}

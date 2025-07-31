@@ -66,7 +66,7 @@ func ExtractIDFromJWT(jwtToken string) (int, error) {
 	return 1, nil
 }
 
-func FetchPlants(c *gin.Context) {
+func HandleFetchPlants(c *gin.Context) {
 	jwtToken := c.GetHeader("JWT_Token")
 	if jwtToken == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
