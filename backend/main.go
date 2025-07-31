@@ -47,7 +47,6 @@ func main() {
 	})
 
 	router.POST("/add-plant", HandleAddPlant)
-	router.POST("/fetch-plants")
 	// Example: simple endpoint to check DB connectivity
 	router.GET("/dbcheck", func(c *gin.Context) {
 		var now string
@@ -59,5 +58,5 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"time": now})
 	})
 
-	router.Run(":8000")
+	router.Run("0.0.0.0:8000") // bind explicitly to all interfaces
 }

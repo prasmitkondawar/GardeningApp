@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -23,86 +23,175 @@ const CameraScreen: React.FC = () => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [facing, setFacing] = useState<CameraType>('back');
+  const [isUploading, setIsUploading] = useState(false);
   
   
   const cameraRef = useRef<CameraView>(null);
 
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
+  const initializeAuth = async () => {
+    try {
+      // Check if user is already signed in
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session);
+      
+      if (!session) {
+        // Sign in anonymously for storage access
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) {
+          console.error('Auth error:', error);
+          Alert.alert('Authentication Error', 'Failed to authenticate with storage service');
+        } else {
+          console.log('Anonymous auth successful:', data);
+        }
+      } else {
+        console.log('Already authenticated:', session.user.id);
+      }
+    } catch (error) {
+      console.error('Initialize auth error:', error);
+    }
+  };
+
   async function sendPlantPhoto(photoUri: string) {
     try {
-      console.log("Uploading photo to Firebase Storage...");
-  
-      // Generate a unique id for the plant image, you can use UUID or timestamp
-      const plantId = Date.now().toString();
-  
+      setIsUploading(true);
+      console.log("Uploading photo to Supabase Storage...");
+
+      // Generate a unique id for the plant image
+      const plantId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
       // Upload the photo and get URL
       const photoUrl = await uploadPhotoAsync(photoUri, plantId);
-  
+
       console.log("Photo uploaded, URL:", photoUrl);
-  
-      // Prepare payload with photo URL (not base64 anymore)
+
+      // Prepare payload with photo URL
       const payload = {
-        image_url: photoUrl,  // your backend expects this field now
+        image_url: photoUrl,
         plant_name: "test plant name",
         scientific_name: "test scientific name",
         species: "test species",
       };
-  
-      // Send to backend including JWT token, adjust headers as needed
-      const response = await fetch("http://192.168.68.108:8000/add-plant", {
+
+      // Send to backend
+      const response = await fetch("http://192.168.68.114:8000/add-plant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log("Response from backend:", data);
-  
+
       return data;
     } catch (error) {
       console.error("Error sending plant photo:", error);
+      Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');
       throw error;
+    } finally {
+      setIsUploading(false);
     }
   }
-  
 
   async function uploadPhotoAsync(uri: string, plantId: string): Promise<string> {
-    // Fetch the file from local URI and get blob
-    const response = await fetch(uri);
-    const blob = await response.blob();
-  
-    // Define the path inside the bucket, e.g., "plants/{plantId}.jpg"
-    const filePath = `plants/${plantId}.jpg`;
-  
-    // Upload the blob to Supabase Storage bucket (make sure the bucket 'plant-photos' exists)
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('plant-images') // replace with your actual bucket name if different
-      .upload(filePath, blob, {
-        cacheControl: '3600',
-        upsert: true, // Overwrite file if it exists
-      });
-  
-    if (uploadError) {
-      console.error("Supabase upload error:", uploadError);
-      throw uploadError;
-    }
-  
-    // Get the public URL for the uploaded image
-    // If bucket is private, replace getPublicUrl with createSignedUrl:
-    const { data: signedData, error: signedError } = await supabase.storage
-      .from('plant-photos')
-      .createSignedUrl(filePath, 60 * 60);  // valid for 1 hour
+    try {
+      console.log('Starting upload process...');
+      
+      // Check current session before upload
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session before upload:', session?.user?.id);
+      
+      if (!session) {
+        throw new Error('No authenticated session found');
+      }
+      
+      // Method 1: Try using FormData (recommended for React Native)
+      const formData = new FormData();
+      
+      // Add the file to FormData
+      formData.append('file', {
+        uri: uri,
+        type: 'image/jpeg',
+        name: `${plantId}.jpg`,
+      } as any);
 
-    if (signedError) {
-      throw signedError;
-    }
+      // Define the path inside the bucket - include user ID for better organization
+      const filePath = `plants/${session.user.id}/${plantId}.jpg`;
 
-    return signedData.signedUrl;
+      console.log('Uploading to path:', filePath);
+
+      // Upload using FormData
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('plant-images')
+        .upload(filePath, formData, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("FormData upload failed, trying alternative method:", uploadError);
+        
+        // Method 2: Fallback to base64 decode method
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
+        // Create a File-like object from base64
+        const response = await fetch(`data:image/jpeg;base64,${base64}`);
+        const blob = await response.blob();
+
+        const { data: uploadData2, error: uploadError2 } = await supabase.storage
+          .from('plant-images')
+          .upload(filePath, blob, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: 'image/jpeg'
+          });
+
+        if (uploadError2) {
+          console.error("Supabase upload error:", uploadError2);
+          throw uploadError2;
+        }
+
+        console.log('Upload successful (method 2):', uploadData2);
+      } else {
+        console.log('Upload successful (FormData):', uploadData);
+      }
+
+      // Get the public URL for the uploaded image
+      const { data: urlData } = supabase.storage
+        .from('plant-images')
+        .getPublicUrl(filePath);
+
+      if (urlData?.publicUrl) {
+        console.log('Got public URL:', urlData.publicUrl);
+        return urlData.publicUrl;
+      } else {
+        // If bucket is private, create signed URL
+        const { data: signedData, error: signedError } = await supabase.storage
+          .from('plant-images')
+          .createSignedUrl(filePath, 60 * 60 * 24); // Valid for 24 hours
+
+        if (signedError) {
+          throw signedError;
+        }
+
+        console.log('Got signed URL:', signedData.signedUrl);
+        return signedData.signedUrl;
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
   }
   
 
@@ -133,21 +222,25 @@ const CameraScreen: React.FC = () => {
     setShowPreview(false);
   };
 
-  const savePhoto = () => {
-    if (capturedPhoto) {
-      sendPlantPhoto(capturedPhoto);
+  const savePhoto = async () => {
+    if (capturedPhoto && !isUploading) {
+      try {
+        await sendPlantPhoto(capturedPhoto);
+        
+        Alert.alert('Success!', 'Your photo has been uploaded successfully!', [
+          {
+            text: 'Take Another',
+            onPress: retakePhoto,
+          },
+          {
+            text: 'OK',
+            style: 'default',
+          },
+        ]);
+      } catch (error) {
+        // Error already handled in sendPlantPhoto
+      }
     }
-  
-    Alert.alert('Photo Captured', 'Your photo has been captured successfully!', [
-      {
-        text: 'Take Another',
-        onPress: retakePhoto,
-      },
-      {
-        text: 'OK',
-        style: 'default',
-      },
-    ]);
   };
   
 
@@ -194,14 +287,31 @@ const CameraScreen: React.FC = () => {
           
           <View style={styles.previewOverlay}>
             <View style={styles.previewControls}>
-              <TouchableOpacity style={styles.retakeButton} onPress={retakePhoto}>
+              <TouchableOpacity 
+                style={[styles.retakeButton, isUploading && styles.buttonDisabled]} 
+                onPress={retakePhoto}
+                disabled={isUploading}
+              >
                 <Ionicons name="refresh" size={24} color="#fff" />
                 <Text style={styles.retakeButtonText}>Retake</Text>
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.saveButton} onPress={savePhoto}>
-                <Ionicons name="checkmark" size={24} color="#fff" />
-                <Text style={styles.saveButtonText}>Save</Text>
+              <TouchableOpacity 
+                style={[styles.saveButton, isUploading && styles.buttonDisabled]} 
+                onPress={savePhoto}
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <>
+                    <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
+                    <Text style={styles.saveButtonText}>Uploading...</Text>
+                  </>
+                ) : (
+                  <>
+                    <Ionicons name="checkmark" size={24} color="#fff" />
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -527,6 +637,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
+  },
+  
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
 
