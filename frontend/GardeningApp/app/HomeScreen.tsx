@@ -3,10 +3,11 @@ import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CameraScreen from "@/components/CameraScreen";
 import PlantDirectory from "@/components/PlantDirectory";
+import LoginScreen from "@/components/LoginScreen";
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "profile">("home");
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "profile" | "login">("home");
 
   // Render the active child-screen
   let ScreenComponent;
@@ -14,6 +15,8 @@ export default function HomeScreen() {
         ScreenComponent = <CameraScreen />;
     } else if (activeScreen == "plant_directory") {
         ScreenComponent = <PlantDirectory></PlantDirectory>
+    } else if (activeScreen == "login") {
+        ScreenComponent = <LoginScreen></LoginScreen>
     }
 
   return (
@@ -33,6 +36,13 @@ export default function HomeScreen() {
             size={54} 
             color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
           />
+
+          <Ionicons
+            name="person-circle-outline"
+            size={54}
+            color={activeScreen === "plant_directory" ? "#007AFF" : "#888"}
+          />
+
         </TouchableOpacity>
         <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
           <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
