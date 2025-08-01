@@ -41,7 +41,8 @@ func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 
 	rows, err := handler.Db.Query(query, user_id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch todos: %w", err)
+		fmt.Println("1", err)
+		return nil, fmt.Errorf("failed to fetch plants: %w", err)
 	}
 	defer rows.Close()
 
@@ -50,7 +51,8 @@ func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 		var plant Plant
 		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageURL, &plant.PlantPetName)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan todo: %w", err)
+			fmt.Println("2", err)
+			return nil, fmt.Errorf("failed to scan plant: %w", err)
 		}
 		plants = append(plants, plant)
 	}

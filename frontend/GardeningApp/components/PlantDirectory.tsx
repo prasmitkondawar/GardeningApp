@@ -14,10 +14,26 @@ const PlantDirectory: React.FC = () => {
     const [plants, setPlants] = useState<PlantCard[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
+    useEffect(() => {
+      const loadPlants = async () => {
+        try {
+          const data = await fetchPlants();
+          console.log(data);
+          setPlants(data);
+        } catch (error) {
+          Alert.alert('Error', 'Failed to load plants.');
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      loadPlants();
+    }, []);
+
+    
     async function fetchPlants() {
-      
       try {
-        const response = await fetch('http://10.0.0.237:8000/fetch-plants', {
+        const response = await fetch('http://192.168.68.114:8000/fetch-plants', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -26,15 +42,30 @@ const PlantDirectory: React.FC = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        console.log('Fetched todos:', data);
+        const json = await response.json();
+        console.log('Fetched response:', json);
+    
+        // Extract the plants array from response
+        const data = json.plants; // <-- Important: get the array inside "plants"
         
-        return data;
+        // Optional: map backend keys to your interface keys if necessary
+        const mappedData = data.map((item: any) => ({
+          Image: item.image_url,
+          PlantName: item.plant_name,
+          PlantPetName: item.plant_pet_name,
+          ScientificName: item.scientific_name,
+          Species: item.species,
+          PlantID: item.plant_id,
+        }));
+    
+        return mappedData;
+    
       } catch (error) {
-        console.error('Error fetching todos:', error);
+        console.error('Error fetching plants:', error);
         throw error;
       }
     }
+    
 
     const renderPlantCard = ({ item }: { item: PlantCard }) => {
       return (
