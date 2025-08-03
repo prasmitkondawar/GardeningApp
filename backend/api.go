@@ -26,10 +26,7 @@ func HandleAddPlant(c *gin.Context) {
 
 	// Define input struct accepting image_url and other plant fields
 	type AddPlantRequest struct {
-		ImageURL       string `json:"image_url" binding:"required"`
-		PlantName      string `json:"plant_name"`
-		ScientificName string `json:"scientific_name"`
-		Species        string `json:"species"`
+		ImageURL string `json:"image_url" binding:"required"`
 	}
 
 	var req AddPlantRequest
@@ -44,12 +41,18 @@ func HandleAddPlant(c *gin.Context) {
 	// Since image_url is a plain URL string, no decoding needed.
 	// Call your DB handler to store the plant data, passing image URL as string.
 	// For testing, user_id is hardcoded as 1; replace with extracted userID in prod.
+	plant_name := "test_plant_name"
+	scientific_name := "test_scientific_name"
+	species := "test_species"
+	plant_pet_name := "Example Name"
+
 	msg, err := Handler.AddPlant(
 		1, // user_id
-		req.PlantName,
-		req.ScientificName,
-		req.Species,
+		plant_name,
+		scientific_name,
+		species,
 		req.ImageURL, // image URL instead of binary data
+		plant_pet_name,
 	)
 	if err != nil {
 		fmt.Println(msg)
@@ -80,10 +83,8 @@ func HandleFetchPlants(c *gin.Context) {
 	// 	return
 	// }
 	// print(id)
-	fmt.Println("entered method")
 	plants, err := Handler.FetchPlants(1)
 	if err != nil {
-		fmt.Println("3", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
 		return
 	}

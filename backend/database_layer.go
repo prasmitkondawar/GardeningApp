@@ -8,14 +8,18 @@ func (handler *DatabaseHandler) AddPlant(
 	scientific_name string,
 	species string,
 	image_url string,
+	plant_pet_name string,
 ) (string, error) {
 	// Step 3: Insert new plant if under limit
 	insertQuery := `
         INSERT INTO plants 
-        (user_id, plant_name, scientific_name, species, image_url)
-        VALUES ($1, $2, $3, $4, $5)
+        (user_id, plant_name, scientific_name, species, image_url, plant_pet_name)
+        VALUES ($1, $2, $3, $4, $5, $6)
     `
-	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url)
+
+	fmt.Println(plant_name, scientific_name, species)
+
+	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name)
 	if err != nil {
 		fmt.Println("ERROR inserting plant:", err)
 		return "Failed to add plant", err

@@ -87,10 +87,7 @@ const CameraScreen: React.FC = () => {
 
       // Prepare payload with photo URL
       const payload = {
-        image_url: photoUrl,
-        plant_name: "test plant name",
-        scientific_name: "test scientific name",
-        species: "test species",
+        image_url: photoUrl
       };
 
       // Send to backend
