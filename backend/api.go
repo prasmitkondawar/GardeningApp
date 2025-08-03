@@ -122,3 +122,44 @@ func HandleCanAddPlant(c *gin.Context) {
 		"can add plants": msg,
 	})
 }
+
+func HandleUpdatePlantPetName(c *gin.Context) {
+	// You can uncomment JWT handling if needed:
+	/*
+	   jwtToken := c.GetHeader("JWT_Token")
+	   if jwtToken == "" {
+	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+	       return
+	   }
+
+	   userID, err := ExtractIDFromJWT(jwtToken)
+	   if err != nil {
+	       c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+	       return
+	   }
+	   fmt.Println("User ID from JWT:", userID)
+	*/
+
+	var request struct {
+		PlantID    int    `json:"plant_id" binding:"required"`
+		NewPetName string `json:"plant_pet_name" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+
+	plant_id := request.PlantID
+	newPetName := request.NewPetName
+
+	fmt.Println("Updating plant ID:", plant_id, "with new pet name:", newPetName)
+
+	msg, err := Handler.UpdatePlantPetName(1, plant_id, newPetName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}

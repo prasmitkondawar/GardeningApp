@@ -17,8 +17,6 @@ func (handler *DatabaseHandler) AddPlant(
         VALUES ($1, $2, $3, $4, $5, $6)
     `
 
-	fmt.Println(plant_name, scientific_name, species)
-
 	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name)
 	if err != nil {
 		fmt.Println("ERROR inserting plant:", err)
@@ -74,4 +72,15 @@ func (handler *DatabaseHandler) LengthPlants(user_id int) (bool, error) {
 	}
 
 	return count < 5, nil
+}
+
+func (handler *DatabaseHandler) UpdatePlantPetName(user_id int, plant_id int, new_plant_pet_name string) (string, error) {
+	query := "UPDATE plants SET plant_pet_name = $3 WHERE user_id = $1 AND plant_id = $2"
+
+	_, err := handler.Db.Exec(query, user_id, plant_id, new_plant_pet_name)
+	if err != nil {
+		fmt.Println("ERROR inserting plant:", err)
+		return "Failed to change plant pet name", err
+	}
+	return "Changed plant pet name", nil
 }

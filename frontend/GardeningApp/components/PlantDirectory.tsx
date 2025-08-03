@@ -77,6 +77,7 @@ const PlantDirectory: React.FC = () => {
   // Backend update for pet name
   async function updatePetName(id: number, newPetName: string) {
     setSavingId(id);
+    console.log(id, newPetName);
     try {
       const res = await fetch(`http://192.168.68.114:8000/update-plant-pet-name`, {
         method: "POST",
@@ -86,7 +87,7 @@ const PlantDirectory: React.FC = () => {
       if (!res.ok) {
         throw new Error('Failed to update pet name');
       }
-      // Optimistically update UI
+
       setPlants((plants) =>
         plants.map((plant) =>
           plant.PlantID === id ? { ...plant, PlantPetName: newPetName } : plant
@@ -113,7 +114,6 @@ const PlantDirectory: React.FC = () => {
             resizeMode="cover"
           />
         </TouchableOpacity>
-        <Text style={styles.label} numberOfLines={1}>{item.PlantName}</Text>
         <View style={styles.editableRow}>
           <TextInput
             style={[
@@ -156,6 +156,7 @@ const PlantDirectory: React.FC = () => {
             <ActivityIndicator size="small" color="#34C759" style={{ marginLeft: 6 }} />
           )}
         </View>
+        <Text style={styles.label} numberOfLines={1}>{item.PlantName}</Text>
       </View>
     );
   };
@@ -218,7 +219,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: '700',
-    fontSize: 16,
+    marginTop: 6,
+    fontSize: 12,
     color: '#22384D',
     marginBottom: 6,
     textAlign: 'center',
