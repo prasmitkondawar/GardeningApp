@@ -37,15 +37,13 @@ export default function HomeScreen() {
             color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
           />
 
-          {/* <Ionicons
-            name="person-circle-outline"
-            size={54}
-            color={activeScreen === "plant_directory" ? "#007AFF" : "#888"}
-          /> */}
-
         </TouchableOpacity>
         <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
           <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
+          <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
         </TouchableOpacity>
 
       </View>
