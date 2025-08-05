@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -12,6 +13,8 @@ import {
   Keyboard,
   Dimensions
 } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 
 interface PlantCard {
   Image: string;
@@ -34,7 +37,7 @@ const PlantDirectory: React.FC = () => {
   const [petNameDraft, setPetNameDraft] = useState<{ [id: number]: string }>({});
   const [savingId, setSavingId] = useState<number | null>(null); // id of currently saving plant
 
-
+  const router = useRouter();
 
   useEffect(() => {
     const loadPlants = async () => {
@@ -106,6 +109,10 @@ const PlantDirectory: React.FC = () => {
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles.imageWrapper}
+          onPress={() => router.push({
+            pathname: './PlantDetailScreen',
+            params: { plant: JSON.stringify(item) }, // pass plant as string param
+          })}
           // You can implement onPress for image enlarge, etc.
         >
           <Image
