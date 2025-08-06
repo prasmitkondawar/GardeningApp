@@ -41,7 +41,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ goToSignUp }) => {
         onChangeText={setPassword}
         style={styles.input}
       />
-      <View style={{ marginBottom: 16 }}>
+      <View style={{ marginBottom: 20 }}>
         <Button title="Login" onPress={handleLogin} disabled={loading} />
       </View>
       <Button title="Want to create an account? Sign Up" onPress={goToSignUp} />

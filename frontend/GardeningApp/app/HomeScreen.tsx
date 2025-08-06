@@ -46,7 +46,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
-          <Ionicons name="person-circle" size={54} color={activeScreen === ("login" || "signup") ? "#007AFF" : "#888"} />
+          <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
         </TouchableOpacity>
 
       </View>
