@@ -5,10 +5,11 @@ import CameraScreen from "@/components/CameraScreen";
 import PlantDirectory from "@/app/PlantDirectory";
 import LoginScreen from "@/components/LoginScreen";
 import SignUpScreen from "@/components/SignUpScreen";
+import CalendarView from "@/components/CalendarView";
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login">("home");
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view">("home");
 
   // Render the active child-screen
   let ScreenComponent;
@@ -20,7 +21,9 @@ export default function HomeScreen() {
         ScreenComponent = <LoginScreen goToSignUp={() => setActiveScreen('signup')}/>
     } else if (activeScreen == "signup"){
         ScreenComponent = <SignUpScreen goToLogin={() => setActiveScreen('login')} />
-    }
+    } else if (activeScreen == "calendar-view") {
+        ScreenComponent = <CalendarView/>;
+      }
 
   return (
     <View style={{ flex: 1 }}>
@@ -45,9 +48,22 @@ export default function HomeScreen() {
           <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
         </TouchableOpacity>
 
+        <TouchableOpacity 
+          style={styles.plusButton}
+          onPress={() => setActiveScreen("calendar-view")}
+          activeOpacity={0.7}
+        >
+          <Ionicons 
+            name="calendar" 
+            size={40} 
+            color={activeScreen === "calendar-view" ? "#007AFF" : "#888"} 
+          />
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
           <Ionicons name="person-circle" size={54} color={activeScreen === ("login") ? "#007AFF" : "#888"} />
         </TouchableOpacity>
+
 
       </View>
     </View>
