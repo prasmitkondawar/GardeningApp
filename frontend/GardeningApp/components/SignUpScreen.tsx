@@ -9,11 +9,12 @@ type SignUpScreenProps = {
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ goToLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [loading, setLoading] = useState(false);
 
     async function handleSignUp() {
         setLoading(true);
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({ email, password, options: {data: {username}}});
         setLoading(false);
     if (error) Alert.alert('Sign Up Error', error.message);
     else Alert.alert('Success!', 'Check your email for confirmation.');
@@ -37,7 +38,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ goToLogin }) => {
         onChangeText={setPassword}
         style={styles.input}
       />
-      <View style={{ marginBottom: 16 }}>
+      <View style={{ marginBottom: 20 }}>
         <Button title="Sign Up" onPress={handleSignUp} disabled={loading} />
       </View>
       <Button title="Already have an account? Login" onPress={goToLogin} />
