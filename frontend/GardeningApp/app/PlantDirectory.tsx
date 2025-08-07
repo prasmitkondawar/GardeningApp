@@ -110,10 +110,9 @@ const PlantDirectory: React.FC = () => {
           activeOpacity={0.8}
           style={styles.imageWrapper}
           onPress={() => router.push({
-            pathname: './PlantDetailScreen',
-            params: { plant: JSON.stringify(item) }, // pass plant as string param
+            pathname: '/PlantDetailScreen', // Use the correct route, no dot-slash
+            params: { plant: JSON.stringify(item) },
           })}
-          // You can implement onPress for image enlarge, etc.
         >
           <Image
             source={{ uri: item.Image }}
@@ -121,6 +120,10 @@ const PlantDirectory: React.FC = () => {
             resizeMode="cover"
           />
         </TouchableOpacity>
+  
+        <Text style={styles.label}>{item.PlantName}</Text>
+        <Text style={styles.scientificName}>{item.ScientificName}</Text>
+  
         <View style={styles.editableRow}>
           <TextInput
             style={[
@@ -152,21 +155,21 @@ const PlantDirectory: React.FC = () => {
                 updatePetName(item.PlantID, petNameDraft[item.PlantID].trim());
               }
             }}
-            onSubmitEditing={() => {
-              Keyboard.dismiss();
-            }}
+            onSubmitEditing={() => Keyboard.dismiss()}
             placeholder="Pet name"
             editable={savingId !== item.PlantID}
             returnKeyType="done"
+            placeholderTextColor="#b0b6bc"
           />
           {savingId === item.PlantID && (
             <ActivityIndicator size="small" color="#34C759" style={{ marginLeft: 6 }} />
           )}
         </View>
-        <Text style={styles.label} numberOfLines={1}>{item.PlantName}</Text>
+  
+        <Text style={styles.species}>{item.Species}</Text>
       </View>
     );
-  };
+  };  
 
   if (loading) {
     return <ActivityIndicator style={{ flex: 1 }} size="large" />;
@@ -185,9 +188,9 @@ const PlantDirectory: React.FC = () => {
         data={plants}
         keyExtractor={(item) => item.PlantID.toString()}
         renderItem={renderPlantCard}
-        horizontal
+        horizontal={false} // Remove this line or set to false
         contentContainerStyle={styles.listContainer}
-        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -195,69 +198,110 @@ const PlantDirectory: React.FC = () => {
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 28,
   },
   card: {
-    width: cardWidth/2,
-    height: 180,
-    marginRight: 16,
-    padding: 14,
-    backgroundColor: '#eef5f5',
-    borderRadius: 18,
+    width: cardWidth / 2,
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    marginRight: 22,
+    backgroundColor: '#fff',
+    borderRadius: 22,
     alignItems: 'center',
-    shadowColor: '#90caf9',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16,
-    shadowRadius: 7,
+    // Shadow for depth
+    shadowColor: '#14967F',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
     elevation: 7,
-    marginBottom: 10,
+    marginBottom: 16,
+    // Neomorphic border/shadow effect
+    borderWidth: 1.3,
+    borderColor: '#e8f5ee',
   },
   imageWrapper: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     overflow: 'hidden',
-    borderRadius: 12,
-    marginBottom: 10,
+    backgroundColor: '#d7ede8',
+    elevation: 3,
+    shadowColor: '#8ed1c6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.26,
+    shadowRadius: 10,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#A7EDD9',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   image: {
-    width: 100, // 14 padding on each side
-    height: 100,
-    borderRadius: 12,
-    backgroundColor: '#cce8e6',
+    width: '100%',
+    height: '100%',
+    borderRadius: 45,
+    backgroundColor: '#b8dfd4',
   },
   label: {
     fontWeight: '700',
-    marginTop: 6,
-    fontSize: 12,
-    color: '#22384D',
+    fontSize: 18,
+    color: '#2C4857',
+    marginTop: 5,
+    marginBottom: -3,
+    textAlign: 'center',
+  },
+  scientificName: {
+    fontStyle: 'italic',
+    fontSize: 12.5,
+    color: '#469E7C',
     marginBottom: 6,
     textAlign: 'center',
-    maxWidth: 120,
   },
   editableRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
+    marginTop: 6,
+    marginBottom: 3,
   },
   petNameInput: {
-    borderWidth: 1,
-    borderColor: '#cdd4d7',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    minWidth: 80,
+    borderWidth: 0,
+    backgroundColor: '#F2FAF7',
+    borderRadius: 13,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    minWidth: 96,
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: '600',
     fontSize: 15,
-    color: '#2b5166',
+    color: '#358261',
+    elevation: 1,
+    shadowColor: '#9DE3C1',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   petNameInputActive: {
-    borderColor: '#34C759',
-    backgroundColor: '#eaffea',
+    backgroundColor: '#d5f6e6',
+    borderColor: '#66d19e',
+    borderWidth: 1,
   },
   petNameInputSaving: {
-    borderColor: '#f4c43c',
-    backgroundColor: '#fffceb',
+    backgroundColor: '#fff3d3',
+    borderColor: '#f4c564',
+    borderWidth: 1,
+  },
+  species: {
+    marginTop: 8,
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#946EEE',
+    letterSpacing: 0.5,
+    backgroundColor: '#ede8fc',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    textAlign: 'center'
   },
   emptyContainer: {
     flex: 1,
