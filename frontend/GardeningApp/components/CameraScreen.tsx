@@ -57,7 +57,7 @@ const CameraScreen: React.FC = () => {
 
   async function sendPlantPhoto(photoUri: string) {
     try {
-      // Step 1: Check if user can add more plants
+      // // Step 1: Check if user can add more plants
       // const checkResponse = await fetch("http://192.168.68.114:8000/can-add-plant", {
       //   method: "GET", // or POST if needed
       //   headers: {
@@ -74,8 +74,8 @@ const CameraScreen: React.FC = () => {
       //   // Skip upload
       // }
 
-      setIsUploading(true);
-      console.log("Uploading photo to Supabase Storage...");
+      // setIsUploading(true);
+      // console.log("Uploading photo to Supabase Storage...");
 
       // Generate a unique id for the plant image
       const plantId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

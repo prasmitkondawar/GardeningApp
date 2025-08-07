@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func (handler *DatabaseHandler) AddPlant(
-	user_id int,
+	user_id string,
 	plant_name string,
 	scientific_name string,
 	species string,
@@ -62,7 +62,7 @@ func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 	return plants, nil
 }
 
-func (handler *DatabaseHandler) LengthPlants(user_id int) (bool, error) {
+func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM plants WHERE user_id = $1"
 
