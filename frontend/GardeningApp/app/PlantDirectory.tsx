@@ -184,6 +184,9 @@ const PlantDirectory: React.FC = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>PLANTDEX</Text>
+      </View>
       <FlatList
         data={plants}
         keyExtractor={(item) => item.PlantID.toString()}
@@ -308,6 +311,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  header: {
+    paddingTop: 70, // space for status bar
+    paddingBottom: 16,
+    backgroundColor: '#89cff0', // light blue, change as needed
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#2C4857',
+  },
+  
 });
 
 export default PlantDirectory;

@@ -118,6 +118,9 @@ const CalendarView: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>CALENDAR</Text>
+      </View>
       <View style={styles.toggleContainer}>
         <TouchableOpacity
           style={[styles.toggleButton, view === 'week' && styles.activeButton]}
@@ -314,6 +317,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#263357',
     letterSpacing: 0.1,
+  },
+  header: {
+    paddingTop: 70, // space for status bar
+    paddingBottom: 16,
+    backgroundColor: '#ffb6c1', // light blue, change as needed
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#2C4857',
   },
 });
 
