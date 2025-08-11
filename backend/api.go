@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func HandleAddPlant(c *gin.Context) {
@@ -65,8 +66,20 @@ func HandleAddPlant(c *gin.Context) {
 	})
 }
 
-func ExtractIDFromJWT(jwtToken string) (int, error) {
-	return 1, nil
+func ExtractIDFromJWT(jwtToken string) (string, error) {
+	// Parse the JWT without verifying (for demo - for production always verify)
+	token, _, err := new(jwt.Parser).ParseUnverified(jwtToken, jwt.MapClaims{})
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		if sub, ok := claims["sub"].(string); ok {
+			return sub, nil // This is the Supabase user ID
+		}
+	}
+
+	return "", fmt.Errorf("user id (sub) not found in token")
 }
 
 func HandleFetchPlants(c *gin.Context) {
