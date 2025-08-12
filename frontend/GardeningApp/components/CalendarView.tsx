@@ -123,16 +123,16 @@ const CalendarView: React.FC = () => {
       </View>
       <View style={styles.toggleContainer}>
         <TouchableOpacity
-          style={[styles.toggleButton, view === 'week' && styles.activeButton]}
-          onPress={() => setView('week')}
-        >
-          <Text style={[styles.toggleText, view === 'week' && styles.activeText]}>Week View</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
           style={[styles.toggleButton, view === 'day' && styles.activeButton]}
           onPress={() => setView('day')}
         >
           <Text style={[styles.toggleText, view === 'day' && styles.activeText]}>Day View</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toggleButton, view === 'week' && styles.activeButton]}
+          onPress={() => setView('week')}
+        >
+          <Text style={[styles.toggleText, view === 'week' && styles.activeText]}>Week View</Text>
         </TouchableOpacity>
       </View>
 
@@ -140,21 +140,8 @@ const CalendarView: React.FC = () => {
       <View style={styles.calendarContainer}>
         {view === 'day' ? (
           <>
-            <Calendar
-              current={selectedDate}
-              onDayPress={(day) => setSelectedDate(day.dateString)}
-              markedDates={{
-                [selectedDate]: { selected: true, selectedColor: '#007AFF' },
-              }}
-              hideExtraDays={true}
-              disableMonthChange={true}
-              firstDay={1}
-              style={{ height: 350 }}
-            />
-            
             {/* Below calendar: Event list for day view */}
             <View style={styles.eventsContainer}>
-              <Text style={styles.eventsTitle}>Events on {selectedDate}</Text>
               {eventsForSelectedDate.length === 0 ? (
                 <Text style={styles.noEventsText}>No events for this day</Text>
               ) : (

@@ -9,15 +9,16 @@ func (handler *DatabaseHandler) AddPlant(
 	species string,
 	image_url string,
 	plant_pet_name string,
+	plant_health int,
 ) (string, error) {
 	// Step 3: Insert new plant if under limit
 	insertQuery := `
         INSERT INTO plants 
-        (user_id, plant_name, scientific_name, species, image_url, plant_pet_name)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
     `
 
-	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name)
+	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
 	if err != nil {
 		fmt.Println("ERROR inserting plant:", err)
 		return "Failed to add plant", err
@@ -33,11 +34,12 @@ type Plant struct {
 	Species        string `json:"species"`
 	ImageURL       string `json:"image_url"`
 	PlantPetName   string `json:"plant_pet_name"`
+	PlantHealth    int    `json:"plant_health"`
 }
 
 func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 	query :=
-		`SELECT plant_id, plant_name, scientific_name, species, image_url, plant_pet_name
+		`SELECT plant_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health
 	FROM plants
 	WHERE user_id = $1`
 
@@ -51,7 +53,7 @@ func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
 	var plants []Plant
 	for rows.Next() {
 		var plant Plant
-		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageURL, &plant.PlantPetName)
+		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageURL, &plant.PlantPetName, &plant.PlantHealth)
 		if err != nil {
 			fmt.Println("2", err)
 			return nil, fmt.Errorf("failed to scan plant: %w", err)

@@ -1,8 +1,22 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Platform } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Image, 
+  Animated,
+  Dimensions,
+  ImageBackground,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import PlantHealthMeterCircular from './PlantHealthMeterCircular';
+
+const { width, height } = Dimensions.get('window');
 
 interface PlantCard {
   Image: string;
@@ -11,6 +25,7 @@ interface PlantCard {
   ScientificName: string;
   Species: string;
   PlantID: number;
+  PlantHealth: number;
 }
 
 const PlantDetailScreen: React.FC = () => {
@@ -19,147 +34,425 @@ const PlantDetailScreen: React.FC = () => {
   const plantParam = Array.isArray(params.plant) ? params.plant[0] : params.plant;
   const plant: PlantCard | null = plantParam ? JSON.parse(plantParam) : null;
 
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+
+  useEffect(() => {
+    Animated.stagger(100, [
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        })
+      ])
+    ]).start();
+  }, []);
+
   if (!plant) {
     return (
-      <SafeAreaView style={styles.containerCentered}>
+      <LinearGradient
+        colors={['#667eea', '#764ba2']}
+        style={styles.containerCentered}
+      >
         <Text style={styles.emptyText}>No plant selected</Text>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
+
+  const DetailItem: React.FC<{ label: string; text: string; icon: string }> = ({ label, text, icon }) => (
+    <Animated.View 
+      style={[
+        styles.detailItem,
+        {
+          opacity: fadeAnim,
+          transform: [{ translateY: slideAnim }]
+        }
+      ]}
+    >
+      <View style={styles.detailIconContainer}>
+        <Ionicons name={icon as any} size={20} color="#6366f1" />
+      </View>
+      <View style={styles.detailTextContainer}>
+        <Text style={styles.detailLabel}>{label}</Text>
+        <Text style={styles.detailText}>{text}</Text>
+      </View>
+    </Animated.View>
+  );
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.7}>
-            <Ionicons name="arrow-back" size={26} color="#0a74da" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">
-            {plant.PlantPetName}
-          </Text>
-          <View style={styles.placeholder} />
-        </View>
+      <View style={styles.container}>
+        {/* Background with plant image */}
+        {plant.Image && (
+          <ImageBackground
+            source={{ uri: plant.Image }}
+            style={styles.backgroundImage}
+            blurRadius={10}
+          >
+            <LinearGradient
+              colors={['rgba(102, 126, 234, 0.8)', 'rgba(118, 75, 162, 0.9)']}
+              style={StyleSheet.absoluteFill}
+            />
+          </ImageBackground>
+        )}
 
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={{ paddingBottom: 32 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {plant.Image && (
-            <Image source={{ uri: plant.Image }} style={styles.plantImage} />
-          )}
+        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+          {/* Modern Header */}
+          <Animated.View 
+            style={[
+              styles.header,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }]
+              }
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+                style={styles.backButtonGradient}
+              >
+                <Ionicons name="chevron-back" size={24} color="#ffffff" />
+              </LinearGradient>
+            </TouchableOpacity>
 
-          {/* Details Card */}
-          <View style={styles.detailsContainer}>
-            <Text style={styles.detailLabel}>Scientific Name</Text>
-            <Text style={styles.detailText}>{plant.ScientificName}</Text>
+            <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">
+              {plant.PlantPetName}
+            </Text>
+          </Animated.View>
 
-            <View style={styles.divider} />
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            bounces={true}
+          >
+            {/* Hero Plant Image */}
+            <Animated.View
+              style={[
+                styles.heroImageContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ scale: scaleAnim }]
+                }
+              ]}
+            >
+              {plant.Image && (
+                <Image source={{ uri: plant.Image }} style={styles.heroImage} />
+              )}
+              <LinearGradient
+                colors={['transparent', 'rgba(0, 0, 0, 0.3)']}
+                style={styles.imageOverlay}
+              />
+            </Animated.View>
 
-            <Text style={styles.detailLabel}>Plant Name</Text>
-            <Text style={styles.detailText}>{plant.PlantName}</Text>
+            {/* Health Meter in floating card */}
+            <Animated.View
+              style={[
+                styles.healthMeterCard,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }, { scale: scaleAnim }]
+                }
+              ]}
+            >
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.95)', 'rgba(255, 255, 255, 0.85)']}
+                style={styles.healthMeterGradient}
+              >
+                <Text style={styles.healthTitle}>Plant Health</Text>
+                <PlantHealthMeterCircular health={plant.PlantHealth} />
+              </LinearGradient>
+            </Animated.View>
 
-            <View style={styles.divider} />
+            {/* Modern Details Cards */}
+            <Animated.View
+              style={[
+                styles.detailsSection,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }]
+                }
+              ]}
+            >
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.95)', 'rgba(255, 255, 255, 0.85)']}
+                style={styles.detailsCard}
+              >
+                <Text style={styles.sectionTitle}>Plant Information</Text>
+                
+                <DetailItem
+                  label="Scientific Name"
+                  text={plant.ScientificName}
+                  icon="flask-outline"
+                />
+                
+                <DetailItem
+                  label="Common Name"
+                  text={plant.PlantName}
+                  icon="leaf-outline"
+                />
+                
+                <DetailItem
+                  label="Species"
+                  text={plant.Species}
+                  icon="library-outline"
+                />
+              </LinearGradient>
+            </Animated.View>
 
-            <Text style={styles.detailLabel}>Species</Text>
-            <Text style={styles.detailText}>{plant.Species}</Text>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+            {/* Action Buttons */}
+            {/* <Animated.View
+              style={[
+                styles.actionButtonsContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }]
+                }
+              ]}
+            >
+              <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={['#6366f1', '#8b5cf6']}
+                  style={styles.actionButtonGradient}
+                >
+                  <Ionicons name="water-outline" size={20} color="#ffffff" />
+                  <Text style={styles.actionButtonText}>Water</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={['#10b981', '#059669']}
+                  style={styles.actionButtonGradient}
+                >
+                  <Ionicons name="sunny-outline" size={20} color="#ffffff" />
+                  <Text style={styles.actionButtonText}>Light</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={['#f59e0b', '#d97706']}
+                  style={styles.actionButtonGradient}
+                >
+                  <Ionicons name="nutrition-outline" size={20} color="#ffffff" />
+                  <Text style={styles.actionButtonText}>Feed</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View> */}
+          </ScrollView>
+        </SafeAreaView>
+      </View>
     </>
-
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e8f0fe', // very light blue background for gentle contrast
+    backgroundColor: '#1a1a2e',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: width,
+    height: height,
+    top: 0,
+    left: 0,
   },
   containerCentered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e8f0fe',
+  },
+  safeArea: {
+    flex: 1,
   },
   emptyText: {
     fontSize: 18,
-    color: '#7b7c81',
+    color: '#ffffff',
+    fontWeight: '500',
   },
   header: {
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#d0d7de',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: Platform.OS === 'ios' ? 0.1 : 0,
-    shadowRadius: 4,
-    elevation: 3,
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
   backButton: {
-    padding: 8,
-    borderRadius: 16,
-    backgroundColor: '#f2f6fc',
+    marginRight: 16,
+  },
+  backButtonGradient: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   headerTitle: {
     flex: 1,
+    fontSize: 24,
     fontWeight: '700',
-    fontSize: 20,
-    color: '#0a74da',
+    color: '#ffffff',
     textAlign: 'center',
-    marginHorizontal: 8,
-  },
-  placeholder: {
-    width: 40,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 18,
-    marginTop: 12,
   },
-  plantImage: {
+  contentContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  heroImageContainer: {
+    height: 300,
+    borderRadius: 24,
+    overflow: 'hidden',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+  heroImage: {
     width: '100%',
-    height: 280,
-    borderRadius: 16,
-    backgroundColor: '#cfd8f7',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+  },
+  healthMeterCard: {
+    marginBottom: 24,
+    borderRadius: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  healthMeterGradient: {
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  healthTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  detailsSection: {
     marginBottom: 24,
   },
-  detailsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    shadowColor: '#1c3c88',
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+  detailsCard: {
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#374151',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingVertical: 8,
+  },
+  detailIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  detailTextContainer: {
+    flex: 1,
   },
   detailLabel: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#4c5870',
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6b7280',
     textTransform: 'uppercase',
     letterSpacing: 1,
+    marginBottom: 2,
   },
   detailText: {
     fontSize: 16,
-    color: '#2e3a59',
-    fontWeight: '500',
-    marginTop: 6,
+    fontWeight: '600',
+    color: '#374151',
     lineHeight: 22,
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#e4e9f0',
-    marginVertical: 20,
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  actionButton: {
+    flex: 1,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  actionButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  actionButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
