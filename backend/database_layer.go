@@ -95,10 +95,10 @@ type Schedule struct {
 
 func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]Schedule, error) {
 	query := `
-    SELECT plant_id, plant_pet_name, is_completed
+    SELECT plant_id, plant_pet_name, water_is_completed
     FROM schedule
     WHERE user_id = $1
-      AND due_date = CURRENT_DATE
+    AND due_date = CURRENT_DATE
 	`
 
 	rows, err := handler.Db.Query(query, user_id)
@@ -120,4 +120,20 @@ func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]Schedule, error) {
 	}
 
 	return total_schedule, nil
+}
+
+func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id int) (string, error) {
+	query := `
+	UPDATE schedule
+	SET water_is_completed = NOT water_is_completed
+	WHERE user_id = $1 AND schedule_id = $2
+	`
+
+	_, err := handler.Db.Exec(query, user_id, schedule_id)
+	if err != nil {
+		fmt.Println("ERROR inserting plant:", err)
+		return "Failed to check plant", err
+	}
+
+	return "Plant checked successfully", nil
 }
