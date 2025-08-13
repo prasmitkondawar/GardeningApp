@@ -10,7 +10,7 @@ import { Stack } from "expo-router";
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view">("home");
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view">("login");
 
   // Render the active child-screen
   let ScreenComponent;

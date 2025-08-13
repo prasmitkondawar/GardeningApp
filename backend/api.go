@@ -84,33 +84,35 @@ func ExtractIDFromJWT(jwtToken string) (string, error) {
 }
 
 func HandleFetchPlants(c *gin.Context) {
-	// jwtToken := c.GetHeader("JWT_Token")
-	// if jwtToken == "" {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-	// 	return
-	// }
-
-	// // Extract UUID from JWT
-	// id, err := ExtractIDFromJWT(jwtToken)
-	// if err != nil {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-	// 	return
-	// }
-	// print(id)
-	plants, err := Handler.FetchPlants(1)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
+	jwtToken := c.GetHeader("Authorization")
+	if jwtToken == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"plants": plants})
+	// Extract UUID from JWT
+	id, err := ExtractIDFromJWT(jwtToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+	print(id)
+	// plants, err := Handler.FetchPlants(1)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
+	// 	return
+	// }
+
+	// c.JSON(http.StatusOK, gin.H{"plants": plants})
 
 }
 
 func HandleCanAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
-	/*
-	   jwtToken := c.GetHeader("JWT_Token")
+	
+	   jwtToken := c.GetHeader("Authorization")
+
+	   print(jwtToken)
 	   if jwtToken == "" {
 	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 	       return
@@ -122,19 +124,19 @@ func HandleCanAddPlant(c *gin.Context) {
 	       return
 	   }
 	   fmt.Println("User ID from JWT:", userID)
-	*/
-	msg, err := Handler.LengthPlants(
-		"1",
-	)
-	if err != nil {
-		fmt.Println(msg)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-		return
-	}
+	
+	// msg, err := Handler.LengthPlants(
+	// 	"1",
+	// )
+	// if err != nil {
+	// 	fmt.Println(msg)
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+	// 	return
+	// }
 
-	c.JSON(http.StatusOK, gin.H{
-		"can add plants": msg,
-	})
+	// c.JSON(http.StatusOK, gin.H{
+	// 	"can add plants": msg,
+	// })
 }
 
 func HandleUpdatePlantPetName(c *gin.Context) {
