@@ -6,6 +6,7 @@ import PlantDirectory from "@/app/PlantDirectory";
 import LoginScreen from "@/components/LoginScreen";
 import SignUpScreen from "@/components/SignUpScreen";
 import CalendarView from "@/components/CalendarView";
+import { Stack } from "expo-router";
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
@@ -26,47 +27,51 @@ export default function HomeScreen() {
       }
 
   return (
-    <View style={{ flex: 1 }}>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
       <View style={{ flex: 1 }}>
-        {ScreenComponent}
+        <View style={{ flex: 1 }}>
+          {ScreenComponent}
+        </View>
+
+        {/* Bottom bar */}
+        <View style={styles.bottomBar}>
+          <TouchableOpacity 
+            style={styles.plusButton} 
+            onPress={() => setActiveScreen("plant_directory")}
+          >
+            <Ionicons 
+              name="folder"            // <-- folder icon instead of add-circle
+              size={54} 
+              color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
+            />
+
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
+            <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.plusButton}
+            onPress={() => setActiveScreen("calendar-view")}
+            activeOpacity={0.7}
+          >
+            <Ionicons 
+              name="calendar" 
+              size={40} 
+              color={activeScreen === "calendar-view" ? "#007AFF" : "#888"} 
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
+            <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
+          </TouchableOpacity>
+
+
+        </View>
       </View>
+    </>
 
-      {/* Bottom bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity 
-          style={styles.plusButton} 
-          onPress={() => setActiveScreen("plant_directory")}
-        >
-          <Ionicons 
-            name="folder"            // <-- folder icon instead of add-circle
-            size={54} 
-            color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
-          />
-
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
-          <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.plusButton}
-          onPress={() => setActiveScreen("calendar-view")}
-          activeOpacity={0.7}
-        >
-          <Ionicons 
-            name="calendar" 
-            size={40} 
-            color={activeScreen === "calendar-view" ? "#007AFF" : "#888"} 
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
-          <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
-        </TouchableOpacity>
-
-
-      </View>
-    </View>
   );
 }
 

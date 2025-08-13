@@ -13,6 +13,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import supabase from '../config/supabase';
 import * as FileSystem from 'expo-file-system';
+import { Stack } from 'expo-router';
 
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -289,104 +290,108 @@ const CameraScreen: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
-      
-      {showPreview && capturedPhoto ? (
-        // Photo Preview Mode
-        <View style={styles.previewContainer}>
-          <Image source={{ uri: capturedPhoto }} style={styles.previewImage} />
-          
-          <View style={styles.previewOverlay}>
-            <View style={styles.previewControls}>
-              <TouchableOpacity 
-                style={[styles.retakeButton, isUploading && styles.buttonDisabled]} 
-                onPress={retakePhoto}
-                disabled={isUploading}
-              >
-                <Ionicons name="refresh" size={24} color="#fff" />
-                <Text style={styles.retakeButtonText}>Retake</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.saveButton, isUploading && styles.buttonDisabled]} 
-                onPress={savePhoto}
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <>
-                    <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
-                    <Text style={styles.saveButtonText}>Uploading...</Text>
-                  </>
-                ) : (
-                  <>
-                    <Ionicons name="checkmark" size={24} color="#fff" />
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      ) : (
-        // Camera Live Preview Mode
-        <View style={styles.cameraContainer}>
-          <CameraView
-            ref={cameraRef}
-            style={styles.camera}
-            facing={facing}
-          />
-          
-          {/* Camera UI Overlay */}
-          <View style={styles.cameraOverlay}>
-            {/* Top Bar */}
-            <View style={styles.topBar}>
-              <View style={styles.topBarLeft} />
-              
-              <View style={styles.topBarCenter}>
-                <Text style={styles.cameraTitle}>Camera</Text>
-              </View>
-              
-              <View style={styles.topBarRight}>
-                <TouchableOpacity style={styles.flipButton} onPress={toggleCameraType}>
-                  <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            </View>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#000" />
+        
+        {showPreview && capturedPhoto ? (
+          // Photo Preview Mode
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: capturedPhoto }} style={styles.previewImage} />
             
-            {/* Bottom Controls */}
-            <View style={styles.bottomControls}>
-              <View style={styles.bottomLeft}>
-                {capturedPhoto && (
-                  <TouchableOpacity
-                    style={styles.thumbnailContainer}
-                    onPress={() => setShowPreview(true)}
-                  >
-                    <Image source={{ uri: capturedPhoto }} style={styles.thumbnail} />
-                    <View style={styles.thumbnailBorder} />
-                  </TouchableOpacity>
-                )}
-              </View>
-              
-              <View style={styles.bottomCenter}>
-                <TouchableOpacity
-                  style={[styles.captureButton, isCapturing && styles.captureButtonActive]}
-                  onPress={takePhoto}
-                  disabled={isCapturing}
-                  activeOpacity={0.8}
+            <View style={styles.previewOverlay}>
+              <View style={styles.previewControls}>
+                <TouchableOpacity 
+                  style={[styles.retakeButton, isUploading && styles.buttonDisabled]} 
+                  onPress={retakePhoto}
+                  disabled={isUploading}
                 >
-                  <View style={[styles.captureButtonInner, isCapturing && styles.captureButtonInnerActive]}>
-                    {isCapturing && <View style={styles.capturingDot} />}
-                  </View>
+                  <Ionicons name="refresh" size={24} color="#fff" />
+                  <Text style={styles.retakeButtonText}>Retake</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.saveButton, isUploading && styles.buttonDisabled]} 
+                  onPress={savePhoto}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <>
+                      <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
+                      <Text style={styles.saveButtonText}>Uploading...</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Ionicons name="checkmark" size={24} color="#fff" />
+                      <Text style={styles.saveButtonText}>Save</Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               </View>
-              
-              <View style={styles.bottomRight} />
             </View>
           </View>
-        </View>
-      )}
-    </View>
+        ) : (
+          // Camera Live Preview Mode
+          <View style={styles.cameraContainer}>
+            <CameraView
+              ref={cameraRef}
+              style={styles.camera}
+              facing={facing}
+            />
+            
+            {/* Camera UI Overlay */}
+            <View style={styles.cameraOverlay}>
+              {/* Top Bar */}
+              <View style={styles.topBar}>
+                <View style={styles.topBarLeft} />
+                
+                <View style={styles.topBarCenter}>
+                  <Text style={styles.cameraTitle}>Camera</Text>
+                </View>
+                
+                <View style={styles.topBarRight}>
+                  <TouchableOpacity style={styles.flipButton} onPress={toggleCameraType}>
+                    <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              
+              {/* Bottom Controls */}
+              <View style={styles.bottomControls}>
+                <View style={styles.bottomLeft}>
+                  {capturedPhoto && (
+                    <TouchableOpacity
+                      style={styles.thumbnailContainer}
+                      onPress={() => setShowPreview(true)}
+                    >
+                      <Image source={{ uri: capturedPhoto }} style={styles.thumbnail} />
+                      <View style={styles.thumbnailBorder} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                
+                <View style={styles.bottomCenter}>
+                  <TouchableOpacity
+                    style={[styles.captureButton, isCapturing && styles.captureButtonActive]}
+                    onPress={takePhoto}
+                    disabled={isCapturing}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.captureButtonInner, isCapturing && styles.captureButtonInnerActive]}>
+                      {isCapturing && <View style={styles.capturingDot} />}
+                    </View>
+                  </TouchableOpacity>
+                </View>
+                
+                <View style={styles.bottomRight} />
+              </View>
+            </View>
+          </View>
+        )}
+      </View>
+    </>
+
   );
 };
 

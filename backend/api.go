@@ -48,12 +48,13 @@ func HandleAddPlant(c *gin.Context) {
 	plant_pet_name := "Example Name"
 
 	msg, err := Handler.AddPlant(
-		1, // user_id
+		"1", // user_id
 		plant_name,
 		scientific_name,
 		species,
 		req.ImageURL, // image URL instead of binary data
 		plant_pet_name,
+		65,
 	)
 	if err != nil {
 		fmt.Println(msg)
@@ -123,7 +124,7 @@ func HandleCanAddPlant(c *gin.Context) {
 	   fmt.Println("User ID from JWT:", userID)
 	*/
 	msg, err := Handler.LengthPlants(
-		1,
+		"1",
 	)
 	if err != nil {
 		fmt.Println(msg)

@@ -23,6 +23,7 @@ interface PlantCard {
   ScientificName: string;
   Species: string;
   PlantID: number;
+  PlantHealth: number;
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -69,6 +70,7 @@ const PlantDirectory: React.FC = () => {
         ScientificName: item.scientific_name,
         Species: item.species,
         PlantID: item.plant_id,
+        PlantHealth: item.plant_health
       }));
       return mappedData;
     } catch (error) {
@@ -102,6 +104,19 @@ const PlantDirectory: React.FC = () => {
     setSavingId(null);
   }
 
+  function getHealthColor(health: number) {
+    if (health >= 80) {
+      return '#34C759';
+    }         
+    if (health >= 50) {
+      return '#FFD900'; 
+    }      
+    if (health >= 25) {
+      return '#FF9500';  
+    } 
+    return '#FF3B30';                           
+  }
+
   const renderPlantCard = ({ item }: { item: PlantCard }) => {
     const isEditing = editingId === item.PlantID;
     return (
@@ -120,10 +135,25 @@ const PlantDirectory: React.FC = () => {
             resizeMode="cover"
           />
         </TouchableOpacity>
-  
-        <Text style={styles.label}>{item.PlantName}</Text>
-        <Text style={styles.scientificName}>{item.ScientificName}</Text>
-  
+        
+        <View style={{ alignItems: 'center', marginVertical: 4 }}>
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 18,
+              color: getHealthColor(item.PlantHealth),
+              backgroundColor: getHealthColor(item.PlantHealth) + '22', // faint color background
+              paddingHorizontal: 16,
+              paddingVertical: 6,
+              borderRadius: 14,
+              overflow: 'hidden',
+            }}
+          >
+            Health: {item.PlantHealth}
+          </Text>
+        </View>
+
+
         <View style={styles.editableRow}>
           <TextInput
             style={[
@@ -165,8 +195,6 @@ const PlantDirectory: React.FC = () => {
             <ActivityIndicator size="small" color="#34C759" style={{ marginLeft: 6 }} />
           )}
         </View>
-  
-        <Text style={styles.species}>{item.Species}</Text>
       </View>
     );
   };  
@@ -184,6 +212,9 @@ const PlantDirectory: React.FC = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>PLANTDEX</Text>
+      </View>
       <FlatList
         data={plants}
         keyExtractor={(item) => item.PlantID.toString()}
@@ -203,7 +234,8 @@ const styles = StyleSheet.create({
   },
   card: {
     width: cardWidth / 2,
-    paddingVertical: 18,
+    paddingTop: 18,
+    paddingBottom: 10,
     paddingHorizontal: 14,
     marginRight: 22,
     backgroundColor: '#fff',
@@ -215,7 +247,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 7,
-    marginBottom: 16,
+    marginBottom: 10,
     // Neomorphic border/shadow effect
     borderWidth: 1.3,
     borderColor: '#e8f5ee',
@@ -231,7 +263,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.26,
     shadowRadius: 10,
-    marginBottom: 12,
+    marginBottom: 5,
     borderWidth: 2,
     borderColor: '#A7EDD9',
     alignItems: 'center',
@@ -243,37 +275,20 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     backgroundColor: '#b8dfd4',
   },
-  label: {
-    fontWeight: '700',
-    fontSize: 18,
-    color: '#2C4857',
-    marginTop: 5,
-    marginBottom: -3,
-    textAlign: 'center',
-  },
-  scientificName: {
-    fontStyle: 'italic',
-    fontSize: 12.5,
-    color: '#469E7C',
-    marginBottom: 6,
-    textAlign: 'center',
-  },
   editableRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 6,
-    marginBottom: 3,
   },
   petNameInput: {
     borderWidth: 0,
     backgroundColor: '#F2FAF7',
     borderRadius: 13,
     paddingHorizontal: 10,
-    paddingVertical: 7,
-    minWidth: 96,
+    paddingVertical: 4,
     textAlign: 'center',
     fontWeight: '600',
-    fontSize: 15,
+    fontSize: 35,
     color: '#358261',
     elevation: 1,
     shadowColor: '#9DE3C1',
@@ -291,23 +306,25 @@ const styles = StyleSheet.create({
     borderColor: '#f4c564',
     borderWidth: 1,
   },
-  species: {
-    marginTop: 8,
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#946EEE',
-    letterSpacing: 0.5,
-    backgroundColor: '#ede8fc',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    textAlign: 'center'
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  header: {
+    paddingTop: 70, // space for status bar
+    paddingBottom: 16,
+    backgroundColor: '#89cff0', // light blue, change as needed
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#2C4857',
+  },
+  
 });
 
 export default PlantDirectory;

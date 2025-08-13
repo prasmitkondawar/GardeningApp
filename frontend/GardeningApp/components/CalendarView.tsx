@@ -115,21 +115,49 @@ const CalendarView: React.FC = () => {
     </ScrollView>
   );
 
+  async function fetchSchedule() {
+    try {
+      const response = await fetch('http://192.168.68.114:8000/fetch-schedule', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const json = await response.json();
+      const data = json.plants;
+      const mappedData = data.map((item: any) => ({
+        Image: item.image_url,
+        PlantName: item.plant_name,
+        PlantPetName: item.plant_pet_name,
+        ScientificName: item.scientific_name,
+        Species: item.species,
+        PlantID: item.plant_id,
+        PlantHealth: item.plant_health
+      }));
+      return mappedData;
+    } catch (error) {
+      console.error('Error fetching plants:', error);
+      throw error;
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>CALENDAR</Text>
+      </View>
       <View style={styles.toggleContainer}>
-        <TouchableOpacity
-          style={[styles.toggleButton, view === 'week' && styles.activeButton]}
-          onPress={() => setView('week')}
-        >
-          <Text style={[styles.toggleText, view === 'week' && styles.activeText]}>Week View</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.toggleButton, view === 'day' && styles.activeButton]}
           onPress={() => setView('day')}
         >
           <Text style={[styles.toggleText, view === 'day' && styles.activeText]}>Day View</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.toggleButton, view === 'week' && styles.activeButton]}
+          onPress={() => setView('week')}
+        >
+          <Text style={[styles.toggleText, view === 'week' && styles.activeText]}>Week View</Text>
         </TouchableOpacity>
       </View>
 
@@ -137,21 +165,8 @@ const CalendarView: React.FC = () => {
       <View style={styles.calendarContainer}>
         {view === 'day' ? (
           <>
-            <Calendar
-              current={selectedDate}
-              onDayPress={(day) => setSelectedDate(day.dateString)}
-              markedDates={{
-                [selectedDate]: { selected: true, selectedColor: '#007AFF' },
-              }}
-              hideExtraDays={true}
-              disableMonthChange={true}
-              firstDay={1}
-              style={{ height: 350 }}
-            />
-            
             {/* Below calendar: Event list for day view */}
             <View style={styles.eventsContainer}>
-              <Text style={styles.eventsTitle}>Events on {selectedDate}</Text>
               {eventsForSelectedDate.length === 0 ? (
                 <Text style={styles.noEventsText}>No events for this day</Text>
               ) : (
@@ -314,6 +329,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#263357',
     letterSpacing: 0.1,
+  },
+  header: {
+    paddingTop: 70, // space for status bar
+    paddingBottom: 16,
+    backgroundColor: '#ffb6c1', // light blue, change as needed
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#2C4857',
   },
 });
 
