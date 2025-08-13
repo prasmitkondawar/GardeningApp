@@ -109,8 +109,10 @@ func HandleFetchPlants(c *gin.Context) {
 
 func HandleCanAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
-	/*
-	   jwtToken := c.GetHeader("JWT_Token")
+	
+	   jwtToken := c.GetHeader("Authorization")
+
+	   print(jwtToken)
 	   if jwtToken == "" {
 	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 	       return
@@ -122,19 +124,19 @@ func HandleCanAddPlant(c *gin.Context) {
 	       return
 	   }
 	   fmt.Println("User ID from JWT:", userID)
-	*/
-	msg, err := Handler.LengthPlants(
-		"1",
-	)
-	if err != nil {
-		fmt.Println(msg)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-		return
-	}
+	
+	// msg, err := Handler.LengthPlants(
+	// 	"1",
+	// )
+	// if err != nil {
+	// 	fmt.Println(msg)
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+	// 	return
+	// }
 
-	c.JSON(http.StatusOK, gin.H{
-		"can add plants": msg,
-	})
+	// c.JSON(http.StatusOK, gin.H{
+	// 	"can add plants": msg,
+	// })
 }
 
 func HandleUpdatePlantPetName(c *gin.Context) {
