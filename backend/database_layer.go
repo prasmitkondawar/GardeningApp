@@ -86,3 +86,38 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id int, plant_id int, ne
 	}
 	return "Changed plant pet name", nil
 }
+
+type Schedule struct {
+	PlantID      int    `json:"plant_id"`
+	PlantPetName string `json:"plant_pet_name"`
+	IsCompleted  bool   `json:"is_completed"`
+}
+
+func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]Schedule, error) {
+	query := `
+    SELECT plant_id, plant_pet_name, is_completed
+    FROM schedule
+    WHERE user_id = $1
+      AND due_date = CURRENT_DATE
+	`
+
+	rows, err := handler.Db.Query(query, user_id)
+	if err != nil {
+		fmt.Println("1", err)
+		return nil, fmt.Errorf("failed to fetch schedule: %w", err)
+	}
+	defer rows.Close()
+
+	var total_schedule []Schedule
+	for rows.Next() {
+		var schedule Schedule
+		err := rows.Scan(&schedule.PlantID, &schedule.PlantPetName, &schedule.IsCompleted)
+		if err != nil {
+			fmt.Println("2", err)
+			return nil, fmt.Errorf("failed to scan plant: %w", err)
+		}
+		total_schedule = append(total_schedule, schedule)
+	}
+
+	return total_schedule, nil
+}

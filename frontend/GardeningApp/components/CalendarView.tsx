@@ -115,6 +115,31 @@ const CalendarView: React.FC = () => {
     </ScrollView>
   );
 
+  async function fetchSchedule() {
+    try {
+      const response = await fetch('http://192.168.68.114:8000/fetch-schedule', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const json = await response.json();
+      const data = json.plants;
+      const mappedData = data.map((item: any) => ({
+        Image: item.image_url,
+        PlantName: item.plant_name,
+        PlantPetName: item.plant_pet_name,
+        ScientificName: item.scientific_name,
+        Species: item.species,
+        PlantID: item.plant_id,
+        PlantHealth: item.plant_health
+      }));
+      return mappedData;
+    } catch (error) {
+      console.error('Error fetching plants:', error);
+      throw error;
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}
