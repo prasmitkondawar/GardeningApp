@@ -57,25 +57,28 @@ const CameraScreen: React.FC = () => {
 
   async function sendPlantPhoto(photoUri: string) {
     try {
-      // // Step 1: Check if user can add more plants
-      // const checkResponse = await fetch("http://192.168.68.114:8000/can-add-plant", {
-      //   method: "GET", // or POST if needed
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   // You can add authentication headers if needed, e.g. JWT token
-      // });
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      // Step 1: Check if user can add more plants
+      const checkResponse = await fetch("http://192.168.68.114:8000/can-add-plant", {
+        method: "GET", // or POST if needed
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        // You can add authentication headers if needed, e.g. JWT token
+      });
 
-      // const checkData = await checkResponse.json();  // parse response body JSON
+      const checkData = await checkResponse.json();  // parse response body JSON
 
-      // if (!checkData["can add plants"]) {
-      //   Alert.alert("Plant limit reached", "You cannot add more plants.");
-      //   return
-      //   // Skip upload
-      // }
+      if (!checkData["can add plants"]) {
+        Alert.alert("Plant limit reached", "You cannot add more plants.");
+        return
+        // Skip upload
+      }
 
-      // setIsUploading(true);
-      // console.log("Uploading photo to Supabase Storage...");
+      setIsUploading(true);
+      console.log("Uploading photo to Supabase Storage...");
 
       // Generate a unique id for the plant image
       const plantId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -90,19 +93,19 @@ const CameraScreen: React.FC = () => {
         image_url: photoUrl
       };
 
-      // Send to backend
-      const response = await fetch("http://192.168.68.114:8000/add-plant", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    //   // Send to backend
+    //   const response = await fetch("http://192.168.68.114:8000/add-plant", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(payload),
+    //   });
 
-      const data = await response.json();
-      console.log("Response from backend:", data);
+    //   const data = await response.json();
+    //   console.log("Response from backend:", data);
 
-      return data;
+    // return data;
     } catch (error) {
       console.error("Error sending plant photo:", error);
       Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');
