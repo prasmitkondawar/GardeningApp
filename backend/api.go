@@ -84,26 +84,26 @@ func ExtractIDFromJWT(jwtToken string) (string, error) {
 }
 
 func HandleFetchPlants(c *gin.Context) {
-	// jwtToken := c.GetHeader("JWT_Token")
-	// if jwtToken == "" {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-	// 	return
-	// }
-
-	// // Extract UUID from JWT
-	// id, err := ExtractIDFromJWT(jwtToken)
-	// if err != nil {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-	// 	return
-	// }
-	// print(id)
-	plants, err := Handler.FetchPlants(1)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
+	jwtToken := c.GetHeader("Authorization")
+	if jwtToken == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"plants": plants})
+	// Extract UUID from JWT
+	id, err := ExtractIDFromJWT(jwtToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+	print(id)
+	// plants, err := Handler.FetchPlants(1)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
+	// 	return
+	// }
+
+	// c.JSON(http.StatusOK, gin.H{"plants": plants})
 
 }
 
