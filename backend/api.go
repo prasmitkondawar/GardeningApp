@@ -87,6 +87,7 @@ func ExtractIDFromJWT(jwtToken string) (string, error) {
 
 func HandleFetchPlants(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
+	fmt.Println("AUTHHEADER", authHeader)
 	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
@@ -94,13 +95,14 @@ func HandleFetchPlants(c *gin.Context) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
-
+	fmt.Println("TOKENSTRING", tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
+	fmt.Println("ERROR", err)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
-
+	fmt.Println("USERID", userID)
 	plants, err := Handler.FetchPlants(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
