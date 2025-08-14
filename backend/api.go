@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -110,35 +111,34 @@ func HandleFetchPlants(c *gin.Context) {
 func HandleCanAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
 
-	jwtToken := c.GetHeader("Authorization")
-
-	print(jwtToken)
-	if jwtToken == "" {
-		fmt.Println("ERROR 1")
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
 
-	userID, err := ExtractIDFromJWT(jwtToken)
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+
+	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
-		fmt.Println("ERROR 2")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
 	fmt.Println("User ID from JWT:", userID)
 
-	// msg, err := Handler.LengthPlants(
-	// 	"1",
-	// )
-	// if err != nil {
-	// 	fmt.Println(msg)
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-	// 	return
-	// }
+	msg, err := Handler.LengthPlants(
+		"1",
+	)
+	if err != nil {
+		fmt.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		return
+	}
 
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"can add plants": msg,
-	// })
+	c.JSON(http.StatusOK, gin.H{
+		"can add plants": msg,
+	})
 }
 
 func HandleUpdatePlantPetName(c *gin.Context) {

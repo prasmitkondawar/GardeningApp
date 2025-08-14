@@ -69,7 +69,7 @@ const CameraScreen: React.FC = () => {
         },
         // You can add authentication headers if needed, e.g. JWT token
       });
-
+      
       const checkData = await checkResponse.json();  // parse response body JSON
 
       if (!checkData["can add plants"]) {

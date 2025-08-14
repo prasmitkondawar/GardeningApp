@@ -13,7 +13,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ goToSignUp }) => {
 
   async function handleLogin() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    console.log("DATA", data);
     setLoading(false);
 
     if (error) {
