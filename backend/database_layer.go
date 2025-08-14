@@ -87,13 +87,13 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id int, plant_id int, ne
 	return "Changed plant pet name", nil
 }
 
-type Schedule struct {
+type ScheduleDisplay struct {
 	PlantID      int    `json:"plant_id"`
 	PlantPetName string `json:"plant_pet_name"`
 	IsCompleted  bool   `json:"is_completed"`
 }
 
-func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]Schedule, error) {
+func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]ScheduleDisplay, error) {
 	query := `
     SELECT plant_id, plant_pet_name, water_is_completed
     FROM schedule
@@ -108,9 +108,9 @@ func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]Schedule, error) {
 	}
 	defer rows.Close()
 
-	var total_schedule []Schedule
+	var total_schedule []ScheduleDisplay
 	for rows.Next() {
-		var schedule Schedule
+		var schedule ScheduleDisplay
 		err := rows.Scan(&schedule.PlantID, &schedule.PlantPetName, &schedule.IsCompleted)
 		if err != nil {
 			fmt.Println("2", err)
@@ -136,4 +136,84 @@ func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id i
 	}
 
 	return "Plant checked successfully", nil
+}
+
+type NewSchedule struct {
+	PlantID          int    `json:"plant_id"`
+	PlantPetName     string `json:"plant_pet_name"`
+	WaterRepeatEvery int    `json:"water_repeat_every"`
+	WaterRepeatUnit  string `json:"water_repeat_unit"`
+}
+
+func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id int) (string, error) {
+	query := `
+	SELECT plant_pet_name, water_repeat_every, water_repeat_unit FROM schedule
+	WHERE user_id = $1
+	AND is_completed = True
+	AND due_date = CURRENT_DATE - INTERVAL '1 day'
+	`
+
+	_, err := handler.Db.Exec(query, user_id)
+	if err != nil {
+		fmt.Println("ERROR inserting plant:", err)
+		return "Failed to check plant", err
+	}
+
+	return "Plant checked successfully", nil
+}
+
+func (handler *DatabaseHandler) CreateNewSchedule(
+	user_id int,
+	plant_id int,
+	water_repeat_every int,
+	water_repeat_unit string,
+	plant_pet_name string,
+) (string, error) {
+
+	// Step 1: Build SQL interval string (e.g., '3 days', '2 weeks')
+	// It's safer to pass both values separately to avoid SQL injection
+	interval := fmt.Sprintf("%d %s", water_repeat_every, water_repeat_unit)
+
+	// Step 2: Insert into schedule with next due date
+	query := `
+        INSERT INTO schedule (
+            user_id,
+            plant_id,
+            plant_pet_name,
+            due_date,
+            is_completed
+        )
+        VALUES ($1, $2, $3, CURRENT_DATE + $4::interval, false)
+    `
+
+	// Step 3: Execute
+	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, interval)
+	if err != nil {
+		return "", fmt.Errorf("failed to create schedule: %v", err)
+	}
+
+	return "Schedule created successfully", nil
+}
+
+func (handler *DatabaseHandler) DeletePlant(user_id int, plant_id int) error {
+	query := `
+        DELETE FROM plants
+        WHERE user_id = $1 AND plant_id = $2
+    `
+
+	result, err := handler.Db.Exec(query, user_id, plant_id)
+	if err != nil {
+		return fmt.Errorf("failed to delete plant: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("unable to check rows affected: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no plant found for given user and plant_id")
+	}
+
+	return nil
 }
