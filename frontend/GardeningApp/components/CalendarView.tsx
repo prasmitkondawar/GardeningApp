@@ -146,6 +146,15 @@ const CalendarView: React.FC = () => {
     }
   }
 
+  async function updatePrevSchedule() {
+    try {
+      
+    } catch (error) {
+      console.error('Error updating previous schedule', error);
+      throw error;
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}

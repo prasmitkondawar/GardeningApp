@@ -152,7 +152,6 @@ const PlantDirectory: React.FC = () => {
               fontWeight: 'bold',
               fontSize: 18,
               color: getHealthColor(item.PlantHealth),
-              backgroundColor: getHealthColor(item.PlantHealth) + '22', // faint color background
               paddingHorizontal: 16,
               paddingVertical: 6,
               borderRadius: 14,
@@ -292,7 +291,6 @@ const styles = StyleSheet.create({
   },
   petNameInput: {
     borderWidth: 0,
-    backgroundColor: '#F2FAF7',
     borderRadius: 13,
     paddingHorizontal: 10,
     paddingVertical: 4,
