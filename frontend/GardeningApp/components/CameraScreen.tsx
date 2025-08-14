@@ -61,7 +61,7 @@ const CameraScreen: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       // Step 1: Check if user can add more plants
-      const checkResponse = await fetch("http://192.168.68.114:8000/can-add-plant", {
+      const checkResponse = await fetch("https://gardeningapp.onrender.com/can-add-plant", {
         method: "GET", // or POST if needed
         headers: {
           "Content-Type": "application/json",
@@ -95,10 +95,11 @@ const CameraScreen: React.FC = () => {
       };
 
       // Send to backend
-      const response = await fetch("http://192.168.68.114:8000/add-plant", {
+      const response = await fetch("https://gardeningapp.onrender.com/add-plant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(payload),
       });
