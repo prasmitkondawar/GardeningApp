@@ -69,7 +69,7 @@ const CameraScreen: React.FC = () => {
         },
         // You can add authentication headers if needed, e.g. JWT token
       });
-      
+
       const checkData = await checkResponse.json();  // parse response body JSON
 
       if (!checkData["can add plants"]) {
@@ -94,19 +94,19 @@ const CameraScreen: React.FC = () => {
         image_url: photoUrl
       };
 
-    //   // Send to backend
-    //   const response = await fetch("http://192.168.68.114:8000/add-plant", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(payload),
-    //   });
+      // Send to backend
+      const response = await fetch("http://192.168.68.114:8000/add-plant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    //   const data = await response.json();
-    //   console.log("Response from backend:", data);
+      const data = await response.json();
+      console.log("Response from backend:", data);
 
-    // return data;
+    return data;
     } catch (error) {
       console.error("Error sending plant photo:", error);
       Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');

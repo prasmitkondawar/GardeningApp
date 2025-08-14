@@ -11,20 +11,21 @@ import (
 
 func HandleAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
-	/*
-	   jwtToken := c.GetHeader("JWT_Token")
-	   if jwtToken == "" {
-	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-	       return
-	   }
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
 
-	   userID, err := ExtractIDFromJWT(jwtToken)
-	   if err != nil {
-	       c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-	       return
-	   }
-	   fmt.Println("User ID from JWT:", userID)
-	*/
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+
+	userID, err := ExtractIDFromJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+	fmt.Println("User ID from JWT:", userID)
 
 	// Define input struct accepting image_url and other plant fields
 	type AddPlantRequest struct {
