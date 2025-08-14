@@ -37,7 +37,7 @@ type Plant struct {
 	PlantHealth    int    `json:"plant_health"`
 }
 
-func (handler *DatabaseHandler) FetchPlants(user_id int) ([]Plant, error) {
+func (handler *DatabaseHandler) FetchPlants(user_id string) ([]Plant, error) {
 	query :=
 		`SELECT plant_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health
 	FROM plants
@@ -76,7 +76,7 @@ func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 	return count < 5, nil
 }
 
-func (handler *DatabaseHandler) UpdatePlantPetName(user_id int, plant_id int, new_plant_pet_name string) (string, error) {
+func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int, new_plant_pet_name string) (string, error) {
 	query := "UPDATE plants SET plant_pet_name = $3 WHERE user_id = $1 AND plant_id = $2"
 
 	_, err := handler.Db.Exec(query, user_id, plant_id, new_plant_pet_name)

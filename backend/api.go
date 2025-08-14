@@ -50,7 +50,7 @@ func HandleAddPlant(c *gin.Context) {
 	plant_pet_name := "Example Name"
 
 	msg, err := Handler.AddPlant(
-		"1", // user_id
+		userID, // user_id
 		plant_name,
 		scientific_name,
 		species,
@@ -86,26 +86,28 @@ func ExtractIDFromJWT(jwtToken string) (string, error) {
 }
 
 func HandleFetchPlants(c *gin.Context) {
-	jwtToken := c.GetHeader("Authorization")
-	if jwtToken == "" {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
 
-	// Extract UUID from JWT
-	id, err := ExtractIDFromJWT(jwtToken)
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+
+	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
-	print(id)
-	// plants, err := Handler.FetchPlants(1)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
-	// 	return
-	// }
 
-	// c.JSON(http.StatusOK, gin.H{"plants": plants})
+	plants, err := Handler.FetchPlants(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"plants": plants})
 
 }
 
@@ -144,20 +146,20 @@ func HandleCanAddPlant(c *gin.Context) {
 
 func HandleUpdatePlantPetName(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
-	/*
-	   jwtToken := c.GetHeader("JWT_Token")
-	   if jwtToken == "" {
-	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-	       return
-	   }
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
 
-	   userID, err := ExtractIDFromJWT(jwtToken)
-	   if err != nil {
-	       c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-	       return
-	   }
-	   fmt.Println("User ID from JWT:", userID)
-	*/
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+
+	userID, err := ExtractIDFromJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
 
 	var request struct {
 		PlantID    int    `json:"plant_id" binding:"required"`
@@ -174,7 +176,7 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 
 	fmt.Println("Updating plant ID:", plant_id, "with new pet name:", newPetName)
 
-	msg, err := Handler.UpdatePlantPetName(1, plant_id, newPetName)
+	msg, err := Handler.UpdatePlantPetName(userID, plant_id, newPetName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return

@@ -56,7 +56,7 @@ const PlantDirectory: React.FC = () => {
 
   async function fetchPlants() {
     try {
-      const response = await fetch('http://192.168.68.114:8000/fetch-plants', {
+      const response = await fetch('https://gardeningapp.onrender.com/fetch-plants', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
