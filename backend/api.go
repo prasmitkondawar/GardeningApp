@@ -109,22 +109,24 @@ func HandleFetchPlants(c *gin.Context) {
 
 func HandleCanAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
-	
-	   jwtToken := c.GetHeader("Authorization")
 
-	   print(jwtToken)
-	   if jwtToken == "" {
-	       c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-	       return
-	   }
+	jwtToken := c.GetHeader("Authorization")
 
-	   userID, err := ExtractIDFromJWT(jwtToken)
-	   if err != nil {
-	       c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-	       return
-	   }
-	   fmt.Println("User ID from JWT:", userID)
-	
+	print(jwtToken)
+	if jwtToken == "" {
+		fmt.Println("ERROR 1")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
+
+	userID, err := ExtractIDFromJWT(jwtToken)
+	if err != nil {
+		fmt.Println("ERROR 2")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+	fmt.Println("User ID from JWT:", userID)
+
 	// msg, err := Handler.LengthPlants(
 	// 	"1",
 	// )
