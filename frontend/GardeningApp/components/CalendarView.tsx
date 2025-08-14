@@ -1,3 +1,4 @@
+import supabase from '@/config/supabase';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
@@ -117,9 +118,14 @@ const CalendarView: React.FC = () => {
 
   async function fetchSchedule() {
     try {
-      const response = await fetch('http://192.168.68.114:8000/fetch-schedule', {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const response = await fetch('https://gardeningapp.onrender.com/fetch-schedule', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();

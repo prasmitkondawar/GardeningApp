@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRouter } from 'expo-router';
+import supabase from '@/config/supabase';
 
 interface PlantCard {
   Image: string;
@@ -56,9 +57,14 @@ const PlantDirectory: React.FC = () => {
 
   async function fetchPlants() {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
       const response = await fetch('https://gardeningapp.onrender.com/fetch-plants', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`
+        },
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
@@ -82,11 +88,15 @@ const PlantDirectory: React.FC = () => {
   // Backend update for pet name
   async function updatePetName(id: number, newPetName: string) {
     setSavingId(id);
-    console.log(id, newPetName);
     try {
-      const res = await fetch(`http://192.168.68.114:8000/update-plant-pet-name`, {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch(`https://gardeningapp.onrender.com/update-plant-pet-name`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+           "Content-Type": "application/json",
+           "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ plant_id: id, plant_pet_name: newPetName }),
       });
       if (!res.ok) {
