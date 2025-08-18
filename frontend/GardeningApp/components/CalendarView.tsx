@@ -146,23 +146,6 @@ const CalendarView: React.FC = () => {
     }
   }
 
-  async function updatePrevSchedule() {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token;
-      const response = await fetch('https://gardeningapp.onrender.com/update-prev-schedule', {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-      });
-    } catch (error) {
-      console.error('Error updating previous schedule', error);
-      throw error;
-    }
-  }
-
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}

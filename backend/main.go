@@ -50,6 +50,7 @@ func main() {
 	router.GET("/can-add-plant", HandleCanAddPlant)
 	router.GET("/fetch-plants", HandleFetchPlants)
 	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
+	router.POST("/update-prev-schedule", HandleUpdatePrevSchedule)
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "API is running",

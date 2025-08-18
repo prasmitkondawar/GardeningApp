@@ -1,9 +1,44 @@
 // app/_layout.tsx
 import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import supabase from '@/config/supabase';
 
 export default function Layout() {
   const RUN_ONCE_PER_DAY_KEY = 'RUN_ONCE_PER_DAY_DATE';
+
+  async function updatePrevSchedule() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const response = await fetch('https://gardeningapp.onrender.com/update-prev-schedule', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+      });
+      
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => ({}));
+        const errorMessage = errorJson.error || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
+      // Parse response if OK
+      const result = await response.json();
+
+      // Check API-level status
+      if (result.status !== "success") {
+        throw new Error(result.error || "Failed to update previous schedule.");
+      }
+
+      // Optionally return something (e.g., result, message, etc.)
+      return result;
+    } catch (error) {
+      console.error('Error updating previous schedule', error);
+      throw error;
+    }
+  }
 
   async function runOncePerDay() {
     try {
@@ -13,7 +48,7 @@ export default function Layout() {
       if (storedDate !== today) {
         // Run your one-time code here
         console.log('Running function for the first time today!');
-
+        updatePrevSchedule()
         // Store today's date to prevent rerunning
         await AsyncStorage.setItem(RUN_ONCE_PER_DAY_KEY, today);
       } else {
