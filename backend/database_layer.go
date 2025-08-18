@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func (handler *DatabaseHandler) AddPlant(
 	user_id string,
@@ -88,17 +91,22 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 }
 
 type ScheduleDisplay struct {
-	PlantID      int    `json:"plant_id"`
-	PlantPetName string `json:"plant_pet_name"`
-	IsCompleted  bool   `json:"is_completed"`
+	ScheduleID       int       `json:"schedule_id"`
+	PlantID          int       `json:"plant_id"`
+	PlantPetName     string    `json:"plant_pet_name"`
+	WaterIsCompleted bool      `json:"water_is_completed"`
+	WateringDate     time.Time `json:"water_date"`
 }
 
-func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]ScheduleDisplay, error) {
+func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
 	query := `
-    SELECT plant_id, plant_pet_name, water_is_completed
+    SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, watering_date
     FROM schedule
     WHERE user_id = $1
-    AND due_date = CURRENT_DATE
+	AND (
+		watering_date = CURRENT_DATE - INTERVAL '1 day'
+		OR watering_date + (water_repeat_every || ' ' || water_repeat_unit)::interval < CURRENT_DATE
+	)
 	`
 
 	rows, err := handler.Db.Query(query, user_id)
@@ -111,9 +119,8 @@ func (handler *DatabaseHandler) FetchSchedule(user_id int) ([]ScheduleDisplay, e
 	var total_schedule []ScheduleDisplay
 	for rows.Next() {
 		var schedule ScheduleDisplay
-		err := rows.Scan(&schedule.PlantID, &schedule.PlantPetName, &schedule.IsCompleted)
+		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterIsCompleted, &schedule.WateringDate)
 		if err != nil {
-			fmt.Println("2", err)
 			return nil, fmt.Errorf("failed to scan plant: %w", err)
 		}
 		total_schedule = append(total_schedule, schedule)
@@ -139,18 +146,23 @@ func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id i
 }
 
 type NewSchedule struct {
-	PlantID          int    `json:"plant_id"`
-	PlantPetName     string `json:"plant_pet_name"`
-	WaterRepeatEvery int    `json:"water_repeat_every"`
-	WaterRepeatUnit  string `json:"water_repeat_unit"`
+	ScheduleID       int       `json:"schedule_id"`
+	PlantID          int       `json:"plant_id"`
+	PlantPetName     string    `json:"plant_pet_name"`
+	WaterRepeatEvery int       `json:"water_repeat_every"`
+	WaterRepeatUnit  string    `json:"water_repeat_unit"`
+	WateringDate     time.Time `json:"water_date"`
 }
 
 func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id string) ([]NewSchedule, error) {
 	query := `
-	SELECT plant_pet_name, water_repeat_every, water_repeat_unit FROM schedule
+	SELECT schedule_id, plant_pet_name, water_repeat_every, water_repeat_unit, watering_date FROM schedule
 	WHERE user_id = $1
-	AND is_completed = True
-	AND due_date = CURRENT_DATE - INTERVAL '1 day'
+	AND is_completed = TRUE
+	AND (
+		watering_date = CURRENT_DATE - INTERVAL '1 day'
+		OR watering_date + (water_repeat_every || ' ' || water_repeat_unit)::interval < CURRENT_DATE
+	)
 	`
 
 	rows, err := handler.Db.Query(query, user_id)
@@ -163,7 +175,7 @@ func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id string) ([]New
 	var new_schedule []NewSchedule
 	for rows.Next() {
 		var schedule NewSchedule
-		err := rows.Scan(&schedule.PlantID, &schedule.PlantPetName, &schedule.WaterRepeatEvery, &schedule.WaterRepeatUnit)
+		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterRepeatEvery, &schedule.WaterRepeatUnit)
 		if err != nil {
 			fmt.Println("2", err)
 			return nil, fmt.Errorf("failed to scan plant: %w", err)

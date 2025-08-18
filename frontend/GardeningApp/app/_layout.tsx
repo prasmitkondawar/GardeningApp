@@ -2,6 +2,7 @@
 import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import supabase from '@/config/supabase';
+import { useEffect } from 'react';
 
 export default function Layout() {
   const RUN_ONCE_PER_DAY_KEY = 'RUN_ONCE_PER_DAY_DATE';
@@ -58,6 +59,12 @@ export default function Layout() {
       console.error('Error checking daily run status:', error);
     }
   }
+
+  useEffect(() => {
+    runOncePerDay();
+  }, []);
+
+  
   return (
     <Stack
       screenOptions={{

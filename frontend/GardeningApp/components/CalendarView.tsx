@@ -1,30 +1,27 @@
 import supabase from '@/config/supabase';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 
-interface Event {
-  id: string;
-  time: string;
-  title: string;
-  date: string; // Added date field to associate events with specific days
-}
+
 
 // Mock events with dates for the week
-const mockEvents: Event[] = [
-  { id: '1', time: '9:00 AM', title: 'Water plants', date: '2025-08-04' },
-  { id: '2', time: '1:00 PM', title: 'Fertilize garden', date: '2025-08-04' },
-  { id: '3', time: '5:00 PM', title: 'Prune roses', date: '2025-08-05' },
-  { id: '4', time: '10:00 AM', title: 'Plant seeds', date: '2025-08-06' },
-  { id: '5', time: '2:00 PM', title: 'Water succulents', date: '2025-08-06' },
-  { id: '6', time: '4:00 PM', title: 'Check soil moisture', date: '2025-08-06' },
-  { id: '7', time: '11:00 AM', title: 'Harvest tomatoes', date: '2025-08-08' },
-  { id: '8', time: '3:00 PM', title: 'Water herbs', date: '2025-08-08' },
-];
+
+interface Event {
+  ScheduleID: number;
+  PlantID: number;
+  PlantPetName: string;
+  WaterIsCompleted: boolean;
+  WateringDate: Date;
+  
+}
+
+
 
 const CalendarView: React.FC = () => {
   const [view, setView] = useState<'week' | 'day'>('week');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [events, setEvents] = useState<Event[]>([]);
 
   // Function to get the current week's dates
   const getCurrentWeekDates = (): string[] => {
@@ -45,6 +42,10 @@ const CalendarView: React.FC = () => {
     return weekDates;
   };
 
+  useEffect(() => {
+    fetchSchedule();
+  }, []);
+
   // Function to get day name from date
   const getDayName = (dateString: string): string => {
     const date = new Date(dateString);
@@ -53,11 +54,13 @@ const CalendarView: React.FC = () => {
 
   // Function to get events for a specific date
   const getEventsForDate = (date: string): Event[] => {
-    return mockEvents.filter(event => event.date === date);
+    return events.filter(event => event.WateringDate.toISOString().split('T')[0]
+    === date);
   };
 
   // In a real app, fetch or filter events for selectedDate
-  const eventsForSelectedDate = mockEvents.filter(event => event.date === selectedDate);
+  const eventsForSelectedDate = events.filter(event => event.WateringDate.toISOString().split('T')[0]
+  === selectedDate);
   const weekDates = getCurrentWeekDates();
 
   const renderWeekView = () => (
@@ -104,8 +107,8 @@ const CalendarView: React.FC = () => {
                 </View>
               ) : (
                 dayEvents.map((event) => (
-                  <View key={event.id} style={styles.eventItem}>
-                    <Text style={styles.eventText}>{event.time} - {event.title}</Text>
+                  <View key={event.ScheduleID} style={styles.eventItem}>
+                    <Text style={styles.eventText}></Text>
                   </View>
                 ))
               )}
@@ -129,17 +132,11 @@ const CalendarView: React.FC = () => {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
-      const data = json.plants;
-      const mappedData = data.map((item: any) => ({
-        Image: item.image_url,
-        PlantName: item.plant_name,
-        PlantPetName: item.plant_pet_name,
-        ScientificName: item.scientific_name,
-        Species: item.species,
-        PlantID: item.plant_id,
-        PlantHealth: item.plant_health
-      }));
-      return mappedData;
+      const data = json.schedule;
+  
+      // Assuming your backend returns events compatible with Event[]
+      setEvents(data);
+
     } catch (error) {
       console.error('Error fetching plants:', error);
       throw error;
@@ -178,10 +175,10 @@ const CalendarView: React.FC = () => {
               ) : (
                 <FlatList
                   data={eventsForSelectedDate}
-                  keyExtractor={(item) => item.id}
+                  keyExtractor={(item) => item.ScheduleID.toString()}
                   renderItem={({ item }) => (
                     <View style={styles.eventItem}>
-                      <Text style={styles.eventText}>{item.time} - {item.title}</Text>
+                      <Text style={styles.eventText}></Text>
                     </View>
                   )}              
                 />

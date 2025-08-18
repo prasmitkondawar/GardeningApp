@@ -226,3 +226,34 @@ func HandleUpdatePrevSchedule(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
 }
+
+func HandleFetchSchedule(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+
+	userID, err := ExtractIDFromJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
+	type Schedule struct {
+		ScheduleID       int
+		PlantID          int
+		PlantPetName     string
+		WaterRepeatEvery int
+		WaterRepeatUnit  string
+	}
+
+	schedule, err := Handler.FetchSchedule(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not fetch schedule"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"schedule": schedule})
+}
