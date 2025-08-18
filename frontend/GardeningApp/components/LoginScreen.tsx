@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import supabase from '../config/supabase';
+import { User } from '@supabase/supabase-js';
 
 type LoginScreenProps = {
   goToSignUp: () => void;
@@ -10,17 +12,27 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ goToSignUp }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
   async function handleLogin() {
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-    console.log("DATA", data);
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
     setLoading(false);
 
-    if (error) {
-      Alert.alert('Login Error', error.message);
+    if(user) {
+      navigation.navigate("plant_directory");
     } else {
-      Alert.alert('Login successful', `Logged in as ${email}`);
+      setLoading(true);
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      console.log("DATA", data);
+      setLoading(false);
+
+      if (error) {
+        Alert.alert('Login Error', error.message);
+      } else {
+        Alert.alert('Login successful', `Logged in as ${email}`);
+      }
     }
   }
 
@@ -57,3 +69,7 @@ const styles = StyleSheet.create({
 });
 
 export default LoginScreen;
+
+function setUser(user: User | null) {
+  throw new Error('Function not implemented.');
+}

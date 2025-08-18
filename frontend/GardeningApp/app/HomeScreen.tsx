@@ -6,13 +6,16 @@ import PlantDirectory from "@/app/PlantDirectory";
 import LoginScreen from "@/components/LoginScreen";
 import SignUpScreen from "@/components/SignUpScreen";
 import CalendarView from "@/components/CalendarView";
-import { Stack } from "expo-router";
+import ProfilePage from "@/components/Profile";
 import supabase from "@/config/supabase";
+import { Stack } from "expo-router";
+
+
 
 export default async function HomeScreen() {
   // Tracks which "screen" is shown
   const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
-  const { data: { session } } = await supabase.auth.getSession();
+
 
 
   // Render the active child-screen
@@ -28,7 +31,7 @@ export default async function HomeScreen() {
     } else if (activeScreen == "calendar-view") {
         ScreenComponent = <CalendarView/>;
     } else if (activeScreen == "profile") {
-
+        ScreenComponent = <ProfilePage/>;
     }
 
   return (
