@@ -145,7 +145,7 @@ type NewSchedule struct {
 	WaterRepeatUnit  string `json:"water_repeat_unit"`
 }
 
-func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id int) (string, error) {
+func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id string) ([]NewSchedule, error) {
 	query := `
 	SELECT plant_pet_name, water_repeat_every, water_repeat_unit FROM schedule
 	WHERE user_id = $1
@@ -153,17 +153,29 @@ func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id int) (string, 
 	AND due_date = CURRENT_DATE - INTERVAL '1 day'
 	`
 
-	_, err := handler.Db.Exec(query, user_id)
+	rows, err := handler.Db.Query(query, user_id)
 	if err != nil {
-		fmt.Println("ERROR inserting plant:", err)
-		return "Failed to check plant", err
+		fmt.Println("1", err)
+		return nil, fmt.Errorf("failed to fetch schedule: %w", err)
+	}
+	defer rows.Close()
+
+	var new_schedule []NewSchedule
+	for rows.Next() {
+		var schedule NewSchedule
+		err := rows.Scan(&schedule.PlantID, &schedule.PlantPetName, &schedule.WaterRepeatEvery, &schedule.WaterRepeatUnit)
+		if err != nil {
+			fmt.Println("2", err)
+			return nil, fmt.Errorf("failed to scan plant: %w", err)
+		}
+		new_schedule = append(new_schedule, schedule)
 	}
 
-	return "Plant checked successfully", nil
+	return new_schedule, nil
 }
 
 func (handler *DatabaseHandler) CreateNewSchedule(
-	user_id int,
+	user_id string,
 	plant_id int,
 	water_repeat_every int,
 	water_repeat_unit string,
