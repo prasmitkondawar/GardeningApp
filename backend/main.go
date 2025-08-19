@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
-	fmt.Println("TEST PRINTING")
+	log.Println("TEST PRINTING")
 
 	router := gin.Default()
 

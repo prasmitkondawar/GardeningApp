@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -110,7 +111,7 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 
 	rows, err := handler.Db.Query(query, user_id)
 	if err != nil {
-		fmt.Println("Query error:", err)
+		log.Println("Query error:", err)
 		return nil, fmt.Errorf("failed to fetch schedule: %w", err)
 	}
 	defer rows.Close()
@@ -123,16 +124,16 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 			fmt.Println("Scan error:", err)
 			return nil, err
 		}
-		fmt.Println("Row:", schedule)
+		log.Println("Row:", schedule)
 		total_schedule = append(total_schedule, schedule)
 	}
 
 	if err := rows.Err(); err != nil {
-		fmt.Println("Rows iteration error:", err)
+		log.Println("Rows iteration error:", err)
 		return nil, err
 	}
 
-	fmt.Println("TOTAL_SCHEDULE:", total_schedule)
+	log.Println("TOTAL_SCHEDULE:", total_schedule)
 
 	return total_schedule, nil
 
