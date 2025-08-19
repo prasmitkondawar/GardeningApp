@@ -100,12 +100,11 @@ type ScheduleDisplay struct {
 
 func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
 	query := `
-    SELECT schedule_id, plant_pet_name, water_is_completed, watering_date
+    SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, watering_date
     FROM schedule
     WHERE user_id = $1
 	AND (
 		watering_date = CURRENT_DATE
-		OR watering_date + (water_repeat_every || ' ' || water_repeat_unit)::interval < CURRENT_DATE
 	)
 	`
 
@@ -123,9 +122,10 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan plant: %w", err)
 		}
+		fmt.Println(schedule)
 		total_schedule = append(total_schedule, schedule)
 	}
-	fmt.Println(total_schedule)
+	fmt.Println("TOTAL_SCHEDULE", total_schedule)
 
 	return total_schedule, nil
 }
