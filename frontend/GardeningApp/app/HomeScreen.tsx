@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CameraScreen from "@/components/CameraScreen";
@@ -12,11 +12,28 @@ import { Stack } from "expo-router";
 
 
 
-export default async function HomeScreen() {
+export default function HomeScreen() {
   // Tracks which "screen" is shown
   const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
 
+      if (session && session.user) {
+        setActiveScreen("home");
+      } else {
+        setActiveScreen("login");
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  // Render loading screen while checking session
+  if (loading) {
+    return <View />;
+  }
 
   // Render the active child-screen
   let ScreenComponent;
