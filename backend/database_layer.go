@@ -110,7 +110,7 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 
 	rows, err := handler.Db.Query(query, user_id)
 	if err != nil {
-		fmt.Println("1", err)
+		fmt.Println("Query error:", err)
 		return nil, fmt.Errorf("failed to fetch schedule: %w", err)
 	}
 	defer rows.Close()
@@ -120,14 +120,22 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 		var schedule ScheduleDisplay
 		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterIsCompleted, &schedule.WateringDate)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan plant: %w", err)
+			fmt.Println("Scan error:", err)
+			return nil, err
 		}
-		fmt.Println(schedule)
+		fmt.Println("Row:", schedule)
 		total_schedule = append(total_schedule, schedule)
 	}
-	fmt.Println("TOTAL_SCHEDULE", total_schedule)
+
+	if err := rows.Err(); err != nil {
+		fmt.Println("Rows iteration error:", err)
+		return nil, err
+	}
+
+	fmt.Println("TOTAL_SCHEDULE:", total_schedule)
 
 	return total_schedule, nil
+
 }
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id int) (string, error) {

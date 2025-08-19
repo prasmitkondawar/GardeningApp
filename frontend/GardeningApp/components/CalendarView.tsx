@@ -48,12 +48,15 @@ const CalendarView: React.FC = () => {
 
   // Function to get events for a specific date
   const getEventsForDate = (date: string): Event[] => {
-    return events.filter(event => event.WateringDate.toISOString().split('T')[0]
-    === date);
+    return events.filter(event => 
+      event.WateringDate && event.WateringDate.toISOString().split('T')[0] === date
+    );
   };
-
+  
   // In a real app, fetch or filter events for selectedDate
-  const eventsForSelectedDate = (events || []).filter(event => event.WateringDate.toISOString().split('T')[0] === selectedDate);
+  const eventsForSelectedDate = events.filter(event =>
+    event.WateringDate && event.WateringDate.toISOString().split('T')[0] === selectedDate
+  ); 
   const weekDates = getCurrentWeekDates();
 
   const renderWeekView = () => (
@@ -127,10 +130,12 @@ const CalendarView: React.FC = () => {
       console.log("RESPONSE", response);
       const json = await response.json();
       console.log("JSON", json)
-      const data = json.schedule;
-  
-      // Assuming your backend returns events compatible with Event[]
-      setEvents(data);
+      const data = Array.isArray(json.schedule) ? json.schedule : [];
+      const parsedEvents = data.map((event: any) => ({
+        ...event,
+        WateringDate: event.WateringDate ? new Date(event.WateringDate) : null,
+      }));
+      setEvents(parsedEvents);      
 
     } catch (error) {
       console.error('Error fetching plants:', error);
@@ -177,9 +182,10 @@ const CalendarView: React.FC = () => {
                         <Text style={styles.eventText}>Water {item.PlantPetName}</Text>
                       </View>
                     ) : (
-                      <View style={styles.eventItem && {backgroundColor: '#ff4433'}}>
-                        <Text style={styles.eventText && {color: '8b0000'}}>Water {item.PlantPetName}</Text>
+                      <View style={[styles.eventItem, { backgroundColor: '#ff4433' }]}>
+                        <Text style={[styles.eventText, { color: '#8b0000' }]}>Water {item.PlantPetName}</Text>
                       </View>
+
                     )
                   )}                               
                 />

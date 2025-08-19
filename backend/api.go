@@ -97,7 +97,6 @@ func HandleFetchPlants(c *gin.Context) {
 	tokenString = strings.TrimSpace(tokenString)
 	fmt.Println("TOKENSTRING", tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
-	fmt.Println("ERROR", err)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
