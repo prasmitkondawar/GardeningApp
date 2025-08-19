@@ -128,6 +128,7 @@ const CalendarView: React.FC = () => {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
+      console.log(json);
       const data = json.schedule;
       console.log(data);
       // const mappedData = data.map((item: any) => ({

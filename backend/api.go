@@ -111,6 +111,10 @@ func HandleFetchPlants(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"plants": plants})
 }
 
+func HandleFetchSchedule(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"testing": "YES"})
+}
+
 func HandleCanAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
 
