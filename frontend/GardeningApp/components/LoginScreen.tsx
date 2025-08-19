@@ -16,23 +16,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ goToSignUp }) => {
 
   async function handleLogin() {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    setUser(user);
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    console.log("DATA", data);
     setLoading(false);
-
-    if(user) {
-      navigation.navigate("plant_directory");
+    if (error) {
+      Alert.alert('Login Error', error.message);
     } else {
-      setLoading(true);
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
-      console.log("DATA", data);
-      setLoading(false);
-
-      if (error) {
-        Alert.alert('Login Error', error.message);
-      } else {
-        Alert.alert('Login successful', `Logged in as ${email}`);
-      }
+      Alert.alert('Login successful', `Logged in as ${email}`);
     }
   }
 
