@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -68,6 +67,34 @@ func (handler *DatabaseHandler) FetchPlants(user_id string) ([]Plant, error) {
 	return plants, nil
 }
 
+func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]Plant, error) {
+	query :=
+		`SELECT plant_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health
+	FROM plants
+	WHERE user_id = $1`
+
+	rows, err := handler.Db.Query(query, user_id)
+	if err != nil {
+		fmt.Println("1", err)
+		return nil, fmt.Errorf("failed to fetch plants: %w", err)
+	}
+	defer rows.Close()
+
+	var plants []Plant
+	for rows.Next() {
+		var plant Plant
+		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageURL, &plant.PlantPetName, &plant.PlantHealth)
+		if err != nil {
+			fmt.Println("2", err)
+			return nil, fmt.Errorf("failed to scan plant: %w", err)
+		}
+		plants = append(plants, plant)
+	}
+
+	return plants, nil
+
+}
+
 func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM plants WHERE user_id = $1"
@@ -97,44 +124,6 @@ type ScheduleDisplay struct {
 	PlantPetName     string    `json:"plant_pet_name"`
 	WaterIsCompleted bool      `json:"water_is_completed"`
 	WateringDate     time.Time `json:"water_date"`
-}
-
-func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
-	query := `
-    SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, watering_date
-    FROM schedule
-    WHERE user_id = $1
-	AND watering_date = CURRENT_DATE
-	`
-
-	rows, err := handler.Db.Query(query, user_id)
-	if err != nil {
-		log.Println("Query error:", err)
-		return nil, fmt.Errorf("failed to fetch schedule: %w", err)
-	}
-	defer rows.Close()
-
-	var total_schedule []ScheduleDisplay
-	for rows.Next() {
-		var schedule ScheduleDisplay
-		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterIsCompleted, &schedule.WateringDate)
-		if err != nil {
-			fmt.Println("Scan error:", err)
-			return nil, err
-		}
-		log.Println("Row:", schedule)
-		total_schedule = append(total_schedule, schedule)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Println("Rows iteration error:", err)
-		return nil, err
-	}
-
-	log.Println("TOTAL_SCHEDULE:", total_schedule)
-
-	return total_schedule, nil
-
 }
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id int) (string, error) {
