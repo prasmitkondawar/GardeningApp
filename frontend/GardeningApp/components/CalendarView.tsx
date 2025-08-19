@@ -102,11 +102,11 @@ const CalendarView: React.FC = () => {
                   <Text style={styles.noEventsText}>No plants to water</Text>
                 </View>
               ) : (
-                dayEvents.map((event) => (
+                dayEvents.map(event => (
                   <View key={event.ScheduleID} style={styles.eventItem}>
-                    <Text style={styles.eventText}></Text>
+                    <Text style={styles.eventText}>Water {event.PlantPetName}</Text>
                   </View>
-                ))
+                ))                
               )}
             </View>
           </View>
@@ -130,16 +130,14 @@ const CalendarView: React.FC = () => {
       const json = await response.json();
       console.log(json);
       const data = json.schedule;
-      console.log(data);
-      // const mappedData = data.map((item: any) => ({
-      //   PlantPetName: item.plant_pet_name,
-      //   PlantID: item.plant_id,
-      //   WateringDate: item.watering_date,
-      //   WaterIsCompleted: item.water_is_completed,
-      //   ScheduleID: item.scheduleid,
-
-      // }));
-      // return mappedData;
+      const mappedData = data.map((item: any) => ({
+        ScheduleID: item.schedule_id,
+        PlantID: item.plant_id,
+        PlantPetName: item.plant_pet_name,
+        WaterIsCompleted: item.water_is_completed,
+        WateringDate: new Date(item.watering_date),
+      }));
+      setEvents(mappedData);
 
     } catch (error) {
       console.error('Error fetching schedule:', error);
@@ -181,17 +179,18 @@ const CalendarView: React.FC = () => {
                   data={eventsForSelectedDate}
                   keyExtractor={(item) => item.ScheduleID.toString()}
                   renderItem={({ item }) => (
-                    item.WateringDate.toISOString().split('T')[0] === today ? (  
+                    item.WateringDate.toISOString().split('T')[0] === today ? (
                       <View style={styles.eventItem}>
-                        <Text style={styles.eventText}>Water {item.PlantPetName}</Text>
+                        <Text>
+                          Water {item.PlantPetName ? item.PlantPetName : 'Unknown'}
+                        </Text>
                       </View>
                     ) : (
                       <View style={[styles.eventItem, { backgroundColor: '#ff4433' }]}>
                         <Text style={[styles.eventText, { color: '#8b0000' }]}>Water {item.PlantPetName}</Text>
                       </View>
-
                     )
-                  )}                               
+                  )}
                 />
               )}
             </View>
@@ -199,6 +198,7 @@ const CalendarView: React.FC = () => {
         ) : (
           renderWeekView()
         )}
+
       </View>
     </View>
   );
@@ -275,14 +275,11 @@ const styles = StyleSheet.create({
   selectedText: { color: '#fff' },
   eventsColumn: {
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    minHeight: 65,
     backgroundColor: '#fff',
-    paddingHorizontal: 6,
+    paddingHorizontal: 10,        // Add horizontal padding to control inside spacing
     paddingVertical: 8,
-    gap: 7,
+    borderRadius: 16,
+    // No overflow hidden needed typically
   },
   noEventsPlaceholder: {
     paddingVertical: 14,
@@ -300,37 +297,41 @@ const styles = StyleSheet.create({
   // Event pill
   eventItem: {
     backgroundColor: '#4caf50',
-    borderRadius: 15,
-    minWidth: 108,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginVertical: 2,
-    marginRight: 7,
+    borderRadius: 10,             // Slightly smaller border radius
+    paddingVertical: 6,           // Reduce vertical padding
+    paddingHorizontal: 16,        // Slightly less horizontal padding
+    marginVertical: 4,            // Smaller vertical margin between events
+    marginHorizontal: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#7abf76',
-    shadowOpacity: 0.13,
+    alignSelf: 'stretch',         // Full width but constrained by parent
+    shadowColor: '#2e7d32',
+    shadowOpacity: 0.25,
     shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
+  
   eventDot: {
-    width: 9,
-    height: 9,
+    width: 10,                    // Slightly smaller dot
+    height: 10,
     borderRadius: 5,
     backgroundColor: '#fff',
-    marginRight: 8,
+    marginRight: 10,
     borderWidth: 1.5,
     borderColor: '#388e3c',
+    flexShrink: 0,
   },
+  
   eventText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: 'left',
     flex: 1,
-  },
-
+    letterSpacing: 0.3,
+    includeFontPadding: false,
+  },  
   // For day view
   eventsContainer: {
     marginTop: 16,
@@ -357,6 +358,37 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2C4857',
   },
+  dayHeader: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#f7fafe',
+    marginBottom: 10,
+  },
+  dayHeaderText: {
+    fontWeight: '700',
+    fontSize: 18,
+    color: '#263357',
+    textAlign: 'center',
+  },
+  noEventsWrapper: {
+    marginTop: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  todayEventItem: {
+    backgroundColor: '#4caf50',
+  },
+  overdueEventItem: {
+    backgroundColor: '#ffe6e6',
+    borderColor: '#ff4433',
+    borderWidth: 1,
+  },
+  overdueEventText: {
+    color: '#8b0000',
+  },
+  
 });
 
 export default CalendarView;
