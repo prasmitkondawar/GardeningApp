@@ -79,7 +79,8 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]Schedule, error
 	query :=
 		`SELECT schedule_id, plant_id, plant_pet_name, watering_date, water_is_completed
 	FROM schedule
-	WHERE user_id = $1`
+	WHERE user_id = $1
+	AND watering_date::date = CURRENT_DATE`
 
 	rows, err := handler.Db.Query(query, user_id)
 	if err != nil {
