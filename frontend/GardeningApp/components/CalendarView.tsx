@@ -1,11 +1,6 @@
 import supabase from '@/config/supabase';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-
-
-
-// Mock events with dates for the week
 
 interface Event {
   ScheduleID: number;
@@ -16,12 +11,11 @@ interface Event {
   
 }
 
-
-
 const CalendarView: React.FC = () => {
   const [view, setView] = useState<'week' | 'day'>('week');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [events, setEvents] = useState<Event[]>([]);
+  const today = new Date().toISOString().split('T')[0];
 
   // Function to get the current week's dates
   const getCurrentWeekDates = (): string[] => {
@@ -177,10 +171,16 @@ const CalendarView: React.FC = () => {
                   data={eventsForSelectedDate}
                   keyExtractor={(item) => item.ScheduleID.toString()}
                   renderItem={({ item }) => (
-                    <View style={styles.eventItem}>
-                      <Text style={styles.eventText}></Text>
-                    </View>
-                  )}              
+                    item.WateringDate.toISOString().split('T')[0] === today ? (  
+                      <View style={styles.eventItem}>
+                        <Text style={styles.eventText}>Water {item.PlantPetName}</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.eventItem && {backgroundColor: '#ff4433'}}>
+                        <Text style={styles.eventText && {color: '8b0000'}}>Water {item.PlantPetName}</Text>
+                      </View>
+                    )
+                  )}                               
                 />
               )}
             </View>

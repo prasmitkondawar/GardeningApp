@@ -203,13 +203,6 @@ func HandleUpdatePrevSchedule(c *gin.Context) {
 		return
 	}
 
-	type Schedule struct {
-		PlantID          int
-		PlantPetName     string
-		WaterRepeatEvery int
-		WaterRepeatUnit  string
-	}
-
 	schedule, err := Handler.GetCompletedPreviousTasks(userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not fetch completed previous tasks"})
@@ -241,13 +234,6 @@ func HandleFetchSchedule(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
-	}
-	type Schedule struct {
-		ScheduleID       int
-		PlantID          int
-		PlantPetName     string
-		WaterRepeatEvery int
-		WaterRepeatUnit  string
 	}
 
 	schedule, err := Handler.FetchSchedule(userID)
