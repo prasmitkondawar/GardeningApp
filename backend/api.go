@@ -225,6 +225,7 @@ func HandleFetchSchedule(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
+	fmt.Println("AUTHHEADER", authHeader)
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
@@ -234,8 +235,11 @@ func HandleFetchSchedule(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
+	fmt.Println("USERID", userID)
 
 	schedule, err := Handler.FetchSchedule(userID)
+	fmt.Println("SCHEDULE", schedule)
+	fmt.Println("ERROR", err)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not fetch schedule"})
 		return
