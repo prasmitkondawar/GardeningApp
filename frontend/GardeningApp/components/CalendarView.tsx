@@ -53,8 +53,7 @@ const CalendarView: React.FC = () => {
   };
 
   // In a real app, fetch or filter events for selectedDate
-  const eventsForSelectedDate = events.filter(event => event.WateringDate.toISOString().split('T')[0]
-  === selectedDate);
+  const eventsForSelectedDate = (events || []).filter(event => event.WateringDate.toISOString().split('T')[0] === selectedDate);
   const weekDates = getCurrentWeekDates();
 
   const renderWeekView = () => (

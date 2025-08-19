@@ -104,7 +104,7 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
     FROM schedule
     WHERE user_id = $1
 	AND (
-		watering_date = CURRENT_DATE - INTERVAL '1 day'
+		watering_date = CURRENT_DATE
 		OR watering_date + (water_repeat_every || ' ' || water_repeat_unit)::interval < CURRENT_DATE
 	)
 	`
