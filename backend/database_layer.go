@@ -125,6 +125,7 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 		}
 		total_schedule = append(total_schedule, schedule)
 	}
+	fmt.Println(total_schedule)
 
 	return total_schedule, nil
 }

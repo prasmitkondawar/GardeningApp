@@ -125,7 +125,9 @@ const CalendarView: React.FC = () => {
         },
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      console.log("RESPONSE", response);
       const json = await response.json();
+      console.log("JSON", json)
       const data = json.schedule;
   
       // Assuming your backend returns events compatible with Event[]
