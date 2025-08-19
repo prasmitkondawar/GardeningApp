@@ -111,32 +111,6 @@ func HandleFetchPlants(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"plants": plants})
 }
 
-func HandleFetchSchedule(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	fmt.Println("AUTHHEADER", authHeader)
-	if authHeader == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-		return
-	}
-
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-	tokenString = strings.TrimSpace(tokenString)
-	fmt.Println("TOKENSTRING", tokenString)
-	userID, err := ExtractIDFromJWT(tokenString)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
-		return
-	}
-	fmt.Println("USERID", userID)
-	schedule, err := Handler.FetchSchedule(userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"schedule": schedule})
-}
-
 func HandleCanAddPlant(c *gin.Context) {
 	// You can uncomment JWT handling if needed:
 
@@ -209,37 +183,4 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": msg})
-}
-
-func HandleUpdatePrevSchedule(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-		return
-	}
-
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-	tokenString = strings.TrimSpace(tokenString)
-
-	userID, err := ExtractIDFromJWT(tokenString)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
-		return
-	}
-
-	schedule, err := Handler.GetCompletedPreviousTasks(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not fetch completed previous tasks"})
-		return
-	}
-
-	for _, task := range schedule {
-		_, err := Handler.CreateNewSchedule(userID, task.PlantID, task.WaterRepeatEvery, task.WaterRepeatUnit, task.PlantPetName)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Could not create schedule"})
-			return
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "success"})
 }

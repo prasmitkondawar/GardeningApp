@@ -67,34 +67,6 @@ func (handler *DatabaseHandler) FetchPlants(user_id string) ([]Plant, error) {
 	return plants, nil
 }
 
-func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]Plant, error) {
-	query :=
-		`SELECT plant_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health
-	FROM plants
-	WHERE user_id = $1`
-
-	rows, err := handler.Db.Query(query, user_id)
-	if err != nil {
-		fmt.Println("1", err)
-		return nil, fmt.Errorf("failed to fetch plants: %w", err)
-	}
-	defer rows.Close()
-
-	var plants []Plant
-	for rows.Next() {
-		var plant Plant
-		err := rows.Scan(&plant.PlantID, &plant.PlantName, &plant.ScientificName, &plant.Species, &plant.ImageURL, &plant.PlantPetName, &plant.PlantHealth)
-		if err != nil {
-			fmt.Println("2", err)
-			return nil, fmt.Errorf("failed to scan plant: %w", err)
-		}
-		plants = append(plants, plant)
-	}
-
-	return plants, nil
-
-}
-
 func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM plants WHERE user_id = $1"
@@ -149,38 +121,6 @@ type NewSchedule struct {
 	WaterRepeatEvery int       `json:"water_repeat_every"`
 	WaterRepeatUnit  string    `json:"water_repeat_unit"`
 	WateringDate     time.Time `json:"water_date"`
-}
-
-func (handler *DatabaseHandler) GetCompletedPreviousTasks(user_id string) ([]NewSchedule, error) {
-	query := `
-	SELECT schedule_id, plant_pet_name, water_repeat_every, water_repeat_unit, watering_date FROM schedule
-	WHERE user_id = $1
-	AND is_completed = TRUE
-	AND (
-		watering_date = CURRENT_DATE - INTERVAL '1 day'
-		OR watering_date + (water_repeat_every || ' ' || water_repeat_unit)::interval < CURRENT_DATE
-	)
-	`
-
-	rows, err := handler.Db.Query(query, user_id)
-	if err != nil {
-		fmt.Println("1", err)
-		return nil, fmt.Errorf("failed to fetch schedule: %w", err)
-	}
-	defer rows.Close()
-
-	var new_schedule []NewSchedule
-	for rows.Next() {
-		var schedule NewSchedule
-		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterRepeatEvery, &schedule.WaterRepeatUnit)
-		if err != nil {
-			fmt.Println("2", err)
-			return nil, fmt.Errorf("failed to scan plant: %w", err)
-		}
-		new_schedule = append(new_schedule, schedule)
-	}
-
-	return new_schedule, nil
 }
 
 func (handler *DatabaseHandler) CreateNewSchedule(
