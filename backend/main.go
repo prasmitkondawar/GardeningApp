@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -70,5 +71,10 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"time": now})
 	})
 
-	router.Run("0.0.0.0:8000") // bind explicitly to all interfaces
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000" // fallback for local dev
+	}
+	router.Run("0.0.0.0:" + port)
+
 }
