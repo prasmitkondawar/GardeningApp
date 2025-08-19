@@ -242,5 +242,5 @@ func HandleFetchSchedule(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"plants": plants})
+	c.JSON(http.StatusOK, gin.H{"schedule": plants})
 }

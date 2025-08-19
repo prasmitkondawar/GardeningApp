@@ -129,15 +129,16 @@ const CalendarView: React.FC = () => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
       const data = json.schedule;
-      const mappedData = data.map((item: any) => ({
-        PlantPetName: item.plant_pet_name,
-        PlantID: item.plant_id,
-        WateringDate: item.watering_date,
-        WaterIsCompleted: item.water_is_completed,
-        ScheduleID: item.scheduleid,
+      console.log(data);
+      // const mappedData = data.map((item: any) => ({
+      //   PlantPetName: item.plant_pet_name,
+      //   PlantID: item.plant_id,
+      //   WateringDate: item.watering_date,
+      //   WaterIsCompleted: item.water_is_completed,
+      //   ScheduleID: item.scheduleid,
 
-      }));
-      return mappedData;
+      // }));
+      // return mappedData;
 
     } catch (error) {
       console.error('Error fetching schedule:', error);
