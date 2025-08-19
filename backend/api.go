@@ -221,28 +221,26 @@ func HandleUpdatePrevSchedule(c *gin.Context) {
 
 func HandleFetchSchedule(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
+	fmt.Println("AUTHHEADER", authHeader)
 	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
-	fmt.Println("AUTHHEADER", authHeader)
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
-
+	fmt.Println("TOKENSTRING", tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
 	fmt.Println("USERID", userID)
-
-	schedule, err := Handler.FetchSchedule(userID)
-	fmt.Println("SCHEDULE", schedule)
-	fmt.Println("ERROR", err)
+	plants, err := Handler.FetchSchedule(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not fetch schedule"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"schedule": schedule})
+
+	c.JSON(http.StatusOK, gin.H{"plants": plants})
 }

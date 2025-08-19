@@ -127,18 +127,20 @@ const CalendarView: React.FC = () => {
         },
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      console.log("RESPONSE", response);
       const json = await response.json();
-      console.log("JSON", json)
-      const data = Array.isArray(json.schedule) ? json.schedule : [];
-      const parsedEvents = data.map((event: any) => ({
-        ...event,
-        WateringDate: event.WateringDate ? new Date(event.WateringDate) : null,
+      const data = json.schedule;
+      const mappedData = data.map((item: any) => ({
+        PlantPetName: item.plant_pet_name,
+        PlantID: item.plant_id,
+        WateringDate: item.watering_date,
+        WaterIsCompleted: item.water_is_completed,
+        ScheduleID: item.scheduleid,
+
       }));
-      setEvents(parsedEvents);      
+      return mappedData;
 
     } catch (error) {
-      console.error('Error fetching plants:', error);
+      console.error('Error fetching schedule:', error);
       throw error;
     }
   }

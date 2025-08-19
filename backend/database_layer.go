@@ -104,9 +104,7 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
     SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, watering_date
     FROM schedule
     WHERE user_id = $1
-	AND (
-		watering_date = CURRENT_DATE
-	)
+	AND watering_date = CURRENT_DATE
 	`
 
 	rows, err := handler.Db.Query(query, user_id)
