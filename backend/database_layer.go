@@ -134,7 +134,7 @@ type ScheduleDisplay struct {
 	WateringDate     time.Time `json:"water_date"`
 }
 
-func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id int) (string, error) {
+func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
 	query := `
 	UPDATE schedule
 	SET water_is_completed = NOT water_is_completed
