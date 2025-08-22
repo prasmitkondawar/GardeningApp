@@ -15,34 +15,49 @@ const CalendarView: React.FC = () => {
   const [view, setView] = useState<'week' | 'day'>('week');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [events, setEvents] = useState<Event[]>([]);
-  const today = new Date().toISOString().split('T')[0];
+  const todayDate = new Date();
+  const today = todayDate.getFullYear() + "-" +
+    String(todayDate.getMonth() + 1).padStart(2, '0') + "-" +
+    String(todayDate.getDate()).padStart(2, '0');
+
 
   // Function to get the current week's dates
   const getCurrentWeekDates = (): string[] => {
     const today = new Date();
     const currentDay = today.getDay();
+    
+    // Calculate difference to Monday (1)
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+  
+    // Get the Monday of the current week in local time
     const startOfWeek = new Date(today);
-    
-    // Adjust to get Monday as start of week (1 = Monday, 0 = Sunday)
-    const diff = currentDay === 0 ? -6 : 1 - currentDay;
-    startOfWeek.setDate(today.getDate() + diff);
-    
+    startOfWeek.setDate(today.getDate() + diffToMonday);
+  
     const weekDates: string[] = [];
     for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      weekDates.push(date.toISOString().split('T')[0]);
+      const tempDate = new Date(startOfWeek);
+      tempDate.setDate(startOfWeek.getDate() + i);
+  
+      // Build local YYYY-MM-DD string for tempDate
+      const localDate = tempDate.getFullYear() + "-" +
+        String(tempDate.getMonth() + 1).padStart(2, '0') + "-" +
+        String(tempDate.getDate()).padStart(2, '0');
+  
+      weekDates.push(localDate);
     }
     return weekDates;
-  };
+  };  
+  
 
   useEffect(() => {
     fetchSchedule();
+    console.log("EVENTS", events);
   }, []);
 
   // Function to get day name from date
   const getDayName = (dateString: string): string => {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
 
@@ -65,7 +80,7 @@ const CalendarView: React.FC = () => {
         const dayEvents = getEventsForDate(date);
         const dayName = getDayName(date);
         const dayNumber = new Date(date).getDate();
-        const isToday = date === new Date().toISOString().split('T')[0];
+        const isToday = date === today;
         const isSelected = date === selectedDate;
         
         return (
@@ -131,15 +146,15 @@ const CalendarView: React.FC = () => {
       console.log(json);
       const data = json.schedule;
       console.log(data);
-      // const mappedData = data.map((item: any) => ({
-      //   PlantPetName: item.plant_pet_name,
-      //   PlantID: item.plant_id,
-      //   WateringDate: item.watering_date,
-      //   WaterIsCompleted: item.water_is_completed,
-      //   ScheduleID: item.scheduleid,
-
-      // }));
-      // return mappedData;
+      const mappedData = data.map((item: any) => ({
+        PlantPetName: item.plant_pet_name,
+        PlantID: item.plant_id,
+        WateringDate: new Date(item.watering_date), // Convert string to Date object
+        WaterIsCompleted: item.water_is_completed,
+        ScheduleID: item.scheduleid,
+      }));
+      setEvents(mappedData);
+      return mappedData;
 
     } catch (error) {
       console.error('Error fetching schedule:', error);
@@ -179,7 +194,7 @@ const CalendarView: React.FC = () => {
               ) : (
                 <FlatList
                   data={eventsForSelectedDate}
-                  keyExtractor={(item) => item.ScheduleID.toString()}
+                  keyExtractor={(item, index) => (item.ScheduleID ? item.ScheduleID.toString() : index.toString())}
                   renderItem={({ item }) => (
                     item.WateringDate.toISOString().split('T')[0] === today ? (  
                       <View style={styles.eventItem}>

@@ -67,6 +67,43 @@ func (handler *DatabaseHandler) FetchPlants(user_id string) ([]Plant, error) {
 	return plants, nil
 }
 
+type ScheduleDisplay struct {
+	ScheduleID       int       `json:"schedule_id"`
+	PlantID          int       `json:"plant_id"`
+	PlantPetName     string    `json:"plant_pet_name"`
+	WateringDate     time.Time `json:"watering_date"`
+	WaterIsCompleted bool      `json:"water_is_completed"`
+}
+
+func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
+	query :=
+		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed
+	FROM schedule
+	WHERE user_id = $1
+	AND watering_date = CURRENT_DATE
+	`
+
+	rows, err := handler.Db.Query(query, user_id)
+	if err != nil {
+		fmt.Println("1", err)
+		return nil, fmt.Errorf("failed to fetch schedules: %w", err)
+	}
+	defer rows.Close()
+
+	var schedules []ScheduleDisplay
+	for rows.Next() {
+		var schedule ScheduleDisplay
+		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterIsCompleted, &schedule.WateringDate)
+		if err != nil {
+			fmt.Println("2", err)
+			return nil, fmt.Errorf("failed to scan schedule: %w", err)
+		}
+		schedules = append(schedules, schedule)
+	}
+
+	return schedules, nil
+}
+
 func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM plants WHERE user_id = $1"
@@ -88,14 +125,6 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 		return "Failed to change plant pet name", err
 	}
 	return "Changed plant pet name", nil
-}
-
-type ScheduleDisplay struct {
-	ScheduleID       int       `json:"schedule_id"`
-	PlantID          int       `json:"plant_id"`
-	PlantPetName     string    `json:"plant_pet_name"`
-	WaterIsCompleted bool      `json:"water_is_completed"`
-	WateringDate     time.Time `json:"water_date"`
 }
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id int) (string, error) {
