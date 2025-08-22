@@ -77,7 +77,7 @@ type ScheduleDisplay struct {
 
 func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
 	query :=
-		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed
+		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, watering_date
 	FROM schedule
 	WHERE user_id = $1
 	AND DATE(watering_date) = CURRENT_DATE
