@@ -1,6 +1,6 @@
 import supabase from '@/config/supabase';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, Switch } from 'react-native';
 
 interface Event {
   ScheduleID: number;
@@ -145,6 +145,38 @@ const CalendarView: React.FC = () => {
     }
   }
 
+  async function updateCompletion(scheduleID: number, newValue: boolean) {
+    setEvents(prevEvents =>
+      prevEvents.map(event =>
+        event.ScheduleID === scheduleID ? { ...event, WaterIsCompleted: newValue } : event
+      )
+    );
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const response = await fetch('https://gardeningapp.onrender.com/update-completion', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          schedule_id: scheduleID,
+          water_is_completed: newValue,
+        }),
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching schedule:', error);
+      throw error;
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}
@@ -178,20 +210,41 @@ const CalendarView: React.FC = () => {
                 <FlatList
                   data={eventsForSelectedDate}
                   keyExtractor={(item) => item.ScheduleID.toString()}
-                  renderItem={({ item }) => (
-                    item.WateringDate.toISOString().split('T')[0] === today ? (
-                      <View style={styles.eventItem}>
-                        <Text>
-                          Water {item.PlantPetName ? item.PlantPetName : 'Unknown'}
+                  renderItem={({ item }) => {
+                    const isToday = item.WateringDate.toISOString().split('T')[0] === today;
+
+                    return (
+                      <View
+                        style={[
+                          styles.eventItem,
+                          isToday ? styles.todayEventItem : styles.overdueEventItem,
+                        ]}
+                      >
+                      <Switch
+                        value={item.WaterIsCompleted}
+                        onValueChange={(newValue) => updateCompletion(item.ScheduleID, newValue)}
+                        thumbColor={item.WaterIsCompleted ? '#4caf50' : '#f4f3f4'}
+                        trackColor={{ false: '#767577', true: '#81b0ff' }}
+                        style={{ marginRight: 12 }}
+                      />
+
+                        <Text
+                          style={[
+                            styles.eventText,
+                            item.WaterIsCompleted && {
+                              textDecorationLine: 'line-through',
+                              color: '#8BC34A', // Optional: lighten or change color for completed
+                            },
+                            !isToday && !item.WaterIsCompleted && styles.overdueEventText,
+                          ]}
+                        >
+                          Water {item.PlantPetName || 'Unknown'}
                         </Text>
                       </View>
-                    ) : (
-                      <View style={[styles.eventItem, { backgroundColor: '#ff4433' }]}>
-                        <Text style={[styles.eventText, { color: '#8b0000' }]}>Water {item.PlantPetName}</Text>
-                      </View>
-                    )
-                  )}
+                    );
+                  }}
                 />
+
               )}
             </View>
           </>

@@ -107,7 +107,7 @@ const CameraScreen: React.FC = () => {
       const data = await response.json();
       console.log("Response from backend:", data);
 
-    return data;
+      return data;
     } catch (error) {
       console.error("Error sending plant photo:", error);
       Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');
