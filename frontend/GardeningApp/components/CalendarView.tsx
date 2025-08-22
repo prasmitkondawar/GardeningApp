@@ -51,7 +51,6 @@ const CalendarView: React.FC = () => {
 
   useEffect(() => {
     fetchSchedule();
-    console.log("EVENTS", events);
   }, []);
 
   // Function to get day name from date
@@ -119,7 +118,7 @@ const CalendarView: React.FC = () => {
               ) : (
                 dayEvents.map((event) => (
                   <View key={event.ScheduleID} style={styles.eventItem}>
-                    <Text style={styles.eventText}></Text>
+                    <Text style={styles.eventText}>Water {event.PlantPetName}</Text>
                   </View>
                 ))
               )}
@@ -143,15 +142,13 @@ const CalendarView: React.FC = () => {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
-      console.log(json);
       const data = json.schedule ?? [];
-      console.log(data);
       const mappedData = data.map((item: any) => ({
         PlantPetName: item.plant_pet_name,
         PlantID: item.plant_id,
         WateringDate: new Date(item.watering_date), // Convert string to Date object
         WaterIsCompleted: item.water_is_completed,
-        ScheduleID: item.scheduleid,
+        ScheduleID: item.schedule_id,
       }));
       setEvents(mappedData);
       return mappedData;
@@ -290,15 +287,32 @@ const styles = StyleSheet.create({
   selectedText: { color: '#fff' },
   eventsColumn: {
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
+    flexDirection: 'column',  // stack events vertically downwards
+    // Remove flexWrap if existed
+    // flexWrap: 'wrap',        // remove this line if it exists
+    alignItems: 'stretch',    // stretch items to fill width
     minHeight: 65,
     backgroundColor: '#fff',
     paddingHorizontal: 6,
     paddingVertical: 8,
-    gap: 7,
+    // remove gap property if using React Native version that doesn't support it
   },
+  eventItem: {
+    backgroundColor: '#4caf50',
+    borderRadius: 15,
+    width: '100%',            // make event expand to full width of container
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginVertical: 6,        // vertical spacing between events
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#7abf76',
+    shadowOpacity: 0.13,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  
   noEventsPlaceholder: {
     paddingVertical: 14,
     alignItems: 'center',
@@ -310,24 +324,6 @@ const styles = StyleSheet.create({
     color: '#bbc1cd',
     fontSize: 14,
     textAlign: 'center',
-  },
-
-  // Event pill
-  eventItem: {
-    backgroundColor: '#4caf50',
-    borderRadius: 15,
-    minWidth: 108,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginVertical: 2,
-    marginRight: 7,
-    flexDirection: 'row',
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#7abf76',
-    shadowOpacity: 0.13,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
   },
   eventDot: {
     width: 9,
