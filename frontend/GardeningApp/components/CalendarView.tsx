@@ -1,6 +1,7 @@
 import supabase from '@/config/supabase';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 
 interface Event {
   ScheduleID: number;
@@ -219,15 +220,39 @@ const CalendarView: React.FC = () => {
                   renderItem={({ item }) => (
                     item.WateringDate.toISOString().split('T')[0] === today ? (  
                       <View style={styles.eventItem}>
-                        <Text style={styles.eventText}>Water {item.PlantPetName}</Text>
+                        <Text style={styles.eventText}>No plants to water today</Text>
                       </View>
                     ) : (
                       <View style={[styles.eventItem, { backgroundColor: '#ff4433' }]}>
                         <Text style={[styles.eventText, { color: '#8b0000' }]}>Water {item.PlantPetName}</Text>
-                      </View>
+                        <TouchableOpacity 
+                          style={[
+                            styles.checkbox,
+                            item.WaterIsCompleted && styles.checkedBox
+                          ]}
+                          onPress={() => {
+                            // 1. Update the UI locally right away
+                            setEvents(prevEvents =>
+                              prevEvents.map(ev =>
+                                ev.ScheduleID === item.ScheduleID
+                                  ? { ...ev, WaterIsCompleted: !ev.WaterIsCompleted }
+                                  : ev
+                              )
+                            );
 
+                            // 2. Trigger the backend update (no local mutation here)
+                            updateCompletion(item);
+                          }}
+                        >
+                          {item.WaterIsCompleted && (
+                            <Text style={styles.checkmark}>✓</Text>
+                          )}
+                        </TouchableOpacity>
+
+                      </View>
                     )
-                  )}                               
+                  )}
+
                 />
               )}
             </View>
@@ -391,6 +416,25 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: '#2C4857',
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#fff',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkedBox: {
+    backgroundColor: '#fff',
+    borderColor: '#fff',
+  },
+  checkmark: {
+    color: '#4caf50',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
