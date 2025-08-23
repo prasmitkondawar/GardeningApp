@@ -127,7 +127,7 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 	return "Changed plant pet name", nil
 }
 
-func (handler *DatabaseHandler) CompleteWaterSchedule(user_id int, schedule_id int) (string, error) {
+func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
 	query := `
 	UPDATE schedule
 	SET water_is_completed = NOT water_is_completed

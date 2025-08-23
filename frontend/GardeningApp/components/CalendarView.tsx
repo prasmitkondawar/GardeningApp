@@ -159,6 +159,30 @@ const CalendarView: React.FC = () => {
     }
   }
 
+  async function updateCompletion(event: any) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const response = await fetch('https://gardeningapp.onrender.com/complete-schedule', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ schedule_id: event.ScheduleID }) // use correct key, and ensure it's the right ID property!
+
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const json = await response.json();
+      const data = json.schedule
+      return data
+
+    } catch (error) {
+      console.error('Error fetching schedule:', error);
+      throw error;
+    }
+  }
+
   return (
     <View style={styles.container}>
       {/* Toggle buttons */}
