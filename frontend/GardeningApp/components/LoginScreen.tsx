@@ -3,27 +3,30 @@ import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import supabase from '../config/supabase';
 import { User } from '@supabase/supabase-js';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/app/_layout';
 
-type LoginScreenProps = {
-  goToSignUp: () => void;
-};
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ goToSignUp }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function LoginScreen() {
+  const [phone, setPhone] = useState(' ');
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
+  const screenNav = useNavigation<NavigationProp>();
 
   async function handleLogin() {
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithOtp({ phone });
     console.log("DATA", data);
     setLoading(false);
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
-      Alert.alert('Login successful', `Logged in as ${email}`);
+      Alert.alert('Login successful', `Logged in as ${phone}`);
     }
+  }
+
+  async function handleDirSignUp() {
+    screenNav.navigate('SignUpScreen');
   }
 
   return (
@@ -33,21 +36,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ goToSignUp }) => {
         placeholder="Email"
         autoCapitalize="none"
         keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        value={phone}
+        onChangeText={setPhone}
         style={styles.input}
       />
       <View style={{ marginBottom: 20 }}>
         <Button title="Login" onPress={handleLogin} disabled={loading} />
       </View>
-      <Button title="Want to create an account? Sign Up" onPress={goToSignUp} />
+      {<Button title="Want to create an account? Sign Up" onPress={handleDirSignUp} />}
     </View>
   );
 };
@@ -57,8 +53,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 32, marginBottom: 20 },
   input: { width: '100%', height: 40, borderColor: '#ccc', borderWidth: 1, marginBottom: 12, paddingHorizontal: 8 },
 });
-
-export default LoginScreen;
 
 function setUser(user: User | null) {
   throw new Error('Function not implemented.');

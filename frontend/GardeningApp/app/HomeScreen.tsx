@@ -25,9 +25,9 @@ export default async function HomeScreen() {
     } else if (activeScreen == "plant_directory") {
         ScreenComponent = <PlantDirectory></PlantDirectory>
     } else if (activeScreen == "login") {
-        ScreenComponent = <LoginScreen goToSignUp={() => setActiveScreen('signup')}/>
+        ScreenComponent = <LoginScreen/>
     } else if (activeScreen == "signup"){
-        ScreenComponent = <SignUpScreen goToLogin={() => setActiveScreen('login')} />
+        ScreenComponent = <SignUpScreen/>
     } else if (activeScreen == "calendar-view") {
         ScreenComponent = <CalendarView/>;
     } else if (activeScreen == "profile") {

@@ -3,6 +3,23 @@ import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import supabase from '@/config/supabase';
 import { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import SignUpScreen from '@/components/SignUpScreen';
+import OtpScreen from '@/components/OtpScreen';
+import LoginScreen from '@/components/LoginScreen';
+import Profile from '@/components/Profile';
+import HomeScreen from './HomeScreen';
+
+export type RootStackParamList = {
+  LoginScreen: undefined;
+  SignUpScreen: undefined;
+  OtpScreen: {phone: string};
+  Profile: undefined;
+  HomeScreen: undefined;
+};
+
+const StackNavigator = createNativeStackNavigator<RootStackParamList>();
 
 export default function Layout() {
   const RUN_ONCE_PER_DAY_KEY = 'RUN_ONCE_PER_DAY_DATE';
@@ -66,10 +83,22 @@ export default function Layout() {
 
   
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,      // This hides the header on all child screens/routes!
-      }}
-    />
+    <>
+      <Stack
+        screenOptions={{
+          headerShown: false,      // This hides the header on all child screens/routes!
+        }}
+      />
+
+      <NavigationContainer>
+        <StackNavigator.Navigator>
+          <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
+          <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
+          <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
+          <StackNavigator.Screen name="Profile" component={Profile} />
+          <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
+        </StackNavigator.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
