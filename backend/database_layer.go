@@ -89,9 +89,9 @@ func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay
 	FROM schedule
 	WHERE user_id = $1
 	AND (
-		watering_date::date = CURRENT_DATE
+		(watering_date AT TIME ZONE 'UTC')::date = CURRENT_DATE AT TIME ZONE 'UTC'
 		OR
-		next_watering_date::date <= CURRENT_DATE
+		(next_watering_date AT TIME ZONE 'UTC')::date <= CURRENT_DATE AT TIME ZONE 'UTC'
 	)
 	`
 
