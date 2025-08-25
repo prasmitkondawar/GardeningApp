@@ -85,14 +85,14 @@ type ScheduleDisplay struct {
 
 func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
 	query :=
-		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, next_watering_date
-	FROM schedule
-	WHERE user_id = $1
-	AND (
-		DATE(watering_date) = CURRENT_DATE
-		OR
-		DATE(next_watering_date) <= CURRENT_DATE
-	)
+		`SELECT schedule_id, 
+       watering_date, 
+       next_watering_date,
+       DATE(watering_date) as watering_date_only,
+       DATE(next_watering_date) as next_watering_date_only,
+       CURRENT_DATE,
+       DATE(next_watering_date) <= CURRENT_DATE as should_show
+		FROM schedule WHERE user_id = $1;
 	`
 
 	rows, err := handler.Db.Query(query, user_id)

@@ -49,7 +49,6 @@ func main() {
 	})
 
 	router.POST("/add-plant", HandleAddPlant)
-	router.GET("/can-add-plant", HandleCanAddPlant)
 	router.GET("/fetch-plants", HandleFetchPlants)
 	router.GET("/fetch-schedule", HandleFetchSchedule)
 	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)

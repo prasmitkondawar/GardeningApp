@@ -9,7 +9,6 @@ interface Event {
   PlantPetName: string;
   WaterIsCompleted: boolean;
   WateringDate: Date;
-  
 }
 
 const CalendarView: React.FC = () => {
@@ -52,6 +51,7 @@ const CalendarView: React.FC = () => {
 
   useEffect(() => {
     fetchSchedule();
+    console.log("TEST", eventsForSelectedDate);
   }, []);
 
   // Function to get day name from date
@@ -217,21 +217,23 @@ const CalendarView: React.FC = () => {
                 <FlatList
                   data={eventsForSelectedDate}
                   keyExtractor={(item, index) => (item.ScheduleID ? item.ScheduleID.toString() : index.toString())}
-                  renderItem={({ item }) => (
-                    item.WateringDate.toISOString().split('T')[0] === today ? (  
-                      <View style={styles.eventItem}>
-                        <Text style={styles.eventText}>No plants to water today</Text>
-                      </View>
-                    ) : (
-                      <View style={[styles.eventItem, { backgroundColor: item.WateringDate.toISOString().split('T')[0] === today ? '#4caf50' : '#ff4433'  }]}>
-                        <Text style={[styles.eventText, { color: '#8b0000' }]}>Water {item.PlantPetName}</Text>
-                        <TouchableOpacity 
-                          style={[
-                            styles.checkbox,
-                            item.WaterIsCompleted && styles.checkedBox
-                          ]}
+                  renderItem={({ item }) => {
+                    const wateringDateStr = item.WateringDate.toISOString().split('T')[0];
+                    const isToday = wateringDateStr === today;
+                    const isOverdue = wateringDateStr < today;
+                    return isToday || isOverdue ? (
+                      <View
+                        style={[
+                          styles.eventItem,
+                          { backgroundColor: isOverdue ? '#ff4433' : '#4caf50' }
+                        ]}
+                      >
+                        <Text style={[styles.eventText, { color: '#8b0000' }]}>
+                          Water {item.PlantPetName}
+                        </Text>
+                        <TouchableOpacity
+                          style={[styles.checkbox, item.WaterIsCompleted && styles.checkedBox]}
                           onPress={() => {
-                            // 1. Update the UI locally right away
                             setEvents(prevEvents =>
                               prevEvents.map(ev =>
                                 ev.ScheduleID === item.ScheduleID
@@ -239,19 +241,14 @@ const CalendarView: React.FC = () => {
                                   : ev
                               )
                             );
-
-                            // 2. Trigger the backend update (no local mutation here)
                             updateCompletion(item);
                           }}
                         >
-                          {item.WaterIsCompleted && (
-                            <Text style={styles.checkmark}>✓</Text>
-                          )}
+                          {item.WaterIsCompleted && <Text style={styles.checkmark}>✓</Text>}
                         </TouchableOpacity>
-
                       </View>
-                    )
-                  )}
+                    ) : null; // do not render items for future dates in this list
+                  }}                  
 
                 />
               )}
