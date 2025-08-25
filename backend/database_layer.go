@@ -16,9 +16,17 @@ func (handler *DatabaseHandler) AddPlant(
 ) (string, error) {
 	// Step 3: Insert new plant if under limit
 	insertQuery := `
-        INSERT INTO plants 
-        (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+		WITH plant_count AS (
+			SELECT COUNT(*) AS count FROM plants WHERE user_id = $1
+		),
+		insert_if_under_limit AS (
+			NSERT INTO plants (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
+		SELECT $1, $2, $3, $4, $5, $6, $7
+		FROM plant_count
+		WHERE plant_count.count < 5
+		RETURNING *
+		)
+		SELECT * FROM insert_if_under_limit;
     `
 
 	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
@@ -77,10 +85,14 @@ type ScheduleDisplay struct {
 
 func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
 	query :=
-		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, watering_date
+		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, next_watering_date
 	FROM schedule
 	WHERE user_id = $1
-	AND DATE(watering_date) = CURRENT_DATE
+	AND (
+		DATE(watering_date) = CURRENT_DATE
+		OR
+		DATE(next_watering_date) <= CURRENT_DATE
+	)
 	`
 
 	rows, err := handler.Db.Query(query, user_id)
@@ -129,10 +141,15 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
 	query := `
-	UPDATE schedule
-	SET water_is_completed = NOT water_is_completed
-	WHERE user_id = $1 AND schedule_id = $2
-	`
+    UPDATE schedule
+    SET 
+      water_is_completed = NOT water_is_completed,
+      next_watering_date = CASE 
+        WHEN water_is_completed = false THEN CURRENT_DATE + INTERVAL '3 days'
+        ELSE next_watering_date
+      END
+    WHERE user_id = $1 AND schedule_id = $2
+    `
 
 	_, err := handler.Db.Exec(query, user_id, schedule_id)
 	if err != nil {

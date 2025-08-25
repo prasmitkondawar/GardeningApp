@@ -41,9 +41,6 @@ func HandleAddPlant(c *gin.Context) {
 
 	fmt.Println("Received image URL:", req.ImageURL)
 
-	// Since image_url is a plain URL string, no decoding needed.
-	// Call your DB handler to store the plant data, passing image URL as string.
-	// For testing, user_id is hardcoded as 1; replace with extracted userID in prod.
 	plant_name := "test_plant_name"
 	scientific_name := "test_scientific_name"
 	species := "test_species"

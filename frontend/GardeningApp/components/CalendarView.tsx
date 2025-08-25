@@ -223,7 +223,7 @@ const CalendarView: React.FC = () => {
                         <Text style={styles.eventText}>No plants to water today</Text>
                       </View>
                     ) : (
-                      <View style={[styles.eventItem, { backgroundColor: '#ff4433' }]}>
+                      <View style={[styles.eventItem, { backgroundColor: item.WateringDate.toISOString().split('T')[0] === today ? '#4caf50' : '#ff4433'  }]}>
                         <Text style={[styles.eventText, { color: '#8b0000' }]}>Water {item.PlantPetName}</Text>
                         <TouchableOpacity 
                           style={[
