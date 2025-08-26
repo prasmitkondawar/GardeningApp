@@ -117,7 +117,10 @@ const PlantDetailScreen: React.FC = () => {
               styles.header,
               {
                 opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }]
+                transform: [{ translateY: slideAnim }],
+                flexDirection: 'row',       // Add this for horizontal layout
+                alignItems: 'center',       // Vertical alignment of children
+                paddingHorizontal: 16,      // Optional, for inner horizontal spacing
               }
             ]}
           >
@@ -134,10 +137,19 @@ const PlantDetailScreen: React.FC = () => {
               </LinearGradient>
             </TouchableOpacity>
 
-            <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">
-              {plant.PlantPetName}
-            </Text>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text
+                style={[styles.headerTitle, { textAlign: 'center' }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {plant.PlantPetName}
+              </Text>
+            </View>
+
+            <View style={{ width: 40 }} /> {/* Placeholder to balance back button space */}
           </Animated.View>
+
 
           <ScrollView
             style={styles.content}
@@ -218,47 +230,6 @@ const PlantDetailScreen: React.FC = () => {
                 />
               </LinearGradient>
             </Animated.View>
-
-            {/* Action Buttons */}
-            {/* <Animated.View
-              style={[
-                styles.actionButtonsContainer,
-                {
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }]
-                }
-              ]}
-            >
-              <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={['#6366f1', '#8b5cf6']}
-                  style={styles.actionButtonGradient}
-                >
-                  <Ionicons name="water-outline" size={20} color="#ffffff" />
-                  <Text style={styles.actionButtonText}>Water</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={['#10b981', '#059669']}
-                  style={styles.actionButtonGradient}
-                >
-                  <Ionicons name="sunny-outline" size={20} color="#ffffff" />
-                  <Text style={styles.actionButtonText}>Light</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={['#f59e0b', '#d97706']}
-                  style={styles.actionButtonGradient}
-                >
-                  <Ionicons name="nutrition-outline" size={20} color="#ffffff" />
-                  <Text style={styles.actionButtonText}>Feed</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Animated.View> */}
           </ScrollView>
         </SafeAreaView>
       </View>

@@ -51,7 +51,6 @@ const CalendarView: React.FC = () => {
 
   useEffect(() => {
     fetchSchedule();
-    console.log("TEST", eventsForSelectedDate);
   }, []);
 
   // Function to get day name from date
@@ -64,7 +63,7 @@ const CalendarView: React.FC = () => {
   // Function to get events for a specific date
   const getEventsForDate = (date: string): Event[] => {
     return events.filter(event => 
-      event.WateringDate && event.WateringDate.toISOString().split('T')[0] === date
+      event.WateringDate && event.WateringDate.toISOString().split('T')[0] <= date
     );
   };
   
