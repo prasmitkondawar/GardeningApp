@@ -38,7 +38,7 @@ export default function OtpScreen() {
     <View>
       <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" />
       <Button title="Verify OTP" onPress={handleVerify}/>
-      <TouchableOpacity style={} onPress={handleGoBack}>
+      <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
         <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } />
       </TouchableOpacity>
     </View>
@@ -47,6 +47,12 @@ export default function OtpScreen() {
 
 const styles = StyleSheet.create({
   backButton: {
-    
-  }
+    backgroundColor: '#007AFF',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    alignSelf: 'flex-start', 
+    margin: 16,
+  },
 });

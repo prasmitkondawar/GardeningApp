@@ -91,13 +91,11 @@ export default function Layout() {
       />
 
       <NavigationContainer>
-        <StackNavigator.Navigator>
-          <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
-          <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
-          <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
-          <StackNavigator.Screen name="Profile" component={Profile} />
-          <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
-        </StackNavigator.Navigator>
+        <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
+        <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
+        <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
+        <StackNavigator.Screen name="Profile" component={Profile} />
+        <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
       </NavigationContainer>
     </>
   );
