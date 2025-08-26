@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Alert, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import supabase from '../config/supabase';
 import { RootStackParamList } from '@/app/_layout';
@@ -30,11 +30,15 @@ export default function OtpScreen() {
     }
   };
 
+  function handleGoBack() {
+    screenNav.navigate('SignUpScreen');
+  }
+
   return (
     <View>
       <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" />
       <Button title="Verify OTP" onPress={handleVerify}/>
-      <TouchableOpacity style={styles.plusButton} onPress={screenNav.navigate("SignUpScreen")}>
+      <TouchableOpacity style={} onPress={handleGoBack}>
         <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } />
       </TouchableOpacity>
     </View>
@@ -42,32 +46,7 @@ export default function OtpScreen() {
 }
 
 const styles = StyleSheet.create({
-  bottomBar: {
-    flexDirection: "row",
-    height: 70,
-    borderTopWidth: 1,
-    borderColor: "#e0e0e0",
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-  barButton: {
-    flex: 1,
-    alignItems: "center",
-    paddingTop: 8,
-  },
-  plusButton: {
-    alignItems: "center",
-    paddingHorizontal: 10,
-    marginBottom: 12,
-  },
-  barLabel: {
-    fontSize: 13,
-    color: "#888",
-    marginTop: 4,
-  },
-  activeLabel: {
-    color: "#007AFF",
-    fontWeight: "bold",
-  },
+  backButton: {
+    
+  }
 });
