@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import supabase from '@/config/supabase';
 import { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignUpScreen from '@/components/SignUpScreen';
 import OtpScreen from '@/components/OtpScreen';
@@ -90,13 +90,13 @@ export default function Layout() {
         }}
       />
 
-      <NavigationContainer>
+      <NavigationIndependentTree>
         <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
         <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
         <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
         <StackNavigator.Screen name="Profile" component={Profile} />
         <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
-      </NavigationContainer>
+      </NavigationIndependentTree>
     </>
   );
 }
