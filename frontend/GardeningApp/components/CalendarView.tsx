@@ -70,7 +70,7 @@ const CalendarView: React.FC = () => {
   
   // In a real app, fetch or filter events for selectedDate
   const eventsForSelectedDate = events.filter(event =>
-    event.WateringDate && event.WateringDate.toISOString().split('T')[0] === selectedDate
+    event.WateringDate && event.WateringDate.toISOString().split('T')[0] <= selectedDate
   ); 
   const weekDates = getCurrentWeekDates();
 
@@ -152,6 +152,7 @@ const CalendarView: React.FC = () => {
         ScheduleID: item.schedule_id,
       }));
       setEvents(mappedData);
+      console.log(mappedData);
       return mappedData;
 
     } catch (error) {
