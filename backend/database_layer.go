@@ -202,7 +202,7 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 	return "Schedule created successfully", nil
 }
 
-func (handler *DatabaseHandler) DeletePlant(user_id int, plant_id int) error {
+func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (string, error) {
 	query := `
         DELETE FROM plants
         WHERE user_id = $1 AND plant_id = $2
@@ -210,17 +210,17 @@ func (handler *DatabaseHandler) DeletePlant(user_id int, plant_id int) error {
 
 	result, err := handler.Db.Exec(query, user_id, plant_id)
 	if err != nil {
-		return fmt.Errorf("failed to delete plant: %v", err)
+		return "", fmt.Errorf("failed to delete plant: %v", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("unable to check rows affected: %v", err)
+		return "", fmt.Errorf("unable to check rows affected: %v", err)
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("no plant found for given user and plant_id")
+		return "", fmt.Errorf("no plant found for given user and plant_id")
 	}
 
-	return nil
+	return "Plant deleted successfully", nil
 }

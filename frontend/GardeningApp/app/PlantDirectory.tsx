@@ -16,6 +16,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRouter } from 'expo-router';
 import supabase from '@/config/supabase';
+import { Ionicons } from '@expo/vector-icons';
 
 interface PlantCard {
   Image: string;
@@ -84,6 +85,28 @@ const PlantDirectory: React.FC = () => {
       throw error;
     }
   }
+
+  async function deletePlant(plant_id: number) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch(`https://gardeningapp.onrender.com/delete-plant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ plant_id: plant_id }),
+      });
+      if (!res.ok) {
+        throw new Error('Delete failed');
+      }
+      // Remove from local state
+      setPlants((p) => p.filter(plant => plant.PlantID !== plant_id));
+    } catch (err) {
+      Alert.alert('Error', 'Failed to delete plant.');
+    }
+  }  
 
   // Backend update for pet name
   async function updatePetName(id: number, newPetName: string) {
@@ -204,6 +227,26 @@ const PlantDirectory: React.FC = () => {
             <ActivityIndicator size="small" color="#34C759" style={{ marginLeft: 6 }} />
           )}
         </View>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => {
+            Alert.alert(
+              'Delete Plant',
+              'Are you sure you want to delete this plant?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete',
+                  style: 'destructive',
+                  onPress: () => deletePlant(item.PlantID),
+                },
+              ]
+            );
+          }}
+        >
+          <Ionicons name="trash" size={24} color="#ff3b30" />
+        </TouchableOpacity>
+
       </View>
     );
   };  
@@ -332,7 +375,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2C4857',
   },
-  
+  deleteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 6,
+    zIndex: 10,
+  },
 });
 
 export default PlantDirectory;

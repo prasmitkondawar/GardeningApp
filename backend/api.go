@@ -245,3 +245,41 @@ func HandleCompleteSchedule(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
+
+func HandleDeletePlant(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	fmt.Println("AUTHHEADER", authHeader)
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+	fmt.Println("TOKENSTRING", tokenString)
+	userID, err := ExtractIDFromJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+	fmt.Println("USERID", userID)
+
+	var request struct {
+		PlantID int `json:"plant_id" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+
+	plant_id := request.PlantID
+
+	msg, err := Handler.DeletePlant(userID, plant_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}

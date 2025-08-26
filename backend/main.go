@@ -53,6 +53,7 @@ func main() {
 	router.GET("/fetch-schedule", HandleFetchSchedule)
 	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
 	router.POST("complete-schedule", HandleCompleteSchedule)
+	router.POST("/delete-plant", HandleDeletePlant)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
