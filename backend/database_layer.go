@@ -141,14 +141,15 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
 	query := `
-    UPDATE schedule
-    SET 
-      water_is_completed = NOT water_is_completed,
-      next_watering_date = CASE 
-        WHEN water_is_completed = false THEN CURRENT_DATE + INTERVAL '3 days'
-        ELSE next_watering_date
-      END
-    WHERE user_id = $1 AND schedule_id = $2
+		UPDATE schedule
+		SET 
+			water_is_completed = NOT water_is_completed,
+			next_watering_date = 
+				CASE 
+					WHEN water_is_completed = true THEN CURRENT_DATE + INTERVAL '3 days'
+					ELSE next_watering_date
+				END
+		WHERE user_id = $1 AND schedule_id = $2
     `
 
 	_, err := handler.Db.Exec(query, user_id, schedule_id)
