@@ -13,7 +13,13 @@ interface Event {
 
 const CalendarView: React.FC = () => {
   const [view, setView] = useState<'week' | 'day'>('week');
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [events, setEvents] = useState<Event[]>([]);
   const todayDate = new Date();
   const today = todayDate.getFullYear() + "-" +
@@ -23,26 +29,24 @@ const CalendarView: React.FC = () => {
 
   // Function to get the current week's dates
   const getCurrentWeekDates = (): string[] => {
-    const today = new Date();
-    const currentDay = today.getDay();
-    
-    // Calculate difference to Monday (1)
+    const today = new Date(); // now in local time
+    // Get today's UTC info
+    const utcYear = today.getUTCFullYear();
+    const utcMonth = today.getUTCMonth();
+    const utcDate = today.getUTCDate();
+    const currentDay = today.getUTCDay();
+
+    // Calculate Monday in UTC
     const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
-  
-    // Get the Monday of the current week in local time
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() + diffToMonday);
-  
+    const startOfWeek = new Date(Date.UTC(utcYear, utcMonth, utcDate + diffToMonday));
+
     const weekDates: string[] = [];
     for (let i = 0; i < 7; i++) {
       const tempDate = new Date(startOfWeek);
-      tempDate.setDate(startOfWeek.getDate() + i);
-  
-      // Build local YYYY-MM-DD string for tempDate
-      const localDate = tempDate.getFullYear() + "-" +
-        String(tempDate.getMonth() + 1).padStart(2, '0') + "-" +
-        String(tempDate.getDate()).padStart(2, '0');
-  
+      tempDate.setUTCDate(startOfWeek.getUTCDate() + i);
+      const localDate = tempDate.getUTCFullYear() + "-" +
+        String(tempDate.getUTCMonth() + 1).padStart(2, '0') + "-" +
+        String(tempDate.getUTCDate()).padStart(2, '0');
       weekDates.push(localDate);
     }
     return weekDates;
@@ -63,7 +67,7 @@ const CalendarView: React.FC = () => {
   // Function to get events for a specific date
   const getEventsForDate = (date: string): Event[] => {
     return events.filter(event => 
-      event.WateringDate && event.WateringDate.toISOString().split('T')[0] <= date
+      event.WateringDate && event.WateringDate.toISOString().split('T')[0] === date
     );
   };
   
@@ -78,7 +82,9 @@ const CalendarView: React.FC = () => {
       {weekDates.map((date, index) => {
         const dayEvents = getEventsForDate(date);
         const dayName = getDayName(date);
-        const dayNumber = new Date(date).getDate();
+        const tempDate = new Date(date + 'T00:00:00Z');  // Parse as UTC midnight
+        const dayNumber = tempDate.getUTCDate();         // Get UTC day number
+
         const isToday = date === today;
         const isSelected = date === selectedDate;
         
