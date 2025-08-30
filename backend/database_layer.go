@@ -209,6 +209,7 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (string, error) {
 	tx, err := handler.Db.Begin()
 	if err != nil {
+		print("11111")
 		return "", fmt.Errorf("failed to start transaction: %v", err)
 	}
 
@@ -217,26 +218,31 @@ func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (strin
 	// Delete from schedule where plant_id matches
 	_, err = tx.Exec("DELETE FROM schedule WHERE plant_id = $2", plant_id)
 	if err != nil {
+		print("22222")
 		return "", fmt.Errorf("failed to delete from schedule: %v", err)
 	}
 
 	// Delete from plants where user_id and plant_id match
 	result, err := tx.Exec("DELETE FROM plants WHERE user_id = $1 AND plant_id = $2", user_id, plant_id)
 	if err != nil {
+		print("33333")
 		return "", fmt.Errorf("failed to delete from plants: %v", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
+		print("44444")
 		return "", fmt.Errorf("unable to check rows affected: %v", err)
 	}
 
 	if rowsAffected == 0 {
+		print("55555")
 		return "", fmt.Errorf("no plant found for given user and plant_id")
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		print("666666")
 		return "", fmt.Errorf("failed to commit transaction: %v", err)
 	}
 
