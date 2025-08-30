@@ -244,6 +244,7 @@ func HandleDeletePlant(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 
 	if authHeader == "" {
+		print("!!!!")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
@@ -252,6 +253,7 @@ func HandleDeletePlant(c *gin.Context) {
 	tokenString = strings.TrimSpace(tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
+		print(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
@@ -261,6 +263,7 @@ func HandleDeletePlant(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
@@ -269,6 +272,7 @@ func HandleDeletePlant(c *gin.Context) {
 
 	msg, err := Handler.DeletePlant(userID, plant_id)
 	if err != nil {
+		print(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
 	}
