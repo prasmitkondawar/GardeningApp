@@ -209,7 +209,7 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (string, error) {
 	query := `
 		DELETE FROM plants WHERE user_id = $1 AND plant_id = $2;
-		DELETE FROM schedule WHERE user_id = $1 AND plant_id = $2;
+		DELETE FROM schedule WHERE plant_id = $2;
     `
 
 	result, err := handler.Db.Exec(query, user_id, plant_id)
