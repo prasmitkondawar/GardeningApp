@@ -99,8 +99,11 @@ const PlantDirectory: React.FC = () => {
         body: JSON.stringify({ plant_id: plant_id }),
       });
       if (!res.ok) {
-        throw new Error('Delete failed');
+        const errorData = await res.json(); // parse JSON error response
+        console.error("Delete failed:", errorData);
+        throw new Error(errorData.error || 'Delete failed');
       }
+      
       // Remove from local state
       setPlants((p) => p.filter(plant => plant.PlantID !== plant_id));
     } catch (err) {

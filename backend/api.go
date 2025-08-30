@@ -244,16 +244,15 @@ func HandleDeletePlant(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 
 	if authHeader == "" {
-		print("!!!!")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
 	}
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
+
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
-		print(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
