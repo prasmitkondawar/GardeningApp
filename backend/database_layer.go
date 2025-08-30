@@ -207,32 +207,15 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 }
 
 func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (string, error) {
-	tx, err := handler.Db.Begin()
+	query := `
+		DELETE FROM plants WHERE user_id = $1 AND plant_id = $2
+    `
+
+	_, err := handler.Db.Exec(query, user_id, plant_id)
 	if err != nil {
-		return "", fmt.Errorf("failed to start transaction: %v", err)
+		fmt.Println("ERROR deleting plant:", err)
+		return "Failed to delete plant", err
 	}
 
-	defer tx.Rollback()
-
-	res1, err := tx.Exec("DELETE FROM plants WHERE user_id = $1 AND plant_id = $2", user_id, plant_id)
-	if err != nil {
-		return "", fmt.Errorf("failed to delete from plants: %v", err)
-	}
-
-	_, err = tx.Exec("DELETE FROM schedule WHERE plant_id = $2", plant_id)
-	if err != nil {
-		return "", fmt.Errorf("failed to delete from schedule: %v", err)
-	}
-
-	rowsAffected, err := res1.RowsAffected()
-	if err != nil {
-		return "", fmt.Errorf("unable to check rows affected: %v", err)
-	}
-
-	if rowsAffected == 0 {
-		return "", fmt.Errorf("no plant found for given user and plant_id")
-	}
-
-	tx.Commit()
-	return "Plant deleted successfully", nil
+	return "Plant delete successfully", nil
 }
