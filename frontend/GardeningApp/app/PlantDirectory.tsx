@@ -46,9 +46,14 @@ const PlantDirectory: React.FC = () => {
     const loadPlants = async () => {
       try {
         const data = await fetchPlants();
-        setPlants(data);
+        if (data) {
+          setPlants(data);
+        } else {
+          setPlants([]);  // Treat null as empty array
+        }
       } catch (error) {
         Alert.alert('Error', 'Failed to load plants.');
+        setPlants([]); // Fallback to empty array
       } finally {
         setLoading(false);
       }
@@ -69,7 +74,7 @@ const PlantDirectory: React.FC = () => {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
-      const data = json.plants;
+      const data = Array.isArray(json.plants) ? json.plants : [];
       const mappedData = data.map((item: any) => ({
         Image: item.image_url,
         PlantName: item.plant_name,
@@ -257,7 +262,8 @@ const PlantDirectory: React.FC = () => {
   if (loading) {
     return <ActivityIndicator style={{ flex: 1 }} size="large" />;
   }
-  if (plants.length === 0) {
+
+  if (!plants || plants.length === 0) {
     return (
       <View style={styles.emptyContainer}>
         <Text>No plants found.</Text>
