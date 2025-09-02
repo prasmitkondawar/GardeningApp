@@ -7,12 +7,14 @@ import LoginScreen from "@/components/LoginScreen";
 import SignUpScreen from "@/components/SignUpScreen";
 import CalendarView from "@/components/CalendarView";
 import ProfilePage from "@/components/Profile";
-import supabase from "@/config/supabase";
 import { Stack } from "expo-router";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/app/index';
+import { useNavigation } from 'expo-router';
 
+type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
-
-export default async function HomeScreen() {
+export default function HomeScreen() {
   // Tracks which "screen" is shown
   const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
 

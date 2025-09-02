@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import supabase from '../config/supabase';
-import { User } from '@supabase/supabase-js';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/app/_layout';
+import { RootStackParamList } from '@/app/index';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
 
@@ -26,16 +25,16 @@ export default function LoginScreen() {
   }
 
   async function handleDirSignUp() {
-    screenNav.navigate('SignUpScreen');
+    screenNav.navigate("SignUpScreen");
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <TextInput
-        placeholder="Email"
+        placeholder="Phone"
         autoCapitalize="none"
-        keyboardType="email-address"
+        keyboardType="phone-pad"
         value={phone}
         onChangeText={setPhone}
         style={styles.input}
