@@ -239,6 +239,11 @@ const CameraScreen: React.FC = () => {
           },
           {
             text: 'OK',
+            onPress: () => {
+              // Hide preview and reset photo after success
+              setShowPreview(false);
+              setCapturedPhoto(null);
+            },
             style: 'default',
           },
         ]);

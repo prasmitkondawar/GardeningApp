@@ -42,6 +42,20 @@ const PlantDirectory: React.FC = () => {
 
   const router = useRouter();
 
+  const getDynamicFontSize = (text: string) => {
+    if (text.length <= 10) return 27;
+    if (text.length <= 15) return 20;
+    return 15;
+  };
+
+  const truncateText = (text: string) => {
+    if (text.length > 15) {
+      return text.substring(0, 15) + '...';
+    }
+    return text
+  }
+  
+
   useEffect(() => {
     const loadPlants = async () => {
       try {
@@ -160,6 +174,8 @@ const PlantDirectory: React.FC = () => {
 
   const renderPlantCard = ({ item }: { item: PlantCard }) => {
     const isEditing = editingId === item.PlantID;
+    const dynamicFontSize = getDynamicFontSize(item.PlantPetName);
+
     return (
       <View style={styles.card}>
         <TouchableOpacity
@@ -200,11 +216,13 @@ const PlantDirectory: React.FC = () => {
               styles.petNameInput,
               isEditing && styles.petNameInputActive,
               savingId === item.PlantID && styles.petNameInputSaving,
+              { fontSize: dynamicFontSize }, // dynamic font size here
             ]}
             value={
               isEditing
                 ? petNameDraft[item.PlantID] ?? item.PlantPetName
-                : item.PlantPetName
+                : truncateText(item.PlantPetName) // truncate if not editing
+
             }
             onChangeText={(text) =>
               setPetNameDraft((draft) => ({ ...draft, [item.PlantID]: text }))
@@ -362,7 +380,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     textAlign: 'center',
     fontWeight: '600',
-    fontSize: 35,
     color: '#358261',
     elevation: 1,
     shadowColor: '#9DE3C1',
