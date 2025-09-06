@@ -20,7 +20,7 @@ func (handler *DatabaseHandler) AddPlant(
 			SELECT COUNT(*) AS count FROM plants WHERE user_id = $1
 		),
 		insert_if_under_limit AS (
-			NSERT INTO plants (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
+			INSERT INTO plants (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
 		SELECT $1, $2, $3, $4, $5, $6, $7
 		FROM plant_count
 		WHERE plant_count.count < 5

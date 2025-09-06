@@ -61,22 +61,6 @@ const CameraScreen: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       // Step 1: Check if user can add more plants
-      const checkResponse = await fetch("https://gardeningapp.onrender.com/can-add-plant", {
-        method: "GET", // or POST if needed
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        // You can add authentication headers if needed, e.g. JWT token
-      });
-
-      const checkData = await checkResponse.json();  // parse response body JSON
-
-      if (!checkData["can add plants"]) {
-        Alert.alert("Plant limit reached", "You cannot add more plants.");
-        return
-        // Skip upload
-      }
 
       setIsUploading(true);
       console.log("Uploading photo to Supabase Storage...");
@@ -103,6 +87,13 @@ const CameraScreen: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
+
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response from server:", errorText);
+        throw new Error("Failed to upload photo");
+      }
 
       const data = await response.json();
       console.log("Response from backend:", data);
