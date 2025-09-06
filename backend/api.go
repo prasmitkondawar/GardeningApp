@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -41,19 +42,35 @@ func HandleAddPlant(c *gin.Context) {
 
 	fmt.Println("Received image URL:", req.ImageURL)
 
-	plant_name := "test_plant_name"
-	scientific_name := "test_scientific_name"
-	species := "test_species"
-	plant_pet_name := "Example Name"
+	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
+
+	// Classify the plant using OpenAI
+	fmt.Println("Classifying plant with OpenAI...")
+	classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
+	if err != nil {
+		fmt.Printf("OpenAI classification failed: %v\n", err)
+		// Fall back to default values if classification fails
+		classification = &PlantClassification{
+			PlantName:      "Unknown Plant",
+			ScientificName: "Unknown Species",
+			Species:        "Unknown",
+			Confidence:     "Low",
+		}
+	}
+
+	fmt.Printf("Classification result: %+v\n", classification)
+
+	// Use the classified information instead of hardcoded values
+	plant_pet_name := "My " + classification.PlantName
 
 	msg, err := Handler.AddPlant(
-		userID, // user_id
-		plant_name,
-		scientific_name,
-		species,
-		req.ImageURL, // image URL instead of binary data
-		plant_pet_name,
-		65,
+		userID,
+		classification.PlantName,      // Use AI-identified name
+		classification.ScientificName, // Use AI-identified scientific name
+		classification.Species,        // Use AI-identified species
+		req.ImageURL,
+		plant_pet_name, // Generate a pet name based on the plant name
+		65,             // Default health value
 	)
 	if err != nil {
 		fmt.Println(msg)
