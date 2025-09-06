@@ -60,6 +60,7 @@ const CameraScreen: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
+      const baseUrl = process.env.API_BASE_URL
       // Step 1: Check if user can add more plants
 
       setIsUploading(true);
@@ -79,7 +80,7 @@ const CameraScreen: React.FC = () => {
       };
 
       // Send to backend
-      const response = await fetch("https://gardeningapp.onrender.com/add-plant", {
+      const response = await fetch(`${baseUrl}/add-plant`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

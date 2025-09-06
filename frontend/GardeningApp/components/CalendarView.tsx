@@ -139,7 +139,9 @@ const CalendarView: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const response = await fetch('https://gardeningapp.onrender.com/fetch-schedule', {
+      const baseUrl = process.env.API_BASE_URL;
+
+      const response = await fetch(`${baseUrl}/fetch-schedule`, {
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
@@ -176,8 +178,9 @@ const CalendarView: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
+      const baseUrl = process.env.API_BASE_URL
 
-      const response = await fetch('https://gardeningapp.onrender.com/update-completion', {
+      const response = await fetch(`${baseUrl}/update-completion`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",

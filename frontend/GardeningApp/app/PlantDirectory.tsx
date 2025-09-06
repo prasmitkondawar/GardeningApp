@@ -78,8 +78,9 @@ const PlantDirectory: React.FC = () => {
   async function fetchPlants() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const baseUrl = process.env.API_BASE_URL
       const token = session?.access_token;
-      const response = await fetch('https://gardeningapp.onrender.com/fetch-plants', {
+      const response = await fetch(`${baseUrl}/fetch-plants`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -108,8 +109,9 @@ const PlantDirectory: React.FC = () => {
   async function deletePlant(plant_id: number) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const baseUrl = process.env.API_BASE_URL
       const token = session?.access_token;
-      const res = await fetch(`https://gardeningapp.onrender.com/delete-plant`, {
+      const res = await fetch(`${baseUrl}/delete-plant`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,10 +135,12 @@ const PlantDirectory: React.FC = () => {
   // Backend update for pet name
   async function updatePetName(id: number, newPetName: string) {
     setSavingId(id);
+    const baseUrl = process.env.API_BASE_URL
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const res = await fetch(`https://gardeningapp.onrender.com/update-plant-pet-name`, {
+      const res = await fetch(`${baseUrl}/update-plant-pet-name`, {
         method: "POST",
         headers: {
            "Content-Type": "application/json",
