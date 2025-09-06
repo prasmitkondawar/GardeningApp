@@ -16,9 +16,17 @@ func (handler *DatabaseHandler) AddPlant(
 ) (string, error) {
 	// Step 3: Insert new plant if under limit
 	insertQuery := `
-        INSERT INTO plants 
-        (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+		WITH plant_count AS (
+			SELECT COUNT(*) AS count FROM plants WHERE user_id = $1
+		),
+		insert_if_under_limit AS (
+			NSERT INTO plants (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
+		SELECT $1, $2, $3, $4, $5, $6, $7
+		FROM plant_count
+		WHERE plant_count.count < 5
+		RETURNING *
+		)
+		SELECT * FROM insert_if_under_limit;
     `
 
 	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
@@ -67,7 +75,7 @@ func (handler *DatabaseHandler) FetchPlants(user_id string) ([]Plant, error) {
 	return plants, nil
 }
 
-type Schedule struct {
+type ScheduleDisplay struct {
 	ScheduleID       int       `json:"schedule_id"`
 	PlantID          int       `json:"plant_id"`
 	PlantPetName     string    `json:"plant_pet_name"`
@@ -75,32 +83,37 @@ type Schedule struct {
 	WaterIsCompleted bool      `json:"water_is_completed"`
 }
 
-func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]Schedule, error) {
+func (handler *DatabaseHandler) FetchSchedule(user_id string) ([]ScheduleDisplay, error) {
 	query :=
-		`SELECT schedule_id, plant_id, plant_pet_name, watering_date, water_is_completed
+		`SELECT schedule_id, plant_id, plant_pet_name, water_is_completed, next_watering_date
 	FROM schedule
 	WHERE user_id = $1
-	AND watering_date::date = CURRENT_DATE`
+	AND (
+		DATE(watering_date) = CURRENT_DATE
+		OR
+		DATE(next_watering_date) <= CURRENT_DATE
+	)
+	`
 
 	rows, err := handler.Db.Query(query, user_id)
 	if err != nil {
 		fmt.Println("1", err)
-		return nil, fmt.Errorf("failed to fetch plants: %w", err)
+		return nil, fmt.Errorf("failed to fetch schedules: %w", err)
 	}
 	defer rows.Close()
 
-	var schedule []Schedule
+	var schedules []ScheduleDisplay
 	for rows.Next() {
-		var item Schedule
-		err := rows.Scan(&item.ScheduleID, &item.PlantID, &item.PlantPetName, &item.WateringDate, &item.WaterIsCompleted)
+		var schedule ScheduleDisplay
+		err := rows.Scan(&schedule.ScheduleID, &schedule.PlantID, &schedule.PlantPetName, &schedule.WaterIsCompleted, &schedule.WateringDate)
 		if err != nil {
 			fmt.Println("2", err)
-			return nil, fmt.Errorf("failed to scan item: %w", err)
+			return nil, fmt.Errorf("failed to scan schedule: %w", err)
 		}
-		schedule = append(schedule, item)
+		schedules = append(schedules, schedule)
 	}
 
-	return schedule, nil
+	return schedules, nil
 }
 
 func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
@@ -126,20 +139,21 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 	return "Changed plant pet name", nil
 }
 
-type ScheduleDisplay struct {
-	ScheduleID       int       `json:"schedule_id"`
-	PlantID          int       `json:"plant_id"`
-	PlantPetName     string    `json:"plant_pet_name"`
-	WaterIsCompleted bool      `json:"water_is_completed"`
-	WateringDate     time.Time `json:"water_date"`
-}
-
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
 	query := `
-	UPDATE schedule
-	SET water_is_completed = NOT water_is_completed
-	WHERE user_id = $1 AND schedule_id = $2
-	`
+		WITH previous AS (
+		SELECT water_is_completed FROM schedule WHERE user_id = $1 AND schedule_id = $2
+		)
+		UPDATE schedule
+		SET 
+		water_is_completed = NOT water_is_completed,
+		next_watering_date = CASE 
+			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE + INTERVAL '3 days'
+			ELSE next_watering_date
+		END
+		WHERE user_id = $1 AND schedule_id = $2;
+
+    `
 
 	_, err := handler.Db.Exec(query, user_id, schedule_id)
 	if err != nil {
@@ -192,25 +206,39 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 	return "Schedule created successfully", nil
 }
 
-func (handler *DatabaseHandler) DeletePlant(user_id int, plant_id int) error {
-	query := `
-        DELETE FROM plants
-        WHERE user_id = $1 AND plant_id = $2
-    `
-
-	result, err := handler.Db.Exec(query, user_id, plant_id)
+func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (string, error) {
+	tx, err := handler.Db.Begin()
 	if err != nil {
-		return fmt.Errorf("failed to delete plant: %v", err)
+		return "", fmt.Errorf("failed to start transaction: %v", err)
+	}
+
+	defer tx.Rollback()
+
+	// Delete from schedule where plant_id matches
+	_, err = tx.Exec("DELETE FROM schedule WHERE plant_id = $1", plant_id)
+	if err != nil {
+		return "", fmt.Errorf("failed to delete from schedule: %v", err)
+	}
+
+	// Delete from plants where user_id and plant_id match
+	result, err := tx.Exec("DELETE FROM plants WHERE user_id = $1 AND plant_id = $2", user_id, plant_id)
+	if err != nil {
+		return "", fmt.Errorf("failed to delete from plants: %v", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("unable to check rows affected: %v", err)
+		return "", fmt.Errorf("unable to check rows affected: %v", err)
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("no plant found for given user and plant_id")
+		return "", fmt.Errorf("no plant found for given user and plant_id")
 	}
 
-	return nil
+	err = tx.Commit()
+	if err != nil {
+		return "", fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
+	return "Plant deleted successfully", nil
 }

@@ -49,11 +49,11 @@ func main() {
 	})
 
 	router.POST("/add-plant", HandleAddPlant)
-	router.GET("/can-add-plant", HandleCanAddPlant)
 	router.GET("/fetch-plants", HandleFetchPlants)
 	router.GET("/fetch-schedule", HandleFetchSchedule)
 	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
-	router.POST("/update-completion", HandleCompleteWaterSchedule)
+	router.POST("/complete-schedule", HandleCompleteSchedule)
+	router.POST("/delete-plant", HandleDeletePlant)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

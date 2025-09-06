@@ -41,9 +41,6 @@ func HandleAddPlant(c *gin.Context) {
 
 	fmt.Println("Received image URL:", req.ImageURL)
 
-	// Since image_url is a plain URL string, no decoding needed.
-	// Call your DB handler to store the plant data, passing image URL as string.
-	// For testing, user_id is hardcoded as 1; replace with extracted userID in prod.
 	plant_name := "test_plant_name"
 	scientific_name := "test_scientific_name"
 	species := "test_species"
@@ -87,7 +84,7 @@ func ExtractIDFromJWT(jwtToken string) (string, error) {
 
 func HandleFetchPlants(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
-	fmt.Println("AUTHHEADER", authHeader)
+
 	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
@@ -95,13 +92,11 @@ func HandleFetchPlants(c *gin.Context) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
-	fmt.Println("TOKENSTRING", tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
-	fmt.Println("USERID", userID)
 	plants, err := Handler.FetchPlants(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
@@ -113,7 +108,6 @@ func HandleFetchPlants(c *gin.Context) {
 
 func HandleFetchSchedule(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
-	fmt.Println("AUTHHEADER", authHeader)
 	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
@@ -121,20 +115,18 @@ func HandleFetchSchedule(c *gin.Context) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
-	fmt.Println("TOKENSTRING", tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
-	fmt.Println("USERID", userID)
-
-	schedule, err := Handler.FetchSchedule(userID)
+	schedules, err := Handler.FetchSchedule(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch schedule", "details": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch plants", "details": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"schedule": schedule})
+
+	c.JSON(http.StatusOK, gin.H{"schedule": schedules})
 }
 
 func HandleCanAddPlant(c *gin.Context) {
@@ -211,8 +203,9 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
 
-func HandleCompleteWaterSchedule(c *gin.Context) {
+func HandleCompleteSchedule(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
+
 	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
@@ -240,7 +233,46 @@ func HandleCompleteWaterSchedule(c *gin.Context) {
 
 	msg, err := Handler.CompleteWaterSchedule(userID, schedule_id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to complete water schedule", "details": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}
+
+func HandleDeletePlant(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+
+	userID, err := ExtractIDFromJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+
+	var request struct {
+		PlantID int `json:"plant_id" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		print(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+
+	plant_id := request.PlantID
+
+	msg, err := Handler.DeletePlant(userID, plant_id)
+	if err != nil {
+		print(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
 	}
 

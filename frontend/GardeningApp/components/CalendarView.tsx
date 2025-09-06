@@ -1,6 +1,7 @@
 import supabase from '@/config/supabase';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 
 interface Event {
   ScheduleID: number;
@@ -8,33 +9,49 @@ interface Event {
   PlantPetName: string;
   WaterIsCompleted: boolean;
   WateringDate: Date;
-  
 }
 
 const CalendarView: React.FC = () => {
   const [view, setView] = useState<'week' | 'day'>('week');
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [events, setEvents] = useState<Event[]>([]);
-  const today = new Date().toISOString().split('T')[0];
+  const todayDate = new Date();
+  const today = todayDate.getFullYear() + "-" +
+    String(todayDate.getMonth() + 1).padStart(2, '0') + "-" +
+    String(todayDate.getDate()).padStart(2, '0');
+
 
   // Function to get the current week's dates
   const getCurrentWeekDates = (): string[] => {
-    const today = new Date();
-    const currentDay = today.getDay();
-    const startOfWeek = new Date(today);
-    
-    // Adjust to get Monday as start of week (1 = Monday, 0 = Sunday)
-    const diff = currentDay === 0 ? -6 : 1 - currentDay;
-    startOfWeek.setDate(today.getDate() + diff);
-    
+    const today = new Date(); // now in local time
+    // Get today's UTC info
+    const utcYear = today.getUTCFullYear();
+    const utcMonth = today.getUTCMonth();
+    const utcDate = today.getUTCDate();
+    const currentDay = today.getUTCDay();
+
+    // Calculate Monday in UTC
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const startOfWeek = new Date(Date.UTC(utcYear, utcMonth, utcDate + diffToMonday));
+
     const weekDates: string[] = [];
     for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      weekDates.push(date.toISOString().split('T')[0]);
+      const tempDate = new Date(startOfWeek);
+      tempDate.setUTCDate(startOfWeek.getUTCDate() + i);
+      const localDate = tempDate.getUTCFullYear() + "-" +
+        String(tempDate.getUTCMonth() + 1).padStart(2, '0') + "-" +
+        String(tempDate.getUTCDate()).padStart(2, '0');
+      weekDates.push(localDate);
     }
     return weekDates;
-  };
+  };  
+  
 
   useEffect(() => {
     fetchSchedule();
@@ -42,7 +59,8 @@ const CalendarView: React.FC = () => {
 
   // Function to get day name from date
   const getDayName = (dateString: string): string => {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
     return date.toLocaleDateString('en-US', { weekday: 'short' });
   };
 
@@ -55,7 +73,7 @@ const CalendarView: React.FC = () => {
   
   // In a real app, fetch or filter events for selectedDate
   const eventsForSelectedDate = events.filter(event =>
-    event.WateringDate && event.WateringDate.toISOString().split('T')[0] === selectedDate
+    event.WateringDate && event.WateringDate.toISOString().split('T')[0] <= selectedDate
   ); 
   const weekDates = getCurrentWeekDates();
 
@@ -64,8 +82,10 @@ const CalendarView: React.FC = () => {
       {weekDates.map((date, index) => {
         const dayEvents = getEventsForDate(date);
         const dayName = getDayName(date);
-        const dayNumber = new Date(date).getDate();
-        const isToday = date === new Date().toISOString().split('T')[0];
+        const tempDate = new Date(date + 'T00:00:00Z');  // Parse as UTC midnight
+        const dayNumber = tempDate.getUTCDate();         // Get UTC day number
+
+        const isToday = date === today;
         const isSelected = date === selectedDate;
         
         return (
@@ -128,16 +148,17 @@ const CalendarView: React.FC = () => {
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const json = await response.json();
-      console.log(json);
-      const data = json.schedule;
+      const data = json.schedule ?? [];
       const mappedData = data.map((item: any) => ({
-        ScheduleID: item.schedule_id,
-        PlantID: item.plant_id,
         PlantPetName: item.plant_pet_name,
+        PlantID: item.plant_id,
+        WateringDate: new Date(item.watering_date), // Convert string to Date object
         WaterIsCompleted: item.water_is_completed,
-        WateringDate: new Date(item.watering_date),
+        ScheduleID: item.schedule_id,
       }));
       setEvents(mappedData);
+      console.log(mappedData);
+      return mappedData;
 
     } catch (error) {
       console.error('Error fetching schedule:', error);
@@ -209,42 +230,41 @@ const CalendarView: React.FC = () => {
               ) : (
                 <FlatList
                   data={eventsForSelectedDate}
-                  keyExtractor={(item) => item.ScheduleID.toString()}
+                  keyExtractor={(item, index) => (item.ScheduleID ? item.ScheduleID.toString() : index.toString())}
                   renderItem={({ item }) => {
-                    const isToday = item.WateringDate.toISOString().split('T')[0] === today;
-
-                    return (
+                    const wateringDateStr = item.WateringDate.toISOString().split('T')[0];
+                    const isToday = wateringDateStr === today;
+                    const isOverdue = wateringDateStr < today;
+                    return isToday || isOverdue ? (
                       <View
                         style={[
                           styles.eventItem,
-                          isToday ? styles.todayEventItem : styles.overdueEventItem,
+                          { backgroundColor: isOverdue ? '#ff4433' : '#4caf50' }
                         ]}
                       >
-                      <Switch
-                        value={item.WaterIsCompleted}
-                        onValueChange={(newValue) => updateCompletion(item.ScheduleID, newValue)}
-                        thumbColor={item.WaterIsCompleted ? '#4caf50' : '#f4f3f4'}
-                        trackColor={{ false: '#767577', true: '#81b0ff' }}
-                        style={{ marginRight: 12 }}
-                      />
-
-                        <Text
-                          style={[
-                            styles.eventText,
-                            item.WaterIsCompleted && {
-                              textDecorationLine: 'line-through',
-                              color: '#8BC34A', // Optional: lighten or change color for completed
-                            },
-                            !isToday && !item.WaterIsCompleted && styles.overdueEventText,
-                          ]}
-                        >
-                          Water {item.PlantPetName || 'Unknown'}
+                        <Text style={[styles.eventText, { color: '#8b0000' }]}>
+                          Water {item.PlantPetName}
                         </Text>
+                        <TouchableOpacity
+                          style={[styles.checkbox, item.WaterIsCompleted && styles.checkedBox]}
+                          onPress={() => {
+                            setEvents(prevEvents =>
+                              prevEvents.map(ev =>
+                                ev.ScheduleID === item.ScheduleID
+                                  ? { ...ev, WaterIsCompleted: !ev.WaterIsCompleted }
+                                  : ev
+                              )
+                            );
+                            updateCompletion(item.ScheduleID, item.WaterIsCompleted);
+                          }}
+                        >
+                          {item.WaterIsCompleted && <Text style={styles.checkmark}>✓</Text>}
+                        </TouchableOpacity>
                       </View>
-                    );
-                  }}
-                />
+                    ) : null; // do not render items for future dates in this list
+                  }}                  
 
+                />
               )}
             </View>
           </>
@@ -328,12 +348,17 @@ const styles = StyleSheet.create({
   selectedText: { color: '#fff' },
   eventsColumn: {
     flex: 1,
+    flexDirection: 'column',  // stack events vertically downwards
+    // Remove flexWrap if existed
+    // flexWrap: 'wrap',        // remove this line if it exists
+    alignItems: 'stretch',    // stretch items to fill width
+    minHeight: 65,
     backgroundColor: '#fff',
     paddingHorizontal: 10,        // Add horizontal padding to control inside spacing
     paddingVertical: 8,
-    borderRadius: 16,
-    // No overflow hidden needed typically
+    // remove gap property if using React Native version that doesn't support it
   },
+  
   noEventsPlaceholder: {
     paddingVertical: 14,
     alignItems: 'center',
@@ -411,37 +436,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2C4857',
   },
-  dayHeader: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#f7fafe',
-    marginBottom: 10,
-  },
-  dayHeaderText: {
-    fontWeight: '700',
-    fontSize: 18,
-    color: '#263357',
-    textAlign: 'center',
-  },
-  noEventsWrapper: {
-    marginTop: 40,
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#fff',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
   },
-  todayEventItem: {
-    backgroundColor: '#4caf50',
+  checkedBox: {
+    backgroundColor: '#fff',
+    borderColor: '#fff',
   },
-  overdueEventItem: {
-    backgroundColor: '#ffe6e6',
-    borderColor: '#ff4433',
-    borderWidth: 1,
+  checkmark: {
+    color: '#4caf50',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  overdueEventText: {
-    color: '#8b0000',
-  },
-  
 });
 
 export default CalendarView;
