@@ -25,7 +25,7 @@ export default function LoginScreen() {
   }
 
   async function handleDirSignUp() {
-    screenNav.navigate("SignUpScreen");
+    screenNav.navigate('SignUpScreen');
   }
 
   return (
