@@ -265,16 +265,30 @@ const PlantDirectory: React.FC = () => {
 
   if (!plants || plants.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text>No plants found.</Text>
+      <View style={{ flex: 1 }}>
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <Text style={styles.headerIcon}>🌱</Text>
+            <Text style={styles.headerTitle}>PLANTDEX</Text>
+          </View>
+          <Text style={styles.headerSubtitle}>Your Digital Garden</Text>
+        </View>
+        <View style={styles.emptyContainer}>
+          <Text>No plants found.</Text>
+        </View>
       </View>
+
     );
   }
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>PLANTDEX</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerIcon}>🪴</Text>
+          <Text style={styles.headerTitle}>PLANTDEX</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Your Digital Garden</Text>
       </View>
       <FlatList
         data={plants}
@@ -372,17 +386,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    paddingTop: 70, // space for status bar
-    paddingBottom: 16,
-    backgroundColor: '#89cff0', // light blue, change as needed
+    paddingBottom: 25,
+    paddingTop: 75,
+    paddingLeft: 0,
+    paddingRight: 25,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    justifyContent: 'center',
+    // For gradient, you'll need react-native-linear-gradient
+    // backgroundColor: 'linear-gradient(135deg, #4CAF50, #45a049)',
+    backgroundColor: '#4CAF50', // fallback
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerIcon: {
+    marginRight: 12,
+    fontSize: 32,
   },
   headerTitle: {
+    color: '#fff',
     fontSize: 32,
-    fontWeight: '700',
-    color: '#2C4857',
+    fontWeight: '800',
+    letterSpacing: 3,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 4,
+  },
+  headerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    fontWeight: '300',
+    paddingLeft: 30,
+    letterSpacing: 1,
+    marginTop: 4,
   },
   deleteButton: {
     position: 'absolute',

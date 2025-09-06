@@ -12,7 +12,7 @@ interface Event {
 }
 
 const CalendarView: React.FC = () => {
-  const [view, setView] = useState<'week' | 'day'>('week');
+  const [view, setView] = useState<'week' | 'day'>('day');
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -202,7 +202,11 @@ const CalendarView: React.FC = () => {
     <View style={styles.container}>
       {/* Toggle buttons */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>CALENDAR</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerIcon}>📅</Text>
+          <Text style={styles.headerTitle}>CALENDAR</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Your Garden's Schedule</Text>
       </View>
       <View style={styles.toggleContainer}>
         <TouchableOpacity
@@ -424,17 +428,46 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
   },
   header: {
-    paddingTop: 70, // space for status bar
-    paddingBottom: 16,
-    backgroundColor: '#ffb6c1', // light blue, change as needed
+    paddingBottom: 25,
+    paddingTop: 75,
+    paddingLeft: 0,
+    paddingRight: 25,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    justifyContent: 'center',
+    backgroundColor: '#ffbb00', // fallback
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerIcon: {
+    marginRight: 12,
+    fontSize: 32,
   },
   headerTitle: {
+    color: '#fff',
     fontSize: 32,
-    fontWeight: '700',
-    color: '#2C4857',
+    fontWeight: '800',
+    letterSpacing: 3,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 4,
+  },
+  headerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 14,
+    fontWeight: '300',
+    paddingLeft: 30,
+    letterSpacing: 1,
+    marginTop: 4,
   },
   checkbox: {
     width: 24,
