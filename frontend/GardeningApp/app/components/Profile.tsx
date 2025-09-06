@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import supabase from '../config/supabase';
+import supabase from '../../config/supabase';
 import { User } from '@supabase/supabase-js';
 
 export default function ProfilePage() {

@@ -2,17 +2,17 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '@/app/HomeScreen';
-import LoginScreen from '@/components/LoginScreen';
-import SignUpScreen from '@/components/SignUpScreen';
-import OtpScreen from '@/components/OtpScreen';
+import LoginScreen from '@/app/components/LoginScreen';
+import SignUpScreen from '@/app/components/SignUpScreen';
+import OtpScreen from '@/app/components/OtpScreen';
 
 // Import your screens here
 
 export type RootStackParamList = {
     Home: undefined;
     LoginScreen: undefined;
-    SignUpScreen: { plantId: string };
-    OtpScreen: undefined;
+    SignUpScreen: undefined;
+    OtpScreen: { phone: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();

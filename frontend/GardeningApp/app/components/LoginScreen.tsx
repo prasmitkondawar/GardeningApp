@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import supabase from '../config/supabase';
+import supabase from '../../config/supabase';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/app/index';
+import { RootStackParamList } from '@/app/Navigator';
+import SignUpScreen from './SignUpScreen';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
 
@@ -29,6 +30,7 @@ export default function LoginScreen() {
   }
 
   return (
+    <>
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <TextInput
@@ -43,7 +45,8 @@ export default function LoginScreen() {
         <Button title="Login" onPress={handleLogin} disabled={loading} />
       </View>
       {<Button title="Want to create an account? Sign Up" onPress={handleDirSignUp} />}
-    </View>
+    </View>    
+    </>
   );
 };
 
