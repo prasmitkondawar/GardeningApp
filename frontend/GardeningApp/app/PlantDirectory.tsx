@@ -26,6 +26,7 @@ interface PlantCard {
   Species: string;
   PlantID: number;
   PlantHealth: number;
+  ImageURL: string;
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -97,7 +98,8 @@ const PlantDirectory: React.FC = () => {
         ScientificName: item.scientific_name,
         Species: item.species,
         PlantID: item.plant_id,
-        PlantHealth: item.plant_health
+        PlantHealth: item.plant_health,
+        ImageURL: item.image_url
       }));
       return mappedData;
     } catch (error) {
@@ -106,7 +108,7 @@ const PlantDirectory: React.FC = () => {
     }
   }
 
-  async function deletePlant(plant_id: number) {
+  async function deletePlant(plant_id: number, image_path: string) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const baseUrl = process.env.API_BASE_URL
@@ -123,6 +125,15 @@ const PlantDirectory: React.FC = () => {
         const errorData = await res.json(); // parse JSON error response
         console.error("Delete failed:", errorData);
         throw new Error(errorData.error || 'Delete failed');
+      }
+
+      const { error: storageError } = await supabase.storage
+      .from('plant-images')  // Replace with your bucket name
+      .remove([image_path]);
+
+      if (storageError) {
+        console.error('Failed to delete photo:', storageError);
+        // optional: notify user or handle it gracefully
       }
       
       // Remove from local state
@@ -268,7 +279,7 @@ const PlantDirectory: React.FC = () => {
                 {
                   text: 'Delete',
                   style: 'destructive',
-                  onPress: () => deletePlant(item.PlantID),
+                  onPress: () => deletePlant(item.PlantID, item.ImageURL),
                 },
               ]
             );
