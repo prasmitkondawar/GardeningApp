@@ -10,8 +10,10 @@ import HomeScreen from './HomeScreen';
 import PlantDirectory from "./PlantDirectory";
 import PlantDetailScreen from "./PlantDetailScreen";
 import PlantHealthMeterCircular from "./PlantHealthMeterCircular";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Stack } from "expo-router";
 
-const StackNavigator = createNativeStackNavigator<RootStackParamList>();
+const StackNavigator = createNativeStackNavigator();
 
 export type RootStackParamList = {
   PlantDirectory: undefined,
@@ -29,17 +31,19 @@ export const unstable_settings = { headerShown: false };
 export default function Index() {
   return (
     <>
-      <View style={{ flex: 1 }}>
-        <HomeScreen />
-      </View>
-        <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
-        <StackNavigator.Screen name="PlantDirectory" component={PlantDirectory} />
-        <StackNavigator.Screen name="PlantDetailScreen" component={PlantDetailScreen} />
-        <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
-        <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
-        <StackNavigator.Screen name="Profile" component={Profile} />
-        <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
-
+      <SafeAreaView style={{ flex: 1 }}>
+        <NavigationContainer>
+          <StackNavigator.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+            <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
+            <StackNavigator.Screen name="PlantDirectory" component={PlantDirectory} />
+            <StackNavigator.Screen name="PlantDetailScreen" component={PlantDetailScreen} />
+            <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
+            <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
+            <StackNavigator.Screen name="Profile" component={Profile} />
+            <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
+          </StackNavigator.Navigator>
+      </NavigationContainer>
+      </SafeAreaView>
     </>
   );
 }

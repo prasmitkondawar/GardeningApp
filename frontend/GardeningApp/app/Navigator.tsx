@@ -8,24 +8,22 @@ import OtpScreen from '@/app/components/OtpScreen';
 
 // Import your screens here
 
-export type RootStackParamList = {
-    Home: undefined;
-    LoginScreen: undefined;
-    SignUpScreen: undefined;
-    OtpScreen: { phone: string };
-};
+// export type RootStackParamList = {
+//     Home: undefined;
+//     LoginScreen: undefined;
+//     SignUpScreen: undefined;
+//     OtpScreen: { phone: string };
+// };
 
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator();
 
-const Navigator: React.FC = () => (
+export default function Navigator() {
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Navigator initialRouteName="LoginScreen">
+            <Stack.Screen name="HomeScreen" component={HomeScreen} />
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="OtpScreen" component={OtpScreen} />
         </Stack.Navigator>
     </NavigationContainer>
-);
-
-export default Navigator;
+}

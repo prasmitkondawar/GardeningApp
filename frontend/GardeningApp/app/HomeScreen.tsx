@@ -11,73 +11,76 @@ import { Stack } from "expo-router";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/app/index';
 import { useNavigation } from 'expo-router';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { NavigationContainer, useRoute } from "@react-navigation/native";
 
 type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
-  const screenNav = useNavigation<HomeScreenProp>
+  // const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
+  // const screenNav = useNavigation<HomeScreenProp>
 
-  // Render the active child-screen
-  let ScreenComponent;
-    if (activeScreen === "camera") {
-        ScreenComponent = <CameraScreen />;
-    } else if (activeScreen == "plant_directory") {
-        ScreenComponent = <PlantDirectory></PlantDirectory>
-    } else if (activeScreen == "login") {
-        ScreenComponent = <LoginScreen/>
-    } else if (activeScreen == "signup"){
-        ScreenComponent = <SignUpScreen/>
-    } else if (activeScreen == "calendar-view") {
-        ScreenComponent = <CalendarView/>;
-    } else if (activeScreen == "profile") {
-        ScreenComponent = <ProfilePage/>;
-    }
+  // // Render the active child-screen
+  // let ScreenComponent;
+  //   if (activeScreen === "camera") {
+  //       ScreenComponent = <CameraScreen />;
+  //   } else if (activeScreen == "plant_directory") {
+  //       ScreenComponent = <PlantDirectory></PlantDirectory>
+  //   } else if (activeScreen == "login") {
+  //       ScreenComponent = <LoginScreen/>
+  //   } else if (activeScreen == "signup"){
+  //       ScreenComponent = <SignUpScreen/>
+  //   } else if (activeScreen == "calendar-view") {
+  //       ScreenComponent = <CalendarView/>;
+  //   } else if (activeScreen == "profile") {
+  //       ScreenComponent = <ProfilePage/>;
+  //   }
+
+  const route = useRoute();
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          {ScreenComponent}
-        </View>
+          <View style={{ flex: 1 }}>
+          </View>
 
-        {/* Bottom bar */}
-        <View style={styles.bottomBar}>
-          <TouchableOpacity 
-            style={styles.plusButton} 
-            onPress={() => setActiveScreen("plant_directory")}
-          >
-            <Ionicons 
-              name="folder"            // <-- folder icon instead of add-circle
-              size={54} 
-              color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
-            />
+          {/* Bottom bar */}
+          <View style={styles.bottomBar}>
+            <TouchableOpacity 
+              style={styles.plusButton} 
+              onPress={() => navigation.navigate('PlantDirectory')}
+            >
+              <Ionicons 
+                name="folder"            // <-- folder icon instead of add-circle
+                size={54} 
+                color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
+              />
 
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
-            <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
-          </TouchableOpacity>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
+              <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
+            </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.plusButton}
-            onPress={() => setActiveScreen("calendar-view")}
-            activeOpacity={0.7}
-          >
-            <Ionicons 
-              name="calendar" 
-              size={40} 
-              color={activeScreen === "calendar-view" ? "#007AFF" : "#888"} 
-            />
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.plusButton}
+              onPress={() => setActiveScreen("calendar-view")}
+              activeOpacity={0.7}
+            >
+              <Ionicons 
+                name="calendar" 
+                size={40} 
+                color={activeScreen === "calendar-view" ? "#007AFF" : "#888"} 
+              />
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
-            <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
+              <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
+            </TouchableOpacity>
 
 
-        </View>
+          </View>
       </View>
     </>
 
