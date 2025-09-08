@@ -43,36 +43,37 @@ func HandleAddPlant(c *gin.Context) {
 	fmt.Println("Received image URL:", req.ImageURL)
 
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
+	print("API KEY", openaiAPIKey)
 
-	// Classify the plant using OpenAI
-	fmt.Println("Classifying plant with OpenAI...")
-	classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
-	if err != nil {
-		fmt.Printf("OpenAI classification failed: %v\n", err)
-		// Fall back to default values if classification fails
-		classification = &PlantClassification{
-			PlantName:        "Unknown Plant",
-			ScientificName:   "Unknown Species",
-			Species:          "Unknown",
-			WaterRepeatEvery: 1,
-			WaterRepeatUnit:  "day",
-			PlantHealth:      100,
-		}
-	}
+	// // Classify the plant using OpenAI
+	// fmt.Println("Classifying plant with OpenAI...")
+	// classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
+	// if err != nil {
+	// 	fmt.Printf("OpenAI classification failed: %v\n", err)
+	// 	// Fall back to default values if classification fails
+	// 	classification = &PlantClassification{
+	// 		PlantName:        "Unknown Plant",
+	// 		ScientificName:   "Unknown Species",
+	// 		Species:          "Unknown",
+	// 		WaterRepeatEvery: 1,
+	// 		WaterRepeatUnit:  "day",
+	// 		PlantHealth:      100,
+	// 	}
+	// }
 
-	fmt.Printf("Classification result: %+v\n", classification)
+	// fmt.Printf("Classification result: %+v\n", classification)
 
-	// Use the classified information instead of hardcoded values
-	plant_pet_name := "My " + classification.PlantName
+	// // Use the classified information instead of hardcoded values
+	// plant_pet_name := classification.PlantName
 
 	msg, err := Handler.AddPlant(
 		userID,
-		classification.PlantName,      // Use AI-identified name
-		classification.ScientificName, // Use AI-identified scientific name
-		classification.Species,        // Use AI-identified species
+		"classification.PlantName",      // Use AI-identified name
+		"classification.ScientificName", // Use AI-identified scientific name
+		"classification.Species",        // Use AI-identified species
 		req.ImageURL,
-		plant_pet_name, // Generate a pet name based on the plant name
-		65,             // Default health value
+		"plant_pet_name", // Generate a pet name based on the plant name
+		100,              // Default health value
 	)
 	if err != nil {
 		fmt.Println(msg)
