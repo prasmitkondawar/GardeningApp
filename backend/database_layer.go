@@ -23,7 +23,7 @@ func (handler *DatabaseHandler) AddPlant(
 			SELECT $1, $2, $3, $4, $5, $6, $7
 			FROM plant_count
 			WHERE plant_count.count < 5
-			RETURNING id  -- Assumes 'id' is your PK column
+			RETURNING plant_id  -- Assumes 'id' is your PK column
 		)
 		SELECT plant_id FROM insert_if_under_limit;
 	`
