@@ -192,7 +192,7 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 			watering_date,
 			next_watering_date
         )
-        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE + ($4 || ' ' || $5)::interval, CURRENT_DATE + ($4 || ' ' || $5)::interval)
+        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE + ($4::text || ' ' || $5)::interval, CURRENT_DATE + ($4::text || ' ' || $5)::interval)
     `
 
 	// Step 3: Execute
