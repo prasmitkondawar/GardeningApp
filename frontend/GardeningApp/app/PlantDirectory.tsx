@@ -19,7 +19,7 @@ import supabase from '@/config/supabase';
 import { Ionicons } from '@expo/vector-icons';
 
 interface PlantCard {
-  Image: string;
+  ImageURL: string;
   PlantName: string;
   PlantPetName: string;
   ScientificName: string;
@@ -91,7 +91,7 @@ const PlantDirectory: React.FC = () => {
       const json = await response.json();
       const data = Array.isArray(json.plants) ? json.plants : [];
       const mappedData = data.map((item: any) => ({
-        Image: item.image_url,
+        ImageURL: item.image_url,
         PlantName: item.plant_name,
         PlantPetName: item.plant_pet_name,
         ScientificName: item.scientific_name,
@@ -99,6 +99,7 @@ const PlantDirectory: React.FC = () => {
         PlantID: item.plant_id,
         PlantHealth: item.plant_health
       }));
+
       return mappedData;
     } catch (error) {
       console.error('Error fetching plants:', error);
@@ -106,7 +107,7 @@ const PlantDirectory: React.FC = () => {
     }
   }
 
-  async function deletePlant(plant_id: number) {
+  async function deletePlant(plant_id: number, path_url: string) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const baseUrl = process.env.API_BASE_URL
@@ -123,6 +124,16 @@ const PlantDirectory: React.FC = () => {
         const errorData = await res.json(); // parse JSON error response
         console.error("Delete failed:", errorData);
         throw new Error(errorData.error || 'Delete failed');
+      }
+
+      const { error: storageError } = await supabase.storage
+      .from('plant-images')  // Replace with your bucket name
+      .remove([path_url]);
+ 
+ 
+      if (storageError) {
+        console.error('Failed to delete photo:', storageError);
+        // optional: notify user or handle it gracefully
       }
       
       // Remove from local state
@@ -191,7 +202,7 @@ const PlantDirectory: React.FC = () => {
           })}
         >
           <Image
-            source={{ uri: item.Image }}
+            source={{ uri: item.ImageURL }}
             style={styles.image}
             resizeMode="cover"
           />
@@ -268,7 +279,7 @@ const PlantDirectory: React.FC = () => {
                 {
                   text: 'Delete',
                   style: 'destructive',
-                  onPress: () => deletePlant(item.PlantID),
+                  onPress: () => deletePlant(item.PlantID, item.ImageURL),
                 },
               ]
             );
