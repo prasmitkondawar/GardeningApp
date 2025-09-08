@@ -138,7 +138,7 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
         )
     `, new_pet_name, plant_id).Scan(&exists)
 	if err != nil {
-		print(err)
+		print("ERROR", err)
 		return "", fmt.Errorf("failed to check existing pet name: %v", err)
 	}
 	if exists {
@@ -152,17 +152,17 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
         WHERE user_id = $1 AND plant_id = $2
     `, user_id, plant_id, new_pet_name)
 	if err != nil {
-		print(err)
+		print("ERROR", err)
 		return "", fmt.Errorf("failed to update plant pet name: %v", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		print(err)
+		print("ERROR", err)
 		return "", fmt.Errorf("failed to check affected rows: %v", err)
 	}
 	if rowsAffected == 0 {
-		print(err)
+		print("ERROR", err)
 		return "", fmt.Errorf("no plant found to update")
 	}
 

@@ -202,7 +202,7 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
-		print(err)
+		print("ERROR", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
@@ -213,20 +213,21 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
 	plant_id := request.PlantID
 	newPetName := request.NewPetName
+	print("TESTING", plant_id, newPetName)
 
 	msg, err := Handler.UpdatePlantPetName(userID, plant_id, newPetName)
 	if err != nil {
-		print(err)
+		print("ERROR", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
 	}
+	print("MSG", msg)
 
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
