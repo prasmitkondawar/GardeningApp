@@ -72,8 +72,8 @@ func HandleAddPlant(c *gin.Context) {
 		"classification.ScientificName", // Use AI-identified scientific name
 		"classification.Species",        // Use AI-identified species
 		req.ImageURL,
-		"plant_pet_name", // Generate a pet name based on the plant name
-		100,              // Default health value
+		"",  // Generate a pet name based on the plant name
+		100, // Default health value
 	)
 	if err != nil {
 		fmt.Println(err)
@@ -81,7 +81,7 @@ func HandleAddPlant(c *gin.Context) {
 		return
 	}
 
-	msg, err := Handler.CreateNewSchedule(userID, plant_id, "plant_pet_name", 1, "day")
+	msg, err := Handler.CreateNewSchedule(userID, plant_id, "", 1, "day")
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
