@@ -13,29 +13,29 @@ func (handler *DatabaseHandler) AddPlant(
 	image_url string,
 	plant_pet_name string,
 	plant_health int,
-) (int, error) {
+) (string, error) {
+	// Step 3: Insert new plant if under limit
 	insertQuery := `
-        WITH plant_count AS (
-            SELECT COUNT(*) AS count FROM plants WHERE user_id = $1
-        ),
-        insert_if_under_limit AS (
-            INSERT INTO plants (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
-            SELECT $1, $2, $3, $4, $5, $6, $7
-            FROM plant_count
-            WHERE plant_count.count < 5
-            RETURNING id  -- Assumes 'id' is your PK column
-        )
-        SELECT id FROM insert_if_under_limit;
+		WITH plant_count AS (
+			SELECT COUNT(*) AS count FROM plants WHERE user_id = $1
+		),
+		insert_if_under_limit AS (
+			INSERT INTO plants (user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
+		SELECT $1, $2, $3, $4, $5, $6, $7
+		FROM plant_count
+		WHERE plant_count.count < 5
+		RETURNING *
+		)
+		SELECT * FROM insert_if_under_limit;
     `
 
-	var plantID int // Change type to int if your 'id' is integer
-	err := handler.Db.QueryRow(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health).Scan(&plantID)
+	_, err := handler.Db.Exec(insertQuery, user_id, plant_name, scientific_name, species, image_url, plant_pet_name, plant_health)
 	if err != nil {
 		fmt.Println("ERROR inserting plant:", err)
-		return 0, err
+		return "Failed to add plant", err
 	}
 
-	return plantID, nil
+	return "Plant added successfully", nil
 }
 
 type Plant struct {
