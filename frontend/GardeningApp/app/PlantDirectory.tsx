@@ -163,6 +163,12 @@ const PlantDirectory: React.FC = () => {
         throw new Error('Failed to update pet name');
       }
 
+      const errorData = await res.json();
+      if (errorData["message"] == "Plant pet name already exists") {
+        Alert.alert("Name already taken", "Please choose another name")
+      }
+
+
       setPlants((plants) =>
         plants.map((plant) =>
           plant.PlantID === id ? { ...plant, PlantPetName: newPetName } : plant

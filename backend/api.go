@@ -219,8 +219,6 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 	plant_id := request.PlantID
 	newPetName := request.NewPetName
 
-	fmt.Println("Updating plant ID:", plant_id, "with new pet name:", newPetName)
-
 	msg, err := Handler.UpdatePlantPetName(userID, plant_id, newPetName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})

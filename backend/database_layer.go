@@ -129,15 +129,40 @@ func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 	return count < 5, nil
 }
 
-func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int, new_plant_pet_name string) (string, error) {
-	query := "UPDATE plants SET plant_pet_name = $3 WHERE user_id = $1 AND plant_id = $2"
-
-	_, err := handler.Db.Exec(query, user_id, plant_id, new_plant_pet_name)
+func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int, new_pet_name string) (string, error) {
+	var exists bool
+	err := handler.Db.QueryRow(`
+        SELECT EXISTS(
+            SELECT 1 FROM plants 
+            WHERE plant_pet_name = $1 AND plant_id <> $2
+        )
+    `, new_pet_name, plant_id).Scan(&exists)
 	if err != nil {
-		fmt.Println("ERROR inserting plant:", err)
-		return "Failed to change plant pet name", err
+		return "", fmt.Errorf("failed to check existing pet name: %v", err)
 	}
-	return "Changed plant pet name", nil
+	if exists {
+		return "Plant pet name already exists", nil
+	}
+
+	// Step 2: Update plant_pet_name for the given user and plant_id
+	result, err := handler.Db.Exec(`
+        UPDATE plants 
+        SET plant_pet_name = $3 
+        WHERE user_id = $1 AND plant_id = $2
+    `, user_id, plant_id, new_pet_name)
+	if err != nil {
+		return "", fmt.Errorf("failed to update plant pet name: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return "", fmt.Errorf("failed to check affected rows: %v", err)
+	}
+	if rowsAffected == 0 {
+		return "", fmt.Errorf("no plant found to update")
+	}
+
+	return "Plant pet name updated successfully", nil
 }
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int, water_repeat_every int, water_repeat_unit string) (string, error) {
