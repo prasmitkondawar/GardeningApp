@@ -15,16 +15,16 @@ import { Stack } from "expo-router";
 
 const StackNavigator = createNativeStackNavigator();
 
-export type RootStackParamList = {
-  PlantDirectory: undefined,
-  PlantDetailScreen: undefined,
-  PlantHealthMeterCircular: undefined,
-  LoginScreen: undefined;
-  SignUpScreen: undefined;
-  OtpScreen: {phone: string};
-  Profile: undefined;
-  HomeScreen: undefined;
-};
+// export type RootStackParamList = {
+//   PlantDirectory: undefined,
+//   PlantDetailScreen: undefined,
+//   PlantHealthMeterCircular: undefined,
+//   LoginScreen: undefined;
+//   SignUpScreen: undefined;
+//   OtpScreen: {phone: string};
+//   Profile: undefined;
+//   HomeScreen: undefined;
+// };
 
 export const unstable_settings = { headerShown: false };
 

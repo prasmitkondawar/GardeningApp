@@ -7,16 +7,12 @@ import LoginScreen from "@/app/components/LoginScreen";
 import SignUpScreen from "@/app/components/SignUpScreen";
 import CalendarView from "@/app/components/CalendarView";
 import ProfilePage from "@/app/components/Profile";
-import { Stack } from "expo-router";
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/app/index';
-import { useNavigation } from 'expo-router';
-import { SafeAreaView } from "react-native-safe-area-context";
-import { NavigationContainer, useRoute } from "@react-navigation/native";
+import { Stack, usePathname, useRouter } from "expo-router";
 
-type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
-export default function HomeScreen({ navigation }) {
+// type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>;
+
+export default function HomeScreen() {
   // Tracks which "screen" is shown
   // const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
   // const screenNav = useNavigation<HomeScreenProp>
@@ -37,7 +33,8 @@ export default function HomeScreen({ navigation }) {
   //       ScreenComponent = <ProfilePage/>;
   //   }
 
-  const route = useRoute();
+  const router = useRouter();
+  const pathName = usePathname();
 
   return (
     <>
@@ -50,33 +47,33 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.bottomBar}>
             <TouchableOpacity 
               style={styles.plusButton} 
-              onPress={() => navigation.navigate('PlantDirectory')}
+              onPress={() => router.navigate('/PlantDirectory')}
             >
               <Ionicons 
                 name="folder"            // <-- folder icon instead of add-circle
                 size={54} 
-                color={activeScreen === "plant_directory" ? "#007AFF" : "#888"} 
+                color={pathName === "/PlantDirectory" ? "#007AFF" : "#888"} 
               />
 
             </TouchableOpacity>
-            <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("camera")}>
-              <Ionicons name="add-circle" size={54} color={activeScreen === "camera" ? "#007AFF" : "#888"} />
+            <TouchableOpacity style={styles.plusButton} onPress={() => router.navigate('/components/CameraScreen')}>
+              <Ionicons name="add-circle" size={54} color={pathName === "/components/CameraScreen" ? "#007AFF" : "#888"} />
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={styles.plusButton}
-              onPress={() => setActiveScreen("calendar-view")}
+              onPress={() => router.navigate('/components/CalendarView')}
               activeOpacity={0.7}
             >
               <Ionicons 
                 name="calendar" 
                 size={40} 
-                color={activeScreen === "calendar-view" ? "#007AFF" : "#888"} 
+                color={pathName === "/components/CalendarView" ? "#007AFF" : "#888"} 
               />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.plusButton} onPress={() => setActiveScreen("login")}>
-              <Ionicons name="person-circle" size={54} color={activeScreen === "login" ? "#007AFF" : "#888"} />
+            <TouchableOpacity style={styles.plusButton} onPress={() => router.navigate('/components/LoginScreen')}>
+              <Ionicons name="person-circle" size={54} color={pathName === "/component/LoginScreen" ? "#007AFF" : "#888"} />
             </TouchableOpacity>
 
 

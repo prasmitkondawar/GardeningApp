@@ -35,7 +35,8 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to take photos."
         }
-      ]
+      ],
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
