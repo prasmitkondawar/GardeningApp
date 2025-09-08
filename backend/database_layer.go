@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -180,23 +181,26 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 	water_repeat_unit string,
 ) (string, error) {
 
-	// Step 2: Insert into schedule with next due date
+	// SQL query: use $6 for string version of water_repeat_every to avoid type conflicts
 	query := `
         INSERT INTO schedule (
             user_id,
             plant_id,
             plant_pet_name,
             water_is_completed,
-			water_repeat_every,
-			water_repeat_unit,
-			watering_date,
-			next_watering_date
+            water_repeat_every,
+            water_repeat_unit,
+            watering_date,
+            next_watering_date
         )
-        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE + ($4::text || ' ' || $5)::interval, CURRENT_DATE + ($4::text || ' ' || $5)::interval)
+        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE + ($6 || ' ' || $5)::interval, CURRENT_DATE + ($6 || ' ' || $5)::interval)
     `
 
-	// Step 3: Execute
-	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, water_repeat_every, water_repeat_unit)
+	// Convert water_repeat_every to string for interval concatenation
+	waterRepeatEveryStr := strconv.Itoa(water_repeat_every)
+
+	// Execute query with parameters, passing waterRepeatEveryStr as $6
+	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, water_repeat_every, water_repeat_unit, waterRepeatEveryStr)
 	if err != nil {
 		return "", fmt.Errorf("failed to create schedule: %v", err)
 	}
