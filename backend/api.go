@@ -248,7 +248,9 @@ func HandleCompleteSchedule(c *gin.Context) {
 	}
 
 	var request struct {
-		ScheduleID int `json:"schedule_id" binding:"required"`
+		ScheduleID       int    `json:"schedule_id" binding:"required"`
+		WaterRepeatEvery int    `json:"water_repeat_every" binding:"required"`
+		WaterRepeatUnit  string `json:"water_repeat_unit" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -257,8 +259,10 @@ func HandleCompleteSchedule(c *gin.Context) {
 	}
 
 	schedule_id := request.ScheduleID
+	water_repeat_every := request.WaterRepeatEvery
+	water_repeat_unit := request.WaterRepeatUnit
 
-	msg, err := Handler.CompleteWaterSchedule(userID, schedule_id)
+	msg, err := Handler.CompleteWaterSchedule(userID, schedule_id, water_repeat_every, water_repeat_unit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return

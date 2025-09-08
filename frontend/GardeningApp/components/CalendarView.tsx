@@ -9,6 +9,8 @@ interface Event {
   PlantPetName: string;
   WaterIsCompleted: boolean;
   WateringDate: Date;
+  WaterRepeatEvery: number;
+  WaterRepeatUnit: string;
 }
 
 const CalendarView: React.FC = () => {
@@ -168,7 +170,7 @@ const CalendarView: React.FC = () => {
     }
   }
 
-  async function updateCompletion(scheduleID: number, newValue: boolean) {
+  async function updateCompletion(scheduleID: number, newValue: boolean, water_repeat_every: number, water_repeat_unit: string) {
     setEvents(prevEvents =>
       prevEvents.map(event =>
         event.ScheduleID === scheduleID ? { ...event, WaterIsCompleted: newValue } : event
@@ -180,7 +182,7 @@ const CalendarView: React.FC = () => {
       const token = session?.access_token;
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
 
-      const response = await fetch(`${baseUrl}/update-completion`, {
+      const response = await fetch(`${baseUrl}/complete-schedule`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
@@ -188,7 +190,8 @@ const CalendarView: React.FC = () => {
         },
         body: JSON.stringify({
           schedule_id: scheduleID,
-          water_is_completed: newValue,
+          water_repeat_every: water_repeat_every,
+          water_repeat_unit: water_repeat_unit
         }),
       });
 
@@ -262,7 +265,7 @@ const CalendarView: React.FC = () => {
                                   : ev
                               )
                             );
-                            updateCompletion(item.ScheduleID, item.WaterIsCompleted);
+                            updateCompletion(item.ScheduleID, item.WaterIsCompleted, item.WaterRepeatEvery, item.WaterRepeatUnit);
                           }}
                         >
                           {item.WaterIsCompleted && <Text style={styles.checkmark}>✓</Text>}

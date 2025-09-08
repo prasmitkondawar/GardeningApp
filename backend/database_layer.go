@@ -139,7 +139,7 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 	return "Changed plant pet name", nil
 }
 
-func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
+func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int, water_repeat_every int, water_repeat_unit string) (string, error) {
 	query := `
 		WITH previous AS (
 		SELECT water_is_completed FROM schedule WHERE user_id = $1 AND schedule_id = $2
@@ -148,14 +148,13 @@ func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_i
 		SET 
 		water_is_completed = NOT water_is_completed,
 		next_watering_date = CASE 
-			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE + INTERVAL '3 days'
+			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE + ($3 || ' ' || $4)::interval
 			ELSE next_watering_date
 		END
 		WHERE user_id = $1 AND schedule_id = $2;
-
     `
 
-	_, err := handler.Db.Exec(query, user_id, schedule_id)
+	_, err := handler.Db.Exec(query, user_id, schedule_id, water_repeat_every, water_repeat_unit)
 	if err != nil {
 		fmt.Println("ERROR inserting plant:", err)
 		return "Failed to check plant", err
@@ -181,24 +180,23 @@ func (handler *DatabaseHandler) CreateNewSchedule(
 	plant_pet_name string,
 ) (string, error) {
 
-	// Step 1: Build SQL interval string (e.g., '3 days', '2 weeks')
-	// It's safer to pass both values separately to avoid SQL injection
-	interval := fmt.Sprintf("%d %s", water_repeat_every, water_repeat_unit)
-
 	// Step 2: Insert into schedule with next due date
 	query := `
         INSERT INTO schedule (
             user_id,
             plant_id,
             plant_pet_name,
-            due_date,
-            is_completed
+            water_is_completed,
+			water_repeat_every,
+			water_repeat_unit,
+			watering_date,
+			next_watering_date
         )
-        VALUES ($1, $2, $3, CURRENT_DATE + $4::interval, false)
+        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE + ($4 || ' ' || $5)::interval, CURRENT_DATE + ($4 || ' ' || $5)::interval)
     `
 
 	// Step 3: Execute
-	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, interval)
+	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, water_repeat_every, water_repeat_unit)
 	if err != nil {
 		return "", fmt.Errorf("failed to create schedule: %v", err)
 	}
