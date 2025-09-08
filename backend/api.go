@@ -66,7 +66,7 @@ func HandleAddPlant(c *gin.Context) {
 	// // Use the classified information instead of hardcoded values
 	// plant_pet_name := classification.PlantName
 
-	msg, err := Handler.AddPlant(
+	plant_id, err := Handler.AddPlant(
 		userID,
 		"classification.PlantName",      // Use AI-identified name
 		"classification.ScientificName", // Use AI-identified scientific name
@@ -76,8 +76,15 @@ func HandleAddPlant(c *gin.Context) {
 		100,              // Default health value
 	)
 	if err != nil {
-		fmt.Println(msg)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	msg, err := Handler.CreateNewSchedule(userID, plant_id, 1, "day", "plant_pet_name")
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 

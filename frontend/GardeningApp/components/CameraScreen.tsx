@@ -90,6 +90,7 @@ const CameraScreen: React.FC = () => {
       });
 
 
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response from server:", errorText);

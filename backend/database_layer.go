@@ -25,7 +25,7 @@ func (handler *DatabaseHandler) AddPlant(
 			WHERE plant_count.count < 5
 			RETURNING id  -- Assumes 'id' is your PK column
 		)
-		SELECT id FROM insert_if_under_limit;
+		SELECT plant_id FROM insert_if_under_limit;
 	`
 
 	var plantID int // Change type to int if your 'id' is integer
