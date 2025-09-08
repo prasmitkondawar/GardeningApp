@@ -44,31 +44,34 @@ type OpenAIResponse struct {
 }
 
 type PlantClassification struct {
-	PlantName      string `json:"plant_name"`
-	ScientificName string `json:"scientific_name"`
-	Species        string `json:"species"`
-	Confidence     string `json:"confidence"`
+	PlantName        string `json:"plant_name"`
+	ScientificName   string `json:"scientific_name"`
+	Species          string `json:"species"`
+	WaterRepeatEvery int    `json:water_repeat_every`
+	WaterRepeatUnit  string `json:water_repeat_unit`
+	PlantHealth      int    `json:plant_health`
 }
 
 // Function to classify plant using OpenAI Vision API
 func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassification, error) {
 	// Create the prompt for plant identification
-	prompt := `Analyze this plant image and provide detailed botanical information. 
+	prompt := `Analyze this plant image and provide detailed botanical information.
 	Please identify:
 	1. Common plant name
 	2. Scientific name (genus and species)
 	3. Plant species/variety if identifiable
-	4. Your confidence level in the identification (High/Medium/Low)
-	
+	5. How often to water this specific plant
+	6. The current health of the plant on a scale from 1 - 100
+   
 	Respond in JSON format like this:
 	{
 		"plant_name": "Common name of the plant",
 		"scientific_name": "Scientific name in binomial nomenclature",
 		"species": "Specific species or variety",
-		"confidence": "High/Medium/Low"
-	}
-	
-	If you cannot identify the plant, use "Unknown" for the fields and set confidence to "Low".`
+		"water_repeat_every": "some number",
+		"water_repeat_unit": "a unit of measurement correlated to the water_repeat_every field",
+		"health": "a number representing the current health of this plant"
+	}`
 
 	// Prepare the request payload
 	requestPayload := OpenAIRequest{
@@ -152,10 +155,12 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 	if err := json.Unmarshal([]byte(content), &classification); err != nil {
 		// If JSON parsing fails, return default values
 		return &PlantClassification{
-			PlantName:      "Unknown Plant",
-			ScientificName: "Unknown Species",
-			Species:        "Unknown",
-			Confidence:     "Low",
+			PlantName:        "Unknown Plant",
+			ScientificName:   "Unknown Species",
+			Species:          "Unknown",
+			WaterRepeatEvery: 1,
+			WaterRepeatUnit:  "day",
+			PlantHealth:      100,
 		}, nil
 	}
 

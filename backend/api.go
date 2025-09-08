@@ -51,10 +51,12 @@ func HandleAddPlant(c *gin.Context) {
 		fmt.Printf("OpenAI classification failed: %v\n", err)
 		// Fall back to default values if classification fails
 		classification = &PlantClassification{
-			PlantName:      "Unknown Plant",
-			ScientificName: "Unknown Species",
-			Species:        "Unknown",
-			Confidence:     "Low",
+			PlantName:        "Unknown Plant",
+			ScientificName:   "Unknown Species",
+			Species:          "Unknown",
+			WaterRepeatEvery: 1,
+			WaterRepeatUnit:  "day",
+			PlantHealth:      100,
 		}
 	}
 
