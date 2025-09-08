@@ -175,9 +175,9 @@ type NewSchedule struct {
 func (handler *DatabaseHandler) CreateNewSchedule(
 	user_id string,
 	plant_id int,
+	plant_pet_name string,
 	water_repeat_every int,
 	water_repeat_unit string,
-	plant_pet_name string,
 ) (string, error) {
 
 	// Step 2: Insert into schedule with next due date
