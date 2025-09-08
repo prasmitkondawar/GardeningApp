@@ -131,22 +131,45 @@ func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 }
 
 func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int, new_pet_name string) (string, error) {
-	// SQL query to update the pet name of an existing plant
-	updateQuery := `
-        UPDATE plants 
-        SET plant_pet_name = $3 
-        WHERE user_id = $1 AND plant_id = $2
-        RETURNING plant_pet_name;
-    `
+	tx, err := handler.Db.Begin()
+	if err != nil {
+		return "", fmt.Errorf("failed to begin transaction: %v", err)
+	}
 
 	var updatedPetName string
-	err := handler.Db.QueryRow(updateQuery, user_id, plant_id, new_pet_name).Scan(&updatedPetName)
+
+	// Step 1: Update plants table
+	updatePlantsQuery := `
+        UPDATE plants
+        SET plant_pet_name = $3
+        WHERE user_id = $1 AND plant_id = $2
+        RETURNING plant_pet_name
+    `
+	err = tx.QueryRow(updatePlantsQuery, user_id, plant_id, new_pet_name).Scan(&updatedPetName)
 	if err != nil {
+		tx.Rollback()
 		if err == sql.ErrNoRows {
 			return "", fmt.Errorf("plant with ID %d not found for user %s", plant_id, user_id)
 		}
-		fmt.Println("ERROR updating plant pet name:", err)
-		return "", err
+		return "", fmt.Errorf("error updating plants table: %v", err)
+	}
+
+	// Step 2: Update schedule table
+	updateScheduleQuery := `
+        UPDATE schedule
+        SET plant_pet_name = $3
+        WHERE user_id = $1 AND plant_id = $2
+    `
+	_, err = tx.Exec(updateScheduleQuery, user_id, plant_id, new_pet_name)
+	if err != nil {
+		tx.Rollback()
+		return "", fmt.Errorf("error updating schedule table: %v", err)
+	}
+
+	// Commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return "", fmt.Errorf("failed to commit transaction: %v", err)
 	}
 
 	return updatedPetName, nil
