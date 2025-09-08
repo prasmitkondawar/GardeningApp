@@ -252,7 +252,7 @@ func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (strin
 	defer tx.Rollback()
 
 	// Delete from schedule where plant_id matches
-	_, err = tx.Exec("DELETE FROM schedule WHERE plant_id = $1", plant_id)
+	_, err = tx.Exec("DELETE FROM schedule WHERE user_id = $1 AND plant_id = $2", user_id, plant_id)
 	if err != nil {
 		return "", fmt.Errorf("failed to delete from schedule: %v", err)
 	}
