@@ -139,7 +139,7 @@ const CalendarView: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const baseUrl = process.env.API_BASE_URL;
+      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
       const response = await fetch(`${baseUrl}/fetch-schedule`, {
         method: 'GET',
@@ -178,7 +178,7 @@ const CalendarView: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const baseUrl = process.env.API_BASE_URL
+      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
 
       const response = await fetch(`${baseUrl}/update-completion`, {
         method: 'POST',

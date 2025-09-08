@@ -60,7 +60,7 @@ const CameraScreen: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const baseUrl = process.env.API_BASE_URL
+      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
       // Step 1: Check if user can add more plants
 
       setIsUploading(true);

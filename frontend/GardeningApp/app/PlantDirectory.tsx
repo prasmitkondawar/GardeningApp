@@ -78,7 +78,7 @@ const PlantDirectory: React.FC = () => {
   async function fetchPlants() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const baseUrl = process.env.API_BASE_URL
+      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
       const token = session?.access_token;
       const response = await fetch(`${baseUrl}/fetch-plants`, {
         method: 'GET',
@@ -135,7 +135,7 @@ const PlantDirectory: React.FC = () => {
   // Backend update for pet name
   async function updatePetName(id: number, newPetName: string) {
     setSavingId(id);
-    const baseUrl = process.env.API_BASE_URL
+    const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
