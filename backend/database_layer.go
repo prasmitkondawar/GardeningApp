@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -130,43 +131,25 @@ func (handler *DatabaseHandler) LengthPlants(user_id string) (bool, error) {
 }
 
 func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int, new_pet_name string) (string, error) {
-	var exists bool
-	err := handler.Db.QueryRow(`
-        SELECT EXISTS(
-            SELECT 1 FROM plants 
-            WHERE plant_pet_name = $1 AND plant_id <> $2
-        )
-    `, new_pet_name, plant_id).Scan(&exists)
-	if err != nil {
-		print("ERROR", err)
-		return "", fmt.Errorf("failed to check existing pet name: %v", err)
-	}
-	if exists {
-		return "Plant pet name already exists", nil
-	}
-
-	// Step 2: Update plant_pet_name for the given user and plant_id
-	result, err := handler.Db.Exec(`
+	// SQL query to update the pet name of an existing plant
+	updateQuery := `
         UPDATE plants 
         SET plant_pet_name = $3 
         WHERE user_id = $1 AND plant_id = $2
-    `, user_id, plant_id, new_pet_name)
+        RETURNING plant_pet_name;
+    `
+
+	var updatedPetName string
+	err := handler.Db.QueryRow(updateQuery, user_id, plant_id, new_pet_name).Scan(&updatedPetName)
 	if err != nil {
-		print("ERROR", err)
-		return "", fmt.Errorf("failed to update plant pet name: %v", err)
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("plant with ID %d not found for user %s", plant_id, user_id)
+		}
+		fmt.Println("ERROR updating plant pet name:", err)
+		return "", err
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		print("ERROR", err)
-		return "", fmt.Errorf("failed to check affected rows: %v", err)
-	}
-	if rowsAffected == 0 {
-		print("ERROR", err)
-		return "", fmt.Errorf("no plant found to update")
-	}
-
-	return "Plant pet name updated successfully", nil
+	return updatedPetName, nil
 }
 
 func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int, water_repeat_every int, water_repeat_unit string) (string, error) {
