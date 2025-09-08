@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -41,58 +42,39 @@ func HandleAddPlant(c *gin.Context) {
 
 	fmt.Println("Received image URL:", req.ImageURL)
 
-	// openaiAPIKey := os.Getenv("OPENAI_API_KEY")
+	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
 
-	// // Classify the plant using OpenAI
-	// fmt.Println("Classifying plant with OpenAI...")
-	// classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
-	// if err != nil {
-	// 	fmt.Printf("OpenAI classification failed: %v\n", err)
-	// 	// Fall back to default values if classification fails
-	// 	classification = &PlantClassification{
-	// 		PlantName:        "Unknown Plant",
-	// 		ScientificName:   "Unknown Species",
-	// 		Species:          "Unknown",
-	// 		WaterRepeatEvery: 1,
-	// 		WaterRepeatUnit:  "day",
-	// 		PlantHealth:      100,
-	// 	}
-	// }
-
-	// fmt.Printf("Classification result: %+v\n", classification)
-
-	// // Use the classified information instead of hardcoded values
-	// plant_pet_name := classification.PlantName
-
-	// plant_id, err := Handler.AddPlant(
-	// 	userID,
-	// 	classification.PlantName,      // Use AI-identified name
-	// 	classification.ScientificName, // Use AI-identified scientific name
-	// 	classification.Species,        // Use AI-identified species
-	// 	req.ImageURL,
-	// 	plant_pet_name,             // Generate a pet name based on the plant name
-	// 	classification.PlantHealth, // Default health value
-	// )
-	plant_id, err := Handler.AddPlant(
-		userID,
-		"classification.PlantName",      // Use AI-identified name
-		"classification.ScientificName", // Use AI-identified scientific name
-		"classification.Species",        // Use AI-identified species
-		req.ImageURL,
-		"test_name", // Generate a pet name based on the plant name
-		65,          // Default health value
-	)
+	// Classify the plant using OpenAI
+	fmt.Println("Classifying plant with OpenAI...")
+	classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": plant_id})
-		return
+		fmt.Printf("OpenAI classification failed: %v\n", err)
+		// Fall back to default values if classification fails
+		classification = &PlantClassification{
+			PlantName:      "Unknown Plant",
+			ScientificName: "Unknown Species",
+			Species:        "Unknown",
+			Confidence:     "Low",
+		}
 	}
 
-	// msg, err := Handler.CreateNewSchedule(userID, plant_id, classification.WaterRepeatEvery, classification.WaterRepeatUnit, plant_pet_name)
-	msg, err := Handler.CreateNewSchedule(userID, plant_id, 1, "day", "test_name")
+	fmt.Printf("Classification result: %+v\n", classification)
+
+	// Use the classified information instead of hardcoded values
+	plant_pet_name := "My " + classification.PlantName
+
+	msg, err := Handler.AddPlant(
+		userID,
+		classification.PlantName,      // Use AI-identified name
+		classification.ScientificName, // Use AI-identified scientific name
+		classification.Species,        // Use AI-identified species
+		req.ImageURL,
+		plant_pet_name, // Generate a pet name based on the plant name
+		65,             // Default health value
+	)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": plant_id})
+		fmt.Println(msg)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
 	}
 
