@@ -253,7 +253,7 @@ const CalendarView: React.FC = () => {
                           { backgroundColor: isOverdue ? '#ff4433' : '#4caf50' }
                         ]}
                       >
-                        <Text style={[styles.eventText, { color: '#8b0000' }]}>
+                        <Text style={[styles.eventText, { color: '#ffffff' }]}>
                           Water {item.PlantPetName}
                         </Text>
                         <TouchableOpacity
