@@ -57,23 +57,6 @@ func main() {
 		})
 	})
 
-	// Test endpoint to verify environment variables
-	router.GET("/env-test", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"env_loaded": os.Getenv("OPENAI_API_KEY") != "",
-			"env_vars": map[string]string{
-				"OPENAI_API_KEY": func() string {
-					if os.Getenv("OPENAI_API_KEY") != "" {
-						return "[REDACTED]"
-					}
-					return ""
-				}(),
-				"DATABASE_URL": os.Getenv("DATABASE_URL"),
-				"PORT":         os.Getenv("PORT"),
-			},
-		})
-	})
-
 	// Commenting out undefined handlers for now
 	router.POST("/add-plant", HandleAddPlant)
 	router.GET("/fetch-plants", HandleFetchPlants)

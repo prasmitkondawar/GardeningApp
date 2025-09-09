@@ -31,7 +31,8 @@ func HandleAddPlant(c *gin.Context) {
 
 	// Define input struct accepting image_url and other plant fields
 	type AddPlantRequest struct {
-		ImageURL string `json:"image_url" binding:"required"`
+		ImageURL  string `json:"image_url" binding:"required"`
+		PlantName string `json:"plantPetName" binding:"required"`
 	}
 
 	var req AddPlantRequest
@@ -84,8 +85,8 @@ func HandleAddPlant(c *gin.Context) {
 		"classification.ScientificName", // Use AI-identified scientific name
 		"classification.Species",        // Use AI-identified species
 		req.ImageURL,
-		"",  // Generate a pet name based on the plant name
-		100, // Default health value
+		req.PlantName, // Generate a pet name based on the plant name
+		100,           // Default health value
 	)
 	if err != nil {
 		fmt.Println(err)

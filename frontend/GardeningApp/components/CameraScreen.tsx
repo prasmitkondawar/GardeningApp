@@ -74,9 +74,37 @@ const CameraScreen: React.FC = () => {
 
       console.log("Photo uploaded, URL:", photoUrl);
 
-      // Prepare payload with photo URL
+      const plantPetName = await new Promise<string>((resolve) => {
+        Alert.prompt(
+          "Name Your Plant",
+          "What would you like to call your new plant?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+              onPress: () => resolve("") // Return empty string if cancelled
+            },
+            {
+              text: "Add Plant",
+              onPress: (inputText) => resolve(inputText || "My Plant") // Use default name if empty
+            }
+          ],
+          "plain-text",
+          "", // Default text in input field
+          "default" // Keyboard type
+        );
+      });
+
+      // If user cancelled (empty string), stop the upload process
+      if (plantPetName === "") {
+        console.log("Plant upload cancelled by user");
+        return null;
+      }
+
+      // Prepare payload with photo URL and plant name
       const payload = {
-        image_url: photoUrl
+        image_url: photoUrl,
+        plant_pet_name: plantPetName
       };
 
       // Send to backend
