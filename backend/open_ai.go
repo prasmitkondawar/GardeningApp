@@ -73,7 +73,9 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 		"plant_health": "a number representing the current health of this plant"
 	}
 		
-	Example response:
+	Example 1:
+	Image: https://nouveauraw.com/wp-content/uploads/2020/10/swiss-cheese-plant-moss-pole-feature.png
+	Response:
 	{
 		"plant_name": "Swiss Cheese Plant",
 		"scientific_name": "Monstera deliciosa",
