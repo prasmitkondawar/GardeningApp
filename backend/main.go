@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -38,41 +37,17 @@ func main() {
 	// Load environment variables from .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Warning: Error loading .env file from default location")
-		// Try to load from the current directory as fallback
-		err = godotenv.Load("./.env")
-		if err != nil {
-			log.Printf("Error loading ./.env file: %v", err)
-		} else {
-			log.Println("Successfully loaded .env from ./")
-		}
+		log.Fatal("Error loading .env file")
+	}
+
+	// Check if OPENAI_API_KEY is set
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	if apiKey == "" {
+		fmt.Println("❌ OPENAI_API_KEY is not set in .env file")
+	} else if apiKey == "your_openai_api_key_here" {
+		fmt.Println("⚠️  Please replace 'your_openai_api_key_here' with your actual OpenAI API key in the .env file")
 	} else {
-		log.Println("Successfully loaded .env from default location")
-	}
-
-	// Debug: Print the current working directory
-	wd, _ := os.Getwd()
-	log.Println("Current working directory:", wd)
-
-	// Debug: Print all environment variables (be careful with sensitive data)
-	log.Println("Environment variables:")
-	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, "OPENAI_") || strings.HasPrefix(env, "GIN_") {
-			log.Println(env)
-		}
-	}
-
-	// Debug: Print environment variable status
-	log.Println("Environment variables status:")
-	log.Println("Current working directory:", os.Getenv("PWD"))
-	log.Println("Environment file loaded:", err == nil)
-	log.Println("OPENAI_API_KEY set:", os.Getenv("OPENAI_API_KEY") != "")
-
-	// Log environment variables (excluding sensitive ones in production)
-	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, "OPENAI_") || strings.HasPrefix(env, "GIN_") {
-			log.Println(env)
-		}
+		fmt.Println("✅ OPENAI_API_KEY is set correctly")
 	}
 
 	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
@@ -107,12 +82,13 @@ func main() {
 		})
 	})
 
-	router.POST("/add-plant", HandleAddPlant)
-	router.GET("/fetch-plants", HandleFetchPlants)
-	router.GET("/fetch-schedule", HandleFetchSchedule)
-	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
-	router.POST("/complete-schedule", HandleCompleteSchedule)
-	router.POST("/delete-plant", HandleDeletePlant)
+	// Commenting out undefined handlers for now
+	// router.POST("/add-plant", HandleAddPlant)
+	// router.GET("/fetch-plants", HandleFetchPlants)
+	// router.GET("/fetch-schedule", HandleFetchSchedule)
+	// router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
+	// router.POST("/complete-schedule", HandleCompleteSchedule)
+	// router.POST("/delete-plant", HandleDeletePlant)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -133,7 +109,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8000" // fallback for local dev
+		port = "8080" // Changed default port to 8080 to avoid conflicts
 	}
 	router.Run("0.0.0.0:" + port)
 
