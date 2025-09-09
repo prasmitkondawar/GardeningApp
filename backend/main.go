@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -35,17 +34,16 @@ func InitDatabaseHandler(connString string) error {
 
 func main() {
 	// Load environment variables from .env file
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	if apiKey == "" {
+		log.Fatal("OPENAI_API_KEY is not set in environment")
 	}
 
-	// Check if OPENAI_API_KEY is set
-	apiKey := os.Getenv("API_KEY")
-	fmt.Println(apiKey)
+	// Use apiKey in your code as needed
+	log.Println("OPENAI_API_KEY loaded successfully")
 
 	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
-	err = InitDatabaseHandler(connString)
+	err := InitDatabaseHandler(connString)
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
