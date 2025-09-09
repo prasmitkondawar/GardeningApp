@@ -59,34 +59,31 @@ func HandleAddPlant(c *gin.Context) {
 	}
 
 	// // Classify the plant using OpenAI
-	// fmt.Println("Classifying plant with OpenAI...")
-	// classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
-	// if err != nil {
-	// 	fmt.Printf("OpenAI classification failed: %v\n", err)
-	// 	// Fall back to default values if classification fails
-	// 	classification = &PlantClassification{
-	// 		PlantName:        "Unknown Plant",
-	// 		ScientificName:   "Unknown Species",
-	// 		Species:          "Unknown",
-	// 		WaterRepeatEvery: 1,
-	// 		WaterRepeatUnit:  "day",
-	// 		PlantHealth:      100,
-	// 	}
-	// }
+	fmt.Println("Classifying plant with OpenAI...")
+	classification, err := classifyPlantWithOpenAI(req.ImageURL, openaiAPIKey)
+	if err != nil {
+		fmt.Printf("OpenAI classification failed: %v\n", err)
+		// Fall back to default values if classification fails
+		classification = &PlantClassification{
+			PlantName:        "Unknown Plant",
+			ScientificName:   "Unknown Species",
+			Species:          "Unknown",
+			WaterRepeatEvery: 1,
+			WaterRepeatUnit:  "day",
+			PlantHealth:      100,
+		}
+	}
 
-	// fmt.Printf("Classification result: %+v\n", classification)
-
-	// // Use the classified information instead of hardcoded values
-	// plant_pet_name := classification.PlantName
+	fmt.Printf("Classification result: %+v\n", classification)
 
 	plant_id, err := Handler.AddPlant(
 		userID,
-		"classification.PlantName",      // Use AI-identified name
-		"classification.ScientificName", // Use AI-identified scientific name
-		"classification.Species",        // Use AI-identified species
+		classification.PlantName,      // Use AI-identified name
+		classification.ScientificName, // Use AI-identified scientific name
+		classification.Species,        // Use AI-identified species
 		req.ImageURL,
-		req.PlantName, // Generate a pet name based on the plant name
-		100,           // Default health value
+		req.PlantName,              // Generate a pet name based on the plant name
+		classification.PlantHealth, // Default health value
 	)
 	if err != nil {
 		fmt.Println(err)

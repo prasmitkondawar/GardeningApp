@@ -47,9 +47,9 @@ type PlantClassification struct {
 	PlantName        string `json:"plant_name"`
 	ScientificName   string `json:"scientific_name"`
 	Species          string `json:"species"`
-	WaterRepeatEvery int    `json:water_repeat_every`
-	WaterRepeatUnit  string `json:water_repeat_unit`
-	PlantHealth      int    `json:plant_health`
+	WaterRepeatEvery int    `json:"water_repeat_every"`
+	WaterRepeatUnit  string `json:"water_repeat_unit"`
+	PlantHealth      int    `json:"plant_health"`
 }
 
 // Function to classify plant using OpenAI Vision API
@@ -63,19 +63,31 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 	5. How often to water this specific plant
 	6. The current health of the plant on a scale from 1 - 100
    
-	Respond in JSON format like this:
+	Respond ONLY in valid JSON format like this:
 	{
 		"plant_name": "Common name of the plant",
 		"scientific_name": "Scientific name in binomial nomenclature",
 		"species": "Specific species or variety",
 		"water_repeat_every": "some number",
 		"water_repeat_unit": "a unit of measurement correlated to the water_repeat_every field",
-		"health": "a number representing the current health of this plant"
-	}`
+		"plant_health": "a number representing the current health of this plant"
+	}
+		
+	Example response:
+	{
+		"plant_name": "Swiss Cheese Plant",
+		"scientific_name": "Monstera deliciosa",
+		"species": "deliciosa",
+		"water_repeat_every": 7,
+		"water_repeat_unit": "days",
+		"plant_health": 83
+	}
+	Do not include any explanation or markdown formatting, just the JSON.
+	`
 
 	// Prepare the request payload
 	requestPayload := OpenAIRequest{
-		Model: "gpt-4-vision-preview", // or "gpt-4o" if available
+		Model: "gpt-4o", // or "gpt-4o" if available
 		Messages: []OpenAIMessage{
 			{
 				Role: "user",
@@ -122,6 +134,7 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 
 	// Read response
 	body, err := io.ReadAll(resp.Body)
+	fmt.Println("BODY", body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %v", err)
 	}
@@ -131,7 +144,7 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 	if err := json.Unmarshal(body, &openaiResp); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response: %v", err)
 	}
-
+	fmt.Println("OPENAIRESPONSE", openaiResp)
 	// Check for API errors
 	if openaiResp.Error != nil {
 		return nil, fmt.Errorf("OpenAI API error: %s", openaiResp.Error.Message)
@@ -144,6 +157,7 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 
 	// Extract and parse the JSON content
 	content := openaiResp.Choices[0].Message.Content
+	fmt.Println("CONTENT", content)
 
 	// Clean the content - sometimes OpenAI wraps JSON in markdown code blocks
 	content = strings.TrimPrefix(content, "```json")
@@ -163,6 +177,6 @@ func classifyPlantWithOpenAI(imageURL string, openaiAPIKey string) (*PlantClassi
 			PlantHealth:      100,
 		}, nil
 	}
-
+	fmt.Println("classification", classification)
 	return &classification, nil
 }
