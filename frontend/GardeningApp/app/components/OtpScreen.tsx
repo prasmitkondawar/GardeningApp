@@ -5,6 +5,7 @@ import supabase from '../../config/supabase';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSearchParams } from 'expo-router/build/hooks';
 
 export default function OtpScreen() {
   const [loading, setLoading] = useState(false);
@@ -16,6 +17,7 @@ export default function OtpScreen() {
 
   const handleVerify = async () => {
     setLoading(true);
+    console.log("EMAIL: " + emailStr);
     const { data, error } = await supabase.auth.verifyOtp({
       email: emailStr,
       token: otp,
@@ -32,35 +34,45 @@ export default function OtpScreen() {
     }
   };
 
+  const handleOrgScreen = async () => {
+    if (orgScreenStr === 'LoginScreen') {
+      router.navigate("/components/LoginScreen")
+    } else if (orgScreenStr === 'SignUpScreen') {
+      router.navigate("/components/SignUpScreen")
+    }
+  }
 
   return (
-    <View>
+    <View style={styles.container}>
       <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" style = {styles.input} />
       <Button title="Verify OTP" onPress={handleVerify} disabled={loading}/>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.navigate("/components/LoginScreen")}>
-        <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } />
+      <TouchableOpacity style={styles.backButton} onPress={handleOrgScreen}>
+        <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } size={30}/>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex:1, 
+    justifyContent:'center', 
+    alignItems:'center', 
+    padding:20
+  },
+
   backButton: {
     backgroundColor: '#007AFF',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    paddingVertical: 5,
+    paddingHorizontal: 20,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     alignSelf: 'flex-start', 
-    margin: 16,
-    scaleX: 2.0,
-    scaleY: 2.0,
   },
 
   input: {
     width: '100%', 
-    height: 40, 
-    borderColor: '#ccc', 
+    height: 40,  
     borderWidth: 1, 
     marginBottom: 12, 
     paddingHorizontal: 8

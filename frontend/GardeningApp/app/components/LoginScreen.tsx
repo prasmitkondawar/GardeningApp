@@ -14,17 +14,18 @@ export default function LoginScreen() {
   async function handleLogin() {
     setLoading(true);
     const { error, data } = await supabase.auth.signInWithOtp({ email });
-    console.log("DATA", data);
+    console.log("Email: " + email);
     setLoading(false);
     
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
       Alert.alert('OTP Sent!', `Check your email for the password: ${email}`);
+      router.push({
+        pathname: '/components/OtpScreen',
+        params: { email: email, orgScreen: 'LoginScreen' }
+      });
     }
-
-    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}?orgScreen=LoginScreen`);
-
   }
 
   return (

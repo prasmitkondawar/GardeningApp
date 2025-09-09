@@ -13,9 +13,12 @@ export default function SignUpScreen () {
     const { error } = await supabase.auth.signInWithOtp({ email });
     setLoading(false);
     if (error) Alert.alert('Sign Up Error', error.message);
-    else Alert.alert('Success!', 'Check your messages for OTP password.');
+    else Alert.alert('Success!', 'Check your email for OTP password.');
 
-    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}?orgScreen=SignUpScreen`);
+    router.push({
+      pathname: '/components/OtpScreen',
+      params: { email: email, orgScreen: 'SignUpScreen' }
+    });
   }
 
 
