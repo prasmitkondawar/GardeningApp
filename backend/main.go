@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 var Handler *DatabaseHandler
@@ -39,37 +39,48 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Warning: Error loading .env file")
+		// Try to load from the current directory as fallback
+		err = godotenv.Load("./.env")
+		if err != nil {
+			log.Printf("Error loading .env file: %v", err)
+		}
 	}
 
-	// Debug: Print all environment variables
-	log.Println("Environment variables:")
+	// Debug: Print environment variable status
+	log.Println("Environment variables status:")
 	log.Println("Current working directory:", os.Getenv("PWD"))
-	log.Println("Environment file location:", os.Getenv("ENV"))
-	log.Println("OPENAI_API_KEY exists:", os.Getenv("OPENAI_API_KEY") != "")
-	
-	// Print all environment variables (be careful with sensitive data in production)
+	log.Println("Environment file loaded:", err == nil)
+	log.Println("OPENAI_API_KEY set:", os.Getenv("OPENAI_API_KEY") != "")
+
+	// Log environment variables (excluding sensitive ones in production)
 	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, "OPENAI") || strings.HasPrefix(env, "GIN") {
+		if strings.HasPrefix(env, "OPENAI_") || strings.HasPrefix(env, "GIN_") {
 			log.Println(env)
 		}
 	}
-	
-	// Try to load .env file from the current directory explicitly
-	err = godotenv.Load(".env")
-	log.Println("After explicit .env load, OPENAI_API_KEY exists:", os.Getenv("OPENAI_API_KEY") != "")
-
-	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
-	err = InitDatabaseHandler(connString)
-	if err != nil {
-		log.Fatal("Error connecting to database:", err)
-	}
-	log.Println("TEST PRINTING")
 
 	router := gin.Default()
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
+		})
+	})
+
+	// Test endpoint to verify environment variables
+	router.GET("/env-test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"env_loaded": os.Getenv("OPENAI_API_KEY") != "",
+			"env_vars": map[string]string{
+				"OPENAI_API_KEY": func() string {
+					if os.Getenv("OPENAI_API_KEY") != "" {
+						return "[REDACTED]"
+					}
+					return ""
+				}(),
+				"DATABASE_URL": os.Getenv("DATABASE_URL"),
+				"PORT":         os.Getenv("PORT"),
+			},
 		})
 	})
 

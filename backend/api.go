@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -43,7 +44,18 @@ func HandleAddPlant(c *gin.Context) {
 	fmt.Println("Received image URL:", req.ImageURL)
 
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
-	fmt.Println("API KEY", openaiAPIKey)
+	log.Println("Debug - HandleAddPlant - OPENAI_API_KEY exists:", openaiAPIKey != "")
+	log.Println("Debug - Current working directory:", os.Getenv("PWD"))
+	log.Println("Debug - All environment variables:")
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, "OPENAI_") || strings.HasPrefix(env, "GIN_") {
+			log.Println(env)
+		}
+	}
+
+	if openaiAPIKey == "" {
+		log.Println("Error: OPENAI_API_KEY is not set in environment variables")
+	}
 
 	// // Classify the plant using OpenAI
 	// fmt.Println("Classifying plant with OpenAI...")
