@@ -43,7 +43,7 @@ func HandleAddPlant(c *gin.Context) {
 	fmt.Println("Received image URL:", req.ImageURL)
 
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
-	print("API KEY", openaiAPIKey)
+	fmt.Println("API KEY", openaiAPIKey)
 
 	// // Classify the plant using OpenAI
 	// fmt.Println("Classifying plant with OpenAI...")
