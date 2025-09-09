@@ -38,11 +38,27 @@ func main() {
 	// Load environment variables from .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Warning: Error loading .env file")
+		log.Println("Warning: Error loading .env file from default location")
 		// Try to load from the current directory as fallback
 		err = godotenv.Load("./.env")
 		if err != nil {
-			log.Printf("Error loading .env file: %v", err)
+			log.Printf("Error loading ./.env file: %v", err)
+		} else {
+			log.Println("Successfully loaded .env from ./")
+		}
+	} else {
+		log.Println("Successfully loaded .env from default location")
+	}
+
+	// Debug: Print the current working directory
+	wd, _ := os.Getwd()
+	log.Println("Current working directory:", wd)
+
+	// Debug: Print all environment variables (be careful with sensitive data)
+	log.Println("Environment variables:")
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, "OPENAI_") || strings.HasPrefix(env, "GIN_") {
+			log.Println(env)
 		}
 	}
 
