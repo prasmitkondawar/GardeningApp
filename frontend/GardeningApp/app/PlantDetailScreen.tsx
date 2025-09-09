@@ -175,11 +175,6 @@ const PlantDetailScreen: React.FC = () => {
                 text={plant.Species}
                 icon="library-outline"
               />
-              <DetailItem
-                label="Plant ID"
-                text={String(plant.PlantID)}
-                icon="barcode-outline"
-              />
             </Animated.View>
           </ScrollView>
         </SafeAreaView>

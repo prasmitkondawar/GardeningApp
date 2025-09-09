@@ -29,9 +29,12 @@ interface PlantCard {
 }
 
 const screenWidth = Dimensions.get('window').width;
-const horizontalPadding = 32; // for example, 16 padding on left + 16 on right
+const horizontalPadding = 32; // total padding for container
+const numColumns = 2;
+const cardSpacing = 16; // margin around each card
 
-const cardWidth = screenWidth - horizontalPadding;
+const cardWidth = (screenWidth - horizontalPadding - cardSpacing) / numColumns;
+
 
 const PlantDirectory: React.FC = () => {
   const [plants, setPlants] = useState<PlantCard[]>([]);
@@ -336,39 +339,42 @@ const PlantDirectory: React.FC = () => {
         data={plants}
         keyExtractor={(item) => item.PlantID.toString()}
         renderItem={renderPlantCard}
-        horizontal={false} // Remove this line or set to false
+        numColumns={2}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        columnWrapperStyle={styles.row} // This ensures proper row alignment
       />
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingHorizontal: 18,
+    paddingHorizontal: 16, // Reduced from 18 for better symmetry
     paddingVertical: 28,
   },
+  row: {
+    justifyContent: 'space-between', // This distributes cards evenly
+    marginBottom: 16, // Consistent spacing between rows
+  },
   card: {
-    width: cardWidth / 2,
+    width: cardWidth,
     paddingTop: 18,
     paddingBottom: 10,
     paddingHorizontal: 14,
-    marginRight: 22,
     backgroundColor: '#fff',
     borderRadius: 22,
     alignItems: 'center',
-    // Shadow for depth
     shadowColor: '#14967F',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
     elevation: 7,
-    marginBottom: 10,
-    // Neomorphic border/shadow effect
     borderWidth: 1.3,
     borderColor: '#e8f5ee',
   },
+  
   imageWrapper: {
     width: 90,
     height: 90,
