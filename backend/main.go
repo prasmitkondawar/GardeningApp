@@ -59,6 +59,13 @@ func main() {
 		}
 	}
 
+	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
+	err = InitDatabaseHandler(connString)
+	if err != nil {
+		log.Fatal("Error connecting to database:", err)
+	}
+	log.Println("TEST PRINTING")
+
 	router := gin.Default()
 
 	router.GET("/ping", func(c *gin.Context) {
