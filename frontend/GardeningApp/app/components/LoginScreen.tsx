@@ -23,7 +23,7 @@ export default function LoginScreen() {
       Alert.alert('OTP Sent!', `Check your email for the password: ${email}`);
     }
 
-    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}`);
+    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}?orgScreen=LoginScreen`);
 
   }
 

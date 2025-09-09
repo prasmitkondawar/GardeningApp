@@ -15,7 +15,7 @@ export default function SignUpScreen () {
     if (error) Alert.alert('Sign Up Error', error.message);
     else Alert.alert('Success!', 'Check your messages for OTP password.');
 
-    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}`);
+    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}?orgScreen=SignUpScreen`);
   }
 
 

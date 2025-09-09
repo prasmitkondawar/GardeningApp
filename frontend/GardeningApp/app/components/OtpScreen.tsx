@@ -8,10 +8,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function OtpScreen() {
   const [loading, setLoading] = useState(false);
-  const { email } = useLocalSearchParams();
+  const { email, orgScreen } = useLocalSearchParams();
   const [otp, setOtp] = useState('');
   const router = useRouter();
   const emailStr = Array.isArray(email) ? email[0] : email;
+  const orgScreenStr = Array.isArray(orgScreen) ? orgScreen[0] : orgScreen;
 
   const handleVerify = async () => {
     setLoading(true);
