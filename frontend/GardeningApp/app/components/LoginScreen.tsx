@@ -1,32 +1,28 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import supabase from '../../config/supabase';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/app/Navigator';
-import SignUpScreen from './SignUpScreen';
+import { useRouter } from 'expo-router';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
+// type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
 
 export default function LoginScreen() {
-  const [phone, setPhone] = useState(' ');
+  const [email, setEmail] = useState(' ');
   const [loading, setLoading] = useState(false);
-  const screenNav = useNavigation<NavigationProp>();
+  const router = useRouter();
+  // const screenNav = useNavigation<NavigationProp>();
 
   async function handleLogin() {
     setLoading(true);
-    const { error, data } = await supabase.auth.signInWithOtp({ phone });
+    const { error, data } = await supabase.auth.signInWithOtp({ email });
     console.log("DATA", data);
     setLoading(false);
     if (error) {
       Alert.alert('Login Error', error.message);
     } else {
-      Alert.alert('Login successful', `Logged in as ${phone}`);
+      Alert.alert('Login successful', `Logged in as ${email}`);
     }
-  }
 
-  async function handleDirSignUp() {
-    screenNav.navigate('SignUpScreen');
+    router.navigate('/components/OtpScreen');
   }
 
   return (
@@ -34,17 +30,17 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <TextInput
-        placeholder="Phone"
+        placeholder="email"
         autoCapitalize="none"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
         style={styles.input}
       />
       <View style={{ marginBottom: 20 }}>
         <Button title="Login" onPress={handleLogin} disabled={loading} />
       </View>
-      {<Button title="Want to create an account? Sign Up" onPress={handleDirSignUp} />}
+      {<Button title="Want to create an account? Sign Up" onPress={() => router.navigate("/components/SignUpScreen")} />}
     </View>    
     </>
   );

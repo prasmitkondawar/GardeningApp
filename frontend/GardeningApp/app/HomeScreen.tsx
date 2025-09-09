@@ -38,7 +38,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen options={{ headerShown: true }} />
         <View style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
           </View>

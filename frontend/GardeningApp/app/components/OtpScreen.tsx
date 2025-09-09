@@ -2,24 +2,19 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import supabase from '../../config/supabase';
-import { RootStackParamList } from '@/app/index';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-
-type OtpScreenRouteProp = RouteProp<RootStackParamList, 'OtpScreen'>;
-type OtpProp = NativeStackNavigationProp<RootStackParamList, 'OtpScreen'>;
+import { useRouter } from 'expo-router';
 
 export default function OtpScreen() {
   const [otp, setOtp] = useState('');
-  const route = useRoute<OtpScreenRouteProp>();
-  const screenNav = useNavigation<OtpProp>();
-  const { phone } = route.params;
+  const route = useRouter();
 
   const handleVerify = async () => {
     const { data, error } = await supabase.auth.verifyOtp({
-      phone,
+      email,
       token: otp,
-      type: 'sms',
+      type: 'email',
     });
     if (error) {
       Alert.alert('OTP Error', error.message);

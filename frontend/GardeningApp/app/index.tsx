@@ -32,17 +32,15 @@ export default function Index() {
   return (
     <>
       <SafeAreaView style={{ flex: 1 }}>
-        <NavigationContainer>
-          <StackNavigator.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
-            <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
-            <StackNavigator.Screen name="PlantDirectory" component={PlantDirectory} />
-            <StackNavigator.Screen name="PlantDetailScreen" component={PlantDetailScreen} />
-            <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
-            <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
-            <StackNavigator.Screen name="Profile" component={Profile} />
-            <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
-          </StackNavigator.Navigator>
-      </NavigationContainer>
+        <StackNavigator.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+          <StackNavigator.Screen name="LoginScreen" component={LoginScreen} />
+          <StackNavigator.Screen name="PlantDirectory" component={PlantDirectory} />
+          <StackNavigator.Screen name="PlantDetailScreen" component={PlantDetailScreen} />
+          <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
+          <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
+          <StackNavigator.Screen name="Profile" component={Profile} />
+          <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
+        </StackNavigator.Navigator>
       </SafeAreaView>
     </>
   );

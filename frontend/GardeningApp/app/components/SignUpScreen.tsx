@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import supabase from '../../config/supabase';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/app/index';
-import { useNavigation } from 'expo-router';
-
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
+import { useNavigation, useRouter } from 'expo-router';
 
 export default function SignUpScreen () {
     const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(false);
-    const screenNav = useNavigation<NavigationProp>();
+    const router = useRouter();
 
   async function handleSignUp() {
     setLoading(true);
@@ -20,11 +15,7 @@ export default function SignUpScreen () {
     if (error) Alert.alert('Sign Up Error', error.message);
     else Alert.alert('Success!', 'Check your messages for OTP password.');
 
-    screenNav.navigate('OtpScreen', {phone: phone });
-  }
-
-  async function handleDirLogin() {
-    screenNav.navigate('LoginScreen');
+    router.navigate('/components/OtpScreen');
   }
 
 
@@ -42,7 +33,7 @@ export default function SignUpScreen () {
       <View style={{ marginBottom: 20 }}>
         <Button title="Sign Up" onPress={handleSignUp} disabled={loading} />
       </View>
-      <Button title="Already have an account? Login" onPress={handleDirLogin} />
+      <Button title="Already have an account? Login" onPress={() => router.navigate('/components/LoginScreen')} />
     </View>
   );
 }
