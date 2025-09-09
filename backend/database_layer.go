@@ -186,6 +186,10 @@ func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_i
 		next_watering_date = CASE 
 			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE + ($3 || ' ' || $4)::interval
 			ELSE next_watering_date
+		END,
+		watering_date = CASE
+			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE
+			ELSE watering_date
 		END
 		WHERE user_id = $1 AND schedule_id = $2;
     `
@@ -228,7 +232,8 @@ func (handler *DatabaseHandler) CreateNewSchedule(
             watering_date,
             next_watering_date
         )
-        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE + ($6 || ' ' || $5)::interval, CURRENT_DATE + ($6 || ' ' || $5)::interval)
+
+        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE, CURRENT_DATE
     `
 
 	// Convert water_repeat_every to string for interval concatenation
