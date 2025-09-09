@@ -233,7 +233,7 @@ func (handler *DatabaseHandler) CreateNewSchedule(
             next_watering_date
         )
 
-        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE, CURRENT_DATE
+        VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE, CURRENT_DATE)
     `
 
 	// Convert water_repeat_every to string for interval concatenation

@@ -91,7 +91,7 @@ func HandleAddPlant(c *gin.Context) {
 		return
 	}
 
-	msg, err := Handler.CreateNewSchedule(userID, plant_id, req.PlantName, 1, "day")
+	msg, err := Handler.CreateNewSchedule(userID, plant_id, req.PlantName, classification.WaterRepeatEvery, classification.WaterRepeatUnit)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
