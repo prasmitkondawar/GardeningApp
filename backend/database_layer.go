@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"time"
 )
 
@@ -236,11 +235,8 @@ func (handler *DatabaseHandler) CreateNewSchedule(
         VALUES ($1, $2, $3, false, $4, $5, CURRENT_DATE, CURRENT_DATE)
     `
 
-	// Convert water_repeat_every to string for interval concatenation
-	waterRepeatEveryStr := strconv.Itoa(water_repeat_every)
-
 	// Execute query with parameters, passing waterRepeatEveryStr as $6
-	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, water_repeat_every, water_repeat_unit, waterRepeatEveryStr)
+	_, err := handler.Db.Exec(query, user_id, plant_id, plant_pet_name, water_repeat_every, water_repeat_unit)
 	if err != nil {
 		return "", fmt.Errorf("failed to create schedule: %v", err)
 	}
