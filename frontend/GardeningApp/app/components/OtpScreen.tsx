@@ -4,36 +4,39 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import supabase from '../../config/supabase';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function OtpScreen() {
+  const [loading, setLoading] = useState(false);
+  const { email } = useLocalSearchParams();
   const [otp, setOtp] = useState('');
-  const route = useRouter();
+  const router = useRouter();
+  const emailStr = Array.isArray(email) ? email[0] : email;
 
   const handleVerify = async () => {
+    setLoading(true);
     const { data, error } = await supabase.auth.verifyOtp({
-      email,
+      email: emailStr,
       token: otp,
       type: 'email',
     });
+    setLoading(false);
+
     if (error) {
       Alert.alert('OTP Error', error.message);
     } else {
       Alert.alert('Success', 'You are signed in!');
       // Optionally, update user's profile with name/other info here
-      screenNav.navigate('HomeScreen');
+      router.navigate("/HomeScreen")
     }
   };
 
-  function handleGoBack() {
-    screenNav.navigate('SignUpScreen');
-  }
 
   return (
     <View>
       <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" />
-      <Button title="Verify OTP" onPress={handleVerify}/>
-      <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
+      <Button title="Verify OTP" onPress={handleVerify} disabled={loading}/>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.navigate("/components/LoginScreen")}>
         <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } />
       </TouchableOpacity>
     </View>

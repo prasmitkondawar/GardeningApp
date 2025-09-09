@@ -23,9 +23,9 @@ export default function SignUpScreen () {
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
       <TextInput
-        placeholder="Phone Number"
+        placeholder="Email"
         autoCapitalize="none"
-        keyboardType="phone-pad"
+        keyboardType="email-address"
         value={phone}
         onChangeText={setPhone}
         style={styles.input}
