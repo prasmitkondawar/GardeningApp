@@ -206,9 +206,9 @@ const PlantDirectory: React.FC = () => {
           activeOpacity={0.8}
           style={styles.imageWrapper}
           onPress={() => router.push({
-            pathname: '/PlantDetailScreen', // Use the correct route, no dot-slash
-            params: { plant: JSON.stringify(item) },
-          })}
+            pathname: '/PlantDetailScreen',
+            params: { plant: JSON.stringify(item) }
+          } as any)}
         >
           <Image
             source={{ uri: item.ImageURL }}
