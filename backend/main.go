@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"github.com/joho/godotenv"
 )
 
 var Handler *DatabaseHandler
@@ -33,8 +34,14 @@ func InitDatabaseHandler(connString string) error {
 }
 
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Warning: Error loading .env file")
+	}
+
 	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
-	err := InitDatabaseHandler(connString)
+	err = InitDatabaseHandler(connString)
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
 	}
