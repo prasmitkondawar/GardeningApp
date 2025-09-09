@@ -35,20 +35,14 @@ func InitDatabaseHandler(connString string) error {
 
 func main() {
 	// Load environment variables from .env file
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
 	// Check if OPENAI_API_KEY is set
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	if apiKey == "" {
-		fmt.Println("❌ OPENAI_API_KEY is not set in .env file")
-	} else if apiKey == "your_openai_api_key_here" {
-		fmt.Println("⚠️  Please replace 'your_openai_api_key_here' with your actual OpenAI API key in the .env file")
-	} else {
-		fmt.Println("✅ OPENAI_API_KEY is set correctly")
-	}
+	apiKey := os.Getenv("API_KEY")
+	fmt.Println(apiKey)
 
 	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
 	err = InitDatabaseHandler(connString)
@@ -83,12 +77,12 @@ func main() {
 	})
 
 	// Commenting out undefined handlers for now
-	// router.POST("/add-plant", HandleAddPlant)
-	// router.GET("/fetch-plants", HandleFetchPlants)
-	// router.GET("/fetch-schedule", HandleFetchSchedule)
-	// router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
-	// router.POST("/complete-schedule", HandleCompleteSchedule)
-	// router.POST("/delete-plant", HandleDeletePlant)
+	router.POST("/add-plant", HandleAddPlant)
+	router.GET("/fetch-plants", HandleFetchPlants)
+	router.GET("/fetch-schedule", HandleFetchSchedule)
+	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
+	router.POST("/complete-schedule", HandleCompleteSchedule)
+	router.POST("/delete-plant", HandleDeletePlant)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
