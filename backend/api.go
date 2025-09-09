@@ -32,7 +32,7 @@ func HandleAddPlant(c *gin.Context) {
 	// Define input struct accepting image_url and other plant fields
 	type AddPlantRequest struct {
 		ImageURL  string `json:"image_url" binding:"required"`
-		PlantName string `json:"plantPetName" binding:"required"`
+		PlantName string `json:"plant_pet_name" binding:"required"`
 	}
 
 	var req AddPlantRequest
