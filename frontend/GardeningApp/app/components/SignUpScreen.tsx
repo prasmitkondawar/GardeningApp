@@ -4,18 +4,18 @@ import supabase from '../../config/supabase';
 import { useNavigation, useRouter } from 'expo-router';
 
 export default function SignUpScreen () {
-    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
   async function handleSignUp() {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ phone });
+    const { error } = await supabase.auth.signInWithOtp({ email });
     setLoading(false);
     if (error) Alert.alert('Sign Up Error', error.message);
     else Alert.alert('Success!', 'Check your messages for OTP password.');
 
-    router.navigate('/components/OtpScreen');
+    router.push(`/components/OtpScreen?email=${encodeURIComponent(email)}`);
   }
 
 
@@ -26,8 +26,8 @@ export default function SignUpScreen () {
         placeholder="Email"
         autoCapitalize="none"
         keyboardType="email-address"
-        value={phone}
-        onChangeText={setPhone}
+        value={email}
+        onChangeText={setEmail}
         style={styles.input}
       />
       <View style={{ marginBottom: 20 }}>

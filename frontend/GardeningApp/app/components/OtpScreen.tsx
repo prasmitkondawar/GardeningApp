@@ -34,7 +34,7 @@ export default function OtpScreen() {
 
   return (
     <View>
-      <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" />
+      <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" style = {styles.input} />
       <Button title="Verify OTP" onPress={handleVerify} disabled={loading}/>
       <TouchableOpacity style={styles.backButton} onPress={() => router.navigate("/components/LoginScreen")}>
         <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } />
@@ -52,5 +52,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start', 
     margin: 16,
+    scaleX: 2.0,
+    scaleY: 2.0,
+  },
+
+  input: {
+    width: '100%', 
+    height: 40, 
+    borderColor: '#ccc', 
+    borderWidth: 1, 
+    marginBottom: 12, 
+    paddingHorizontal: 8
   },
 });

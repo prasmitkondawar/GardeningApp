@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import CameraScreen from "@/app/components/CameraScreen";
-import PlantDirectory from "@/app/PlantDirectory";
-import LoginScreen from "@/app/components/LoginScreen";
-import SignUpScreen from "@/app/components/SignUpScreen";
-import CalendarView from "@/app/components/CalendarView";
-import ProfilePage from "@/app/components/Profile";
 import { Stack, usePathname, useRouter } from "expo-router";
 
 
