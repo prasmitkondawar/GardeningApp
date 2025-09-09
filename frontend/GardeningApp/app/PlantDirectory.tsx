@@ -110,7 +110,7 @@ const PlantDirectory: React.FC = () => {
   async function deletePlant(plant_id: number, path_url: string) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const baseUrl = process.env.API_BASE_URL
+      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
       const token = session?.access_token;
       const res = await fetch(`${baseUrl}/delete-plant`, {
         method: 'POST',
@@ -139,6 +139,7 @@ const PlantDirectory: React.FC = () => {
       // Remove from local state
       setPlants((p) => p.filter(plant => plant.PlantID !== plant_id));
     } catch (err) {
+      console.log(err);
       Alert.alert('Error', 'Failed to delete plant.');
     }
   }  

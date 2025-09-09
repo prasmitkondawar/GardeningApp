@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -39,6 +40,23 @@ func main() {
 	if err != nil {
 		log.Println("Warning: Error loading .env file")
 	}
+
+	// Debug: Print all environment variables
+	log.Println("Environment variables:")
+	log.Println("Current working directory:", os.Getenv("PWD"))
+	log.Println("Environment file location:", os.Getenv("ENV"))
+	log.Println("OPENAI_API_KEY exists:", os.Getenv("OPENAI_API_KEY") != "")
+	
+	// Print all environment variables (be careful with sensitive data in production)
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, "OPENAI") || strings.HasPrefix(env, "GIN") {
+			log.Println(env)
+		}
+	}
+	
+	// Try to load .env file from the current directory explicitly
+	err = godotenv.Load(".env")
+	log.Println("After explicit .env load, OPENAI_API_KEY exists:", os.Getenv("OPENAI_API_KEY") != "")
 
 	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
 	err = InitDatabaseHandler(connString)
