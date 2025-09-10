@@ -108,7 +108,7 @@ const CameraScreen: React.FC = () => {
       };
 
       // Send to backend
-      const response = await fetch(`${baseUrl}/add-plant`, {
+      const response = await fetch(`${baseUrl}/plants`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -83,7 +83,7 @@ const PlantDirectory: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
       const token = session?.access_token;
-      const response = await fetch(`${baseUrl}/fetch-plants`, {
+      const response = await fetch(`${baseUrl}/plants`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -115,13 +115,12 @@ const PlantDirectory: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
       const token = session?.access_token;
-      const res = await fetch(`${baseUrl}/delete-plant`, {
-        method: 'POST',
+      const res = await fetch(`${baseUrl}/plants/${plant_id}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ plant_id: plant_id }),
       });
       if (!res.ok) {
         const errorData = await res.json(); // parse JSON error response
@@ -155,14 +154,14 @@ const PlantDirectory: React.FC = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const res = await fetch(`${baseUrl}/update-plant-pet-name`, {
-        method: "POST",
+      const res = await fetch(`${baseUrl}/plants/${id}`, {
+        method: "PATCH",
         headers: {
-           "Content-Type": "application/json",
-           "Authorization": `Bearer ${token}`
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ plant_id: id, plant_pet_name: newPetName }),
-      });
+        body: JSON.stringify({ plant_pet_name: newPetName }),
+      });      
       console.log("RES", res);
       if (!res.ok) {
         throw new Error('Failed to update pet name');

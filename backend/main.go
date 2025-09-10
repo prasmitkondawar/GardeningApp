@@ -58,12 +58,12 @@ func main() {
 	})
 
 	// Commenting out undefined handlers for now
-	router.POST("/add-plant", HandleAddPlant)
-	router.GET("/fetch-plants", HandleFetchPlants)
-	router.GET("/fetch-schedule", HandleFetchSchedule)
-	router.POST("/update-plant-pet-name", HandleUpdatePlantPetName)
-	router.POST("/complete-schedule", HandleCompleteSchedule)
-	router.POST("/delete-plant", HandleDeletePlant)
+	router.POST("/plants", HandleAddPlant)
+	router.GET("/plants", HandleFetchPlants)
+	router.GET("/schedules", HandleFetchSchedule)
+	router.PATCH("/plants/:plantid", HandleUpdatePlantPetName)
+	router.PATCH("/schedules/:schedule_id", HandleCompleteSchedule)
+	router.DELETE("/plants/:plantid", HandleDeletePlant)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

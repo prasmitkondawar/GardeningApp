@@ -143,7 +143,7 @@ const CalendarView: React.FC = () => {
       const token = session?.access_token;
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-      const response = await fetch(`${baseUrl}/fetch-schedule`, {
+      const response = await fetch(`${baseUrl}/schedules`, {
         method: 'GET',
         headers: {
           "Content-Type": "application/json",
@@ -183,14 +183,13 @@ const CalendarView: React.FC = () => {
       const token = session?.access_token;
       const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
 
-      const response = await fetch(`${baseUrl}/complete-schedule`, {
-        method: 'POST',
+      const response = await fetch(`${baseUrl}/schedules/${scheduleID}`, {
+        method: 'PATCH',
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          schedule_id: scheduleID,
           water_repeat_every: water_repeat_every,
           water_repeat_unit: water_repeat_unit
         }),

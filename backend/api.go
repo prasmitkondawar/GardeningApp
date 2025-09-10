@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -217,8 +218,14 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 		return
 	}
 
+	plantIDStr := c.Param("plantid") // from URL
+	plantID, err := strconv.Atoi(plantIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
+		return
+	}
+
 	var request struct {
-		PlantID    int    `json:"plant_id" binding:"required"`
 		NewPetName string `json:"plant_pet_name" binding:"required"`
 	}
 
@@ -226,12 +233,10 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
-
-	plant_id := request.PlantID
 	newPetName := request.NewPetName
-	print("TESTING", plant_id, newPetName)
+	print("TESTING", plantID, newPetName)
 
-	msg, err := Handler.UpdatePlantPetName(userID, plant_id, newPetName)
+	msg, err := Handler.UpdatePlantPetName(userID, plantID, newPetName)
 	if err != nil {
 		print("ERROR", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
@@ -244,7 +249,6 @@ func HandleUpdatePlantPetName(c *gin.Context) {
 
 func HandleCompleteSchedule(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
-
 	if authHeader == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
 		return
@@ -252,15 +256,20 @@ func HandleCompleteSchedule(c *gin.Context) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	tokenString = strings.TrimSpace(tokenString)
-
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
 
+	scheduleIDStr := c.Param("schedule_id") // from URL
+	scheduleID, err := strconv.Atoi(scheduleIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
+		return
+	}
+
 	var request struct {
-		ScheduleID       int    `json:"schedule_id" binding:"required"`
 		WaterRepeatEvery int    `json:"water_repeat_every" binding:"required"`
 		WaterRepeatUnit  string `json:"water_repeat_unit" binding:"required"`
 	}
@@ -270,11 +279,10 @@ func HandleCompleteSchedule(c *gin.Context) {
 		return
 	}
 
-	schedule_id := request.ScheduleID
 	water_repeat_every := request.WaterRepeatEvery
 	water_repeat_unit := request.WaterRepeatUnit
 
-	msg, err := Handler.CompleteWaterSchedule(userID, schedule_id, water_repeat_every, water_repeat_unit)
+	msg, err := Handler.CompleteWaterSchedule(userID, scheduleID, water_repeat_every, water_repeat_unit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
@@ -300,19 +308,14 @@ func HandleDeletePlant(c *gin.Context) {
 		return
 	}
 
-	var request struct {
-		PlantID int `json:"plant_id" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&request); err != nil {
-		print(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+	plantIDStr := c.Param("plantid") // from URL
+	plantID, err := strconv.Atoi(plantIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
 		return
 	}
 
-	plant_id := request.PlantID
-
-	msg, err := Handler.DeletePlant(userID, plant_id)
+	msg, err := Handler.DeletePlant(userID, plantID)
 	if err != nil {
 		print(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
