@@ -9,6 +9,7 @@ interface Event {
   PlantPetName: string;
   WaterIsCompleted: boolean;
   WateringDate: Date;
+  NextWateringDate: Date;
   WaterRepeatEvery: number;
   WaterRepeatUnit: string;
 }
@@ -68,15 +69,23 @@ const CalendarView: React.FC = () => {
 
   // Function to get events for a specific date
   const getEventsForDate = (date: string): Event[] => {
-    return events.filter(event => 
-      event.WateringDate && event.WateringDate.toISOString().split('T')[0] === date
-    );
+    return events.filter(event => {
+      const nextWateringDateStr = event.NextWateringDate ? event.NextWateringDate.toISOString().split('T')[0] : null;
+      const wateringDateStr = event.WateringDate ? (typeof event.WateringDate === 'string' ? event.WateringDate : event.WateringDate.toISOString().split('T')[0]) : null;
+  
+      return (nextWateringDateStr === date) || (wateringDateStr === date);
+    });
   };
   
   // In a real app, fetch or filter events for selectedDate
-  const eventsForSelectedDate = events.filter(event =>
-    event.WateringDate && event.WateringDate.toISOString().split('T')[0] <= selectedDate
-  ); 
+  const eventsForSelectedDate = events.filter(event => {
+    const nextWateringDateStr = event.NextWateringDate ? event.NextWateringDate.toISOString().split('T')[0] : null;
+    const wateringDateStr = event.WateringDate ? (typeof event.WateringDate === 'string' ? event.WateringDate : event.WateringDate.toISOString().split('T')[0]) : null;
+  
+    return (nextWateringDateStr && nextWateringDateStr <= selectedDate) || (wateringDateStr && wateringDateStr <= selectedDate);
+  });
+
+  console.log("EVENTS FOR SELECTED DATE", eventsForSelectedDate);
   const weekDates = getCurrentWeekDates();
 
   const renderWeekView = () => (
@@ -166,6 +175,7 @@ const CalendarView: React.FC = () => {
         PlantPetName: item.plant_pet_name,
         PlantID: item.plant_id,
         WateringDate: new Date(item.watering_date), // Convert string to Date object
+        NextWateringDate: new Date(item.next_watering_date),
         WaterIsCompleted: item.water_is_completed,
         WaterRepeatEvery: 1,
         WaterRepeatUnit: "test",
@@ -250,14 +260,21 @@ const CalendarView: React.FC = () => {
                   data={eventsForSelectedDate}
                   keyExtractor={(item, index) => (item.ScheduleID ? item.ScheduleID.toString() : index.toString())}
                   renderItem={({ item }) => {
-                    const wateringDateStr = item.WateringDate.toISOString().split('T')[0];
+                    const wateringDateStr = item.NextWateringDate.toISOString().split('T')[0];
                     const isToday = wateringDateStr === today;
                     const isOverdue = wateringDateStr < today;
+                    const isCompletedToday = item.WateringDate.toISOString().split('T')[0] === today
                     return isToday || isOverdue ? (
                       <View
                         style={[
                           styles.eventItemDay,
-                          { backgroundColor: isOverdue ? '#ff4433' : '#4caf50' }
+                          {
+                            backgroundColor: isOverdue 
+                              ? '#ff4433'       // if overdue, red
+                              : isCompletedToday 
+                                ? '#4f4f4f'     // else if completed today, dark gray
+                                : 'defaul4caf50tColor' // else whatever default color you want
+                          }
                         ]}
                       >
                         <Text style={[styles.eventText, { color: '#ffffff' }]}>
