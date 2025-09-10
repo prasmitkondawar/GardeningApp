@@ -192,13 +192,7 @@ const CalendarView: React.FC = () => {
   }
 
   async function updateCompletion(scheduleID: number, newValue: boolean, water_repeat_every: number, water_repeat_unit: string) {
-    setEvents(prevEvents =>
-      prevEvents.map(event =>
-        event.ScheduleID === scheduleID ? { ...event, WaterIsCompleted: newValue } : event
-      )
-    );
 
-    console.log("TESTING", scheduleID, newValue, water_repeat_every, water_repeat_unit);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -261,25 +255,37 @@ const CalendarView: React.FC = () => {
                   keyExtractor={(item, index) => (item.ScheduleID ? item.ScheduleID.toString() : index.toString())}
                   renderItem={({ item }) => {
                     const wateringDateStr = item.NextWateringDate.toISOString().split('T')[0];
-                    const isToday = wateringDateStr === today;
-                    const isOverdue = wateringDateStr < today;
-                    const isCompletedToday = item.WateringDate.toISOString().split('T')[0] === today
-                    return isToday || isOverdue ? (
+                    let isToday = wateringDateStr === today;
+                    let isOverdue = wateringDateStr < today;
+                    let isClickedToday = item.WateringDate.toISOString().split('T')[0] === today
+                    console.log(item.WaterIsCompleted);
+                    if (isClickedToday && item.WaterIsCompleted == false) {
+                      isClickedToday = false;
+                      isToday = true;
+                    }
+                    return isToday || isOverdue || isClickedToday? (
                       <View
                         style={[
                           styles.eventItemDay,
                           {
-                            backgroundColor: isOverdue 
-                              ? '#ff4433'       // if overdue, red
-                              : isCompletedToday 
-                                ? '#4f4f4f'     // else if completed today, dark gray
-                                : 'defaul4caf50tColor' // else whatever default color you want
+                            backgroundColor: isOverdue
+                            ? '#ff4433'        // overdue red
+                            : item.WaterIsCompleted
+                              ? '#4f4f4f'      // completed today (grey)
+                              : '#4caf50',     // default green for incomplete                          
                           }
                         ]}
                       >
-                        <Text style={[styles.eventText, { color: '#ffffff' }]}>
+                        <Text
+                          style={[
+                            styles.eventText,
+                            { color: '#ffffff' },
+                            isClickedToday && { textDecorationLine: 'line-through' }
+                          ]}
+                        >
                           Water {item.PlantPetName}
                         </Text>
+
                         <TouchableOpacity
                           style={[styles.checkbox, item.WaterIsCompleted && styles.checkedBox]}
                           onPress={() => {
