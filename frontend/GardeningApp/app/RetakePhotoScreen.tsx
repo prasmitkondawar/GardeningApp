@@ -15,13 +15,11 @@ import supabase from '../config/supabase';
 import * as FileSystem from 'expo-file-system';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
-
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-const CameraScreen: React.FC = () => {
+const RetakePhotoScreen: React.FC = () => {
+  const { plant_id } = useLocalSearchParams();
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const plantId = params?.plant_id ? parseInt(params.plant_id as string) : null;
   
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
@@ -30,90 +28,38 @@ const CameraScreen: React.FC = () => {
   const [facing, setFacing] = useState<CameraType>('back');
   const [isUploading, setIsUploading] = useState(false);
   
-  
   const cameraRef = useRef<CameraView>(null);
 
-  useEffect(() => {
-    initializeAuth();
-  }, []);
-
-  const initializeAuth = async () => {
-    try {
-      // Check if user is already signed in
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session);
-      
-      if (!session) {
-        // Sign in anonymously for storage access
-        const { data, error } = await supabase.auth.signInAnonymously();
-        if (error) {
-          console.error('Auth error:', error);
-          Alert.alert('Authentication Error', 'Failed to authenticate with storage service');
-        } else {
-          console.log('Anonymous auth successful:', data);
-        }
-      } else {
-        console.log('Already authenticated:', session.user.id);
-      }
-    } catch (error) {
-      console.error('Initialize auth error:', error);
-    }
-  };
-
-  async function sendPlantPhoto(photoUri: string) {
+  async function updatePlantPhoto(photoUri: string) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL
-      // Step 1: Check if user can add more plants
+      const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+      if (!plant_id) {
+        throw new Error('No plant ID provided');
+      }
 
       setIsUploading(true);
-      console.log("Uploading photo to Supabase Storage...");
+      console.log("Uploading updated photo to Supabase Storage...");
 
-      // Generate a unique id for the plant image
-      const plantId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Generate a unique id for the updated plant image
+      const updateId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
       // Upload the photo and get URL
-      const photoUrl = await uploadPhotoAsync(photoUri, plantId);
+      const photoUrl = await uploadPhotoAsync(photoUri, updateId);
 
       console.log("Photo uploaded, URL:", photoUrl);
 
-      const plantPetName = await new Promise<string>((resolve) => {
-        Alert.prompt(
-          "Name Your Plant",
-          "What would you like to call your new plant?",
-          [
-            {
-              text: "Cancel",
-              style: "cancel",
-              onPress: () => resolve("") // Return empty string if cancelled
-            },
-            {
-              text: "Add Plant",
-              onPress: (inputText) => resolve(inputText || "My Plant") // Use default name if empty
-            }
-          ],
-          "plain-text",
-          "", // Default text in input field
-          "default" // Keyboard type
-        );
-      });
-
-      // If user cancelled (empty string), stop the upload process
-      if (plantPetName === "") {
-        console.log("Plant upload cancelled by user");
-        return null;
-      }
-
-      // Prepare payload with photo URL and plant name
+      // Prepare payload with photo URL and plant ID
       const payload = {
         image_url: photoUrl,
-        plant_pet_name: plantPetName
+        plant_id: plant_id
       };
 
-      // Send to backend
-      const response = await fetch(`${baseUrl}/plants`, {
-        method: "POST",
+      // Send to backend to update the existing plant
+      const response = await fetch(`${baseUrl}/plants/${plant_id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
@@ -121,12 +67,10 @@ const CameraScreen: React.FC = () => {
         body: JSON.stringify(payload),
       });
 
-
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response from server:", errorText);
-        throw new Error("Failed to upload photo");
+        throw new Error("Failed to update plant photo");
       }
 
       const data = await response.json();
@@ -134,15 +78,15 @@ const CameraScreen: React.FC = () => {
 
       return data;
     } catch (error) {
-      console.error("Error sending plant photo:", error);
-      Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');
+      console.error("Error updating plant photo:", error);
+      Alert.alert('Update Error', 'Failed to update photo. Please try again.');
       throw error;
     } finally {
       setIsUploading(false);
     }
   }
 
-  async function uploadPhotoAsync(uri: string, plantId: string): Promise<string> {
+  async function uploadPhotoAsync(uri: string, updateId: string): Promise<string> {
     try {
       console.log('Starting upload process...');
       
@@ -161,11 +105,11 @@ const CameraScreen: React.FC = () => {
       formData.append('file', {
         uri: uri,
         type: 'image/jpeg',
-        name: `${plantId}.jpg`,
+        name: `${updateId}.jpg`,
       } as any);
 
       // Define the path inside the bucket - include user ID for better organization
-      const filePath = `plants/${session.user.id}/${plantId}.jpg`;
+      const filePath = `plants/${session.user.id}/${updateId}.jpg`;
 
       console.log('Uploading to path:', filePath);
 
@@ -264,29 +208,31 @@ const CameraScreen: React.FC = () => {
   const savePhoto = async () => {
     if (capturedPhoto && !isUploading) {
       try {
-        await sendPlantPhoto(capturedPhoto);
+        await updatePlantPhoto(capturedPhoto);
         
-        Alert.alert('Success!', 'Your photo has been uploaded successfully!', [
+        Alert.alert('Success!', 'Your plant photo has been updated successfully!', [
           {
-            text: 'Take Another',
+            text: 'Retake Again',
             onPress: retakePhoto,
           },
           {
-            text: 'OK',
+            text: 'Done',
             onPress: () => {
-              // Hide preview and reset photo after success
-              setShowPreview(false);
-              setCapturedPhoto(null);
+              // Navigate back to previous screen
+              router.back();
             },
             style: 'default',
           },
         ]);
       } catch (error) {
-        // Error already handled in sendPlantPhoto
+        // Error already handled in updatePlantPhoto
       }
     }
   };
-  
+
+  const goBack = () => {
+    router.back();
+  };
 
   const toggleCameraType = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
@@ -343,19 +289,19 @@ const CameraScreen: React.FC = () => {
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={[styles.saveButton, isUploading && styles.buttonDisabled]} 
+                  style={[styles.updateButton, isUploading && styles.buttonDisabled]} 
                   onPress={savePhoto}
                   disabled={isUploading}
                 >
                   {isUploading ? (
                     <>
                       <Ionicons name="cloud-upload-outline" size={24} color="#fff" />
-                      <Text style={styles.saveButtonText}>Uploading...</Text>
+                      <Text style={styles.updateButtonText}>Updating...</Text>
                     </>
                   ) : (
                     <>
                       <Ionicons name="checkmark" size={24} color="#fff" />
-                      <Text style={styles.saveButtonText}>Save</Text>
+                      <Text style={styles.updateButtonText}>Update</Text>
                     </>
                   )}
                 </TouchableOpacity>
@@ -375,10 +321,14 @@ const CameraScreen: React.FC = () => {
             <View style={styles.cameraOverlay}>
               {/* Top Bar */}
               <View style={styles.topBar}>
-                <View style={styles.topBarLeft} />
+                <View style={styles.topBarLeft}>
+                  <TouchableOpacity style={styles.backButton} onPress={goBack}>
+                    <Ionicons name="arrow-back" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </View>
                 
                 <View style={styles.topBarCenter}>
-                  <Text style={styles.cameraTitle}>Camera</Text>
+                  <Text style={styles.cameraTitle}>Update Photo</Text>
                 </View>
                 
                 <View style={styles.topBarRight}>
@@ -422,7 +372,6 @@ const CameraScreen: React.FC = () => {
         )}
       </View>
     </>
-
   );
 };
 
@@ -534,6 +483,15 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+  },
+  backButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backdropFilter: 'blur(10px)',
   },
   flipButton: {
     width: 50,
@@ -667,20 +625,20 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   
-  saveButton: {
-    backgroundColor: '#34C759',
+  updateButton: {
+    backgroundColor: '#4f46e5', // Same blue violet as your button
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 36,
     paddingVertical: 16,
     borderRadius: 28,
-    shadowColor: '#34C759',
+    shadowColor: '#4f46e5',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
-  saveButtonText: {
+  updateButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
@@ -692,4 +650,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CameraScreen;
+export default RetakePhotoScreen;

@@ -107,6 +107,30 @@ const PlantDetailScreen: React.FC = () => {
             <Text style={styles.headerTitle} numberOfLines={1}>
               {plant.PlantPetName}
             </Text>
+            <TouchableOpacity
+                onPress={() => {
+                  router.push({
+                    pathname: '/RetakePhotoScreen',
+                    params: { plant_id: plant.PlantID.toString() }
+                  });
+                }}
+                style={{
+                  backgroundColor: '#4f46e5', // nice blue violet background
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 3,
+                  elevation: 5,
+                }}
+                activeOpacity={0.7}
+              >
+              <Ionicons name="camera" size={28} color="white" />
+            </TouchableOpacity>
             <View style={{ width: 28 }} />{/* Placeholder for spacing */}
           </Animated.View>
 

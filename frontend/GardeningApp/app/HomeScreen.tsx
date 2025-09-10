@@ -7,6 +7,7 @@ import LoginScreen from "@/components/LoginScreen";
 import SignUpScreen from "@/components/SignUpScreen";
 import CalendarView from "@/components/CalendarView";
 import ProfilePage from "@/components/Profile";
+import RetakePhotoScreen from "@/app/RetakePhotoScreen";
 import supabase from "@/config/supabase";
 import { Stack } from "expo-router";
 
@@ -14,7 +15,7 @@ import { Stack } from "expo-router";
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile" | "retake-photo">("login");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,6 +50,8 @@ export default function HomeScreen() {
         ScreenComponent = <CalendarView/>;
     } else if (activeScreen == "profile") {
         ScreenComponent = <ProfilePage/>;
+    } else if (activeScreen == "retake-photo") {
+        ScreenComponent = <RetakePhotoScreen/>;
     }
 
   return (
