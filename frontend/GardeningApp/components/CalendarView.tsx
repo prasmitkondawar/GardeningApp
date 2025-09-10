@@ -88,6 +88,7 @@ const CalendarView: React.FC = () => {
         const dayNumber = tempDate.getUTCDate();         // Get UTC day number
 
         const isToday = date === today;
+        const isOverdue = date < today;
         const isSelected = date === selectedDate;
         
         return (
@@ -125,7 +126,14 @@ const CalendarView: React.FC = () => {
                 </View>
               ) : (
                 dayEvents.map(event => (
-                  <View key={event.ScheduleID} style={styles.eventItem}>
+                  <View
+                    key={event.ScheduleID}
+                    style={[
+                      styles.eventItemWeek,
+                      // Check if event is overdue, apply red background
+                      isOverdue ? styles.overdueEvent : null,
+                    ]}
+                  >
                     <Text style={styles.eventText}>Water {event.PlantPetName}</Text>
                   </View>
                 ))                
@@ -199,7 +207,7 @@ const CalendarView: React.FC = () => {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching schedule:', error);
+      console.error('Error completing schedule:', error);
       throw error;
     }
   }
@@ -248,7 +256,7 @@ const CalendarView: React.FC = () => {
                     return isToday || isOverdue ? (
                       <View
                         style={[
-                          styles.eventItem,
+                          styles.eventItemDay,
                           { backgroundColor: isOverdue ? '#ff4433' : '#4caf50' }
                         ]}
                       >
@@ -383,7 +391,24 @@ const styles = StyleSheet.create({
   },
 
   // Event pill
-  eventItem: {
+  eventItemDay: {
+    backgroundColor: '#4caf50',
+    borderRadius: 10,             // Slightly smaller border radius
+    paddingVertical: 6,           // Reduce vertical padding
+    paddingHorizontal: 16,        // Slightly less horizontal padding
+    marginVertical: 4,            // Smaller vertical margin between events
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'stretch',         // Full width but constrained by parent
+    shadowColor: '#2e7d32',
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+    minHeight: 50,
+  },
+  eventItemWeek: {
     backgroundColor: '#4caf50',
     borderRadius: 10,             // Slightly smaller border radius
     paddingVertical: 6,           // Reduce vertical padding
@@ -484,6 +509,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 10,
   },
   checkedBox: {
     backgroundColor: '#fff',
@@ -494,6 +520,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  overdueEvent: {
+    backgroundColor: '#ff3b30', // red color
+    borderRadius: 8,
+    padding: 6,
+    marginVertical: 2,
+  },
+  
 });
 
 export default CalendarView;

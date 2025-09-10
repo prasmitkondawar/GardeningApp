@@ -258,6 +258,7 @@ func HandleCompleteSchedule(c *gin.Context) {
 	tokenString = strings.TrimSpace(tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
@@ -265,6 +266,7 @@ func HandleCompleteSchedule(c *gin.Context) {
 	scheduleIDStr := c.Param("schedule_id") // from URL
 	scheduleID, err := strconv.Atoi(scheduleIDStr)
 	if err != nil {
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
 		return
 	}
@@ -275,6 +277,7 @@ func HandleCompleteSchedule(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
@@ -284,6 +287,7 @@ func HandleCompleteSchedule(c *gin.Context) {
 
 	msg, err := Handler.CompleteWaterSchedule(userID, scheduleID, water_repeat_every, water_repeat_unit)
 	if err != nil {
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
 	}
