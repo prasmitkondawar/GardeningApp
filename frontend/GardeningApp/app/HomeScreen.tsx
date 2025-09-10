@@ -10,31 +10,16 @@ import ProfilePage from "@/components/Profile";
 import RetakePhotoScreen from "@/app/RetakePhotoScreen";
 import supabase from "@/config/supabase";
 import { Stack } from "expo-router";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/app/index';
+import { useNavigation } from 'expo-router';
 
-
+type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'HomeScreen'>;
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile" | "retake-photo">("login");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session && session.user) {
-        setActiveScreen("home");
-      } else {
-        setActiveScreen("login");
-      }
-      setLoading(false);
-    })();
-  }, []);
-
-  // Render loading screen while checking session
-  if (loading) {
-    return <View />;
-  }
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
+  const screenNav = useNavigation<HomeScreenProp>();
 
   // Render the active child-screen
   let ScreenComponent;
@@ -43,9 +28,9 @@ export default function HomeScreen() {
     } else if (activeScreen == "plant_directory") {
         ScreenComponent = <PlantDirectory></PlantDirectory>
     } else if (activeScreen == "login") {
-        ScreenComponent = <LoginScreen goToSignUp={() => setActiveScreen('signup')}/>
+        ScreenComponent = <LoginScreen/>
     } else if (activeScreen == "signup"){
-        ScreenComponent = <SignUpScreen goToLogin={() => setActiveScreen('login')} />
+        ScreenComponent = <SignUpScreen/>
     } else if (activeScreen == "calendar-view") {
         ScreenComponent = <CalendarView/>;
     } else if (activeScreen == "profile") {

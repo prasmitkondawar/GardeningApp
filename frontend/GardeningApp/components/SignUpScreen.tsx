@@ -1,47 +1,48 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
 import supabase from '../config/supabase';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/app/index';
+import { useNavigation } from 'expo-router';
 
-type SignUpScreenProps = {
-  goToLogin: () => void;
-};
 
-const SignUpScreen: React.FC<SignUpScreenProps> = ({ goToLogin }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
+
+export default function SignUpScreen () {
+    const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(false);
+    const screenNav = useNavigation<NavigationProp>();
 
-    async function handleSignUp() {
-        setLoading(true);
-        const { error } = await supabase.auth.signUp({ email, password, options: {data: {username}}});
-        setLoading(false);
+  async function handleSignUp() {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ phone });
+    setLoading(false);
     if (error) Alert.alert('Sign Up Error', error.message);
-    else Alert.alert('Success!', 'Check your email for confirmation.');
+    else Alert.alert('Success!', 'Check your messages for OTP password.');
+
+    screenNav.navigate('OtpScreen', {phone: phone });
   }
+
+  async function handleDirLogin() {
+    screenNav.navigate('LoginScreen');
+  }
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
       <TextInput
-        placeholder="Email"
+        placeholder="Phone Number"
         autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
         style={styles.input}
       />
       <View style={{ marginBottom: 20 }}>
         <Button title="Sign Up" onPress={handleSignUp} disabled={loading} />
       </View>
-      <Button title="Already have an account? Login" onPress={goToLogin} />
+      <Button title="Already have an account? Login" onPress={handleDirLogin} />
     </View>
   );
 }
@@ -51,5 +52,3 @@ const styles = StyleSheet.create({
   title: { fontSize:32, marginBottom:20 },
   input: { width:'100%', height:40, borderColor:'#ccc', borderWidth:1, marginBottom:12, paddingHorizontal:8 },
 });
-
-export default SignUpScreen;
