@@ -174,26 +174,29 @@ func (handler *DatabaseHandler) UpdatePlantPetName(user_id string, plant_id int,
 	return updatedPetName, nil
 }
 
-func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int, water_repeat_every int, water_repeat_unit string) (string, error) {
+func (handler *DatabaseHandler) CompleteWaterSchedule(user_id string, schedule_id int) (string, error) {
 	query := `
 		WITH previous AS (
-		SELECT water_is_completed FROM schedule WHERE user_id = $1 AND schedule_id = $2
+			SELECT water_is_completed, water_repeat_every, water_repeat_unit 
+			FROM schedule 
+			WHERE user_id = $1 AND schedule_id = $2
 		)
 		UPDATE schedule
-		SET 
-		water_is_completed = NOT water_is_completed,
-		next_watering_date = CASE 
-			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE + ($3 || ' ' || $4)::interval
-			ELSE next_watering_date
-		END,
-		watering_date = CASE
-			WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE
-			ELSE watering_date
-		END
+			SET 
+			water_is_completed = NOT water_is_completed,
+			next_watering_date = CASE 
+				WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE + (SELECT water_repeat_every || ' ' || water_repeat_unit FROM previous)::interval
+				ELSE next_watering_date
+			END,
+			watering_date = CASE
+				WHEN (SELECT water_is_completed FROM previous) = false THEN CURRENT_DATE
+				ELSE watering_date
+			END
 		WHERE user_id = $1 AND schedule_id = $2;
+
     `
 
-	_, err := handler.Db.Exec(query, user_id, schedule_id, water_repeat_every, water_repeat_unit)
+	_, err := handler.Db.Exec(query, user_id, schedule_id)
 	if err != nil {
 		fmt.Println("ERROR inserting plant:", err)
 		return "Failed to check plant", err

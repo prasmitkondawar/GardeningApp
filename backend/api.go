@@ -271,21 +271,7 @@ func HandleCompleteSchedule(c *gin.Context) {
 		return
 	}
 
-	var request struct {
-		WaterRepeatEvery int    `json:"water_repeat_every" binding:"required"`
-		WaterRepeatUnit  string `json:"water_repeat_unit" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&request); err != nil {
-		fmt.Println("ERR", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
-		return
-	}
-
-	water_repeat_every := request.WaterRepeatEvery
-	water_repeat_unit := request.WaterRepeatUnit
-
-	msg, err := Handler.CompleteWaterSchedule(userID, scheduleID, water_repeat_every, water_repeat_unit)
+	msg, err := Handler.CompleteWaterSchedule(userID, scheduleID)
 	if err != nil {
 		fmt.Println("ERR", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})

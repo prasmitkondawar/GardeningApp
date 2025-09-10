@@ -167,6 +167,8 @@ const CalendarView: React.FC = () => {
         PlantID: item.plant_id,
         WateringDate: new Date(item.watering_date), // Convert string to Date object
         WaterIsCompleted: item.water_is_completed,
+        WaterRepeatEvery: 1,
+        WaterRepeatUnit: "test",
         ScheduleID: item.schedule_id,
       }));
       setEvents(mappedData);
@@ -186,6 +188,8 @@ const CalendarView: React.FC = () => {
       )
     );
 
+    console.log("TESTING", scheduleID, newValue, water_repeat_every, water_repeat_unit);
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
@@ -197,10 +201,6 @@ const CalendarView: React.FC = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          water_repeat_every: water_repeat_every,
-          water_repeat_unit: water_repeat_unit
-        }),
       });
 
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
