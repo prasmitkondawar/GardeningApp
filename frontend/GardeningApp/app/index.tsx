@@ -5,7 +5,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignUpScreen from '@/app/components/SignUpScreen';
 import OtpScreen from '@/app/components/OtpScreen';
 import LoginScreen from '@/app/components/LoginScreen';
-import Profile from '@/app/components/Profile';
 import HomeScreen from './HomeScreen';
 import PlantDirectory from "./PlantDirectory";
 import PlantDetailScreen from "./PlantDetailScreen";
@@ -38,7 +37,6 @@ export default function Index() {
           <StackNavigator.Screen name="PlantDetailScreen" component={PlantDetailScreen} />
           <StackNavigator.Screen name="SignUpScreen" component={SignUpScreen} />
           <StackNavigator.Screen name="OtpScreen" component={OtpScreen} />
-          <StackNavigator.Screen name="Profile" component={Profile} />
           <StackNavigator.Screen name="HomeScreen" component={HomeScreen}/>
         </StackNavigator.Navigator>
       </SafeAreaView>

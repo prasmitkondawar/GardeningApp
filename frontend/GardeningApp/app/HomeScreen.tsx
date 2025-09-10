@@ -65,12 +65,6 @@ export default function HomeScreen() {
                 color={pathName === "/components/CalendarView" ? "#007AFF" : "#888"} 
               />
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.plusButton} onPress={() => router.navigate('/components/LoginScreen')}>
-              <Ionicons name="person-circle" size={54} color={pathName === "/component/LoginScreen" ? "#007AFF" : "#888"} />
-            </TouchableOpacity>
-
-
           </View>
       </View>
     </>
