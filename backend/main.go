@@ -64,6 +64,7 @@ func main() {
 	router.PATCH("/plants/:plantid", HandleUpdatePlantPetName)
 	router.PATCH("/schedules/:schedule_id", HandleCompleteSchedule)
 	router.DELETE("/plants/:plantid", HandleDeletePlant)
+	router.PUT("/plants/:plantid", HandleUpdatePlantPhoto)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

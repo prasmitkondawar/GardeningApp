@@ -324,3 +324,45 @@ func HandleDeletePlant(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": msg})
 }
+
+func HandleUpdatePlantPhoto(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JWT_Token header is required"})
+		return
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+	userID, err := ExtractIDFromJWT(tokenString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
+		return
+	}
+
+	plantIDStr := c.Param("plant_id") // from URL
+	plantID, err := strconv.Atoi(plantIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
+		return
+	}
+
+	var request struct {
+		ImageURL string `json:"image_url" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
+		return
+	}
+
+	image_url := request.ImageURL
+
+	msg, err := Handler.UpdatePlantPhoto(userID, plantID, image_url)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": msg})
+}

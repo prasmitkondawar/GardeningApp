@@ -15,6 +15,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import PlantHealthMeterCircular from './PlantHealthMeterCircular';
+import supabase from '@/config/supabase';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,6 +29,7 @@ interface PlantCard {
   PlantHealth: number;
 }
 
+
 const PlantDetailScreen: React.FC = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -40,6 +42,12 @@ const PlantDetailScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
+
+  async function deletePreviousPhoto(image_path: string) {
+    const { error: storageError } = await supabase.storage
+    .from('plant-images')  // Replace with your bucket name
+    .remove([image_path]);
+  }
 
   useEffect(() => {
     Animated.parallel([
@@ -109,6 +117,7 @@ const PlantDetailScreen: React.FC = () => {
             </Text>
             <TouchableOpacity
                 onPress={() => {
+                  deletePreviousPhoto(plant.ImageURL);
                   router.push({
                     pathname: '/RetakePhotoScreen',
                     params: { plant_id: plant.PlantID.toString() }

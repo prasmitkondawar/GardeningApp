@@ -54,7 +54,6 @@ const RetakePhotoScreen: React.FC = () => {
       // Prepare payload with photo URL and plant ID
       const payload = {
         image_url: photoUrl,
-        plant_id: plant_id
       };
 
       // Send to backend to update the existing plant
@@ -74,7 +73,6 @@ const RetakePhotoScreen: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("Response from backend:", data);
 
       return data;
     } catch (error) {

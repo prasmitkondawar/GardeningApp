@@ -280,3 +280,19 @@ func (handler *DatabaseHandler) DeletePlant(user_id string, plant_id int) (strin
 
 	return "Plant deleted successfully", nil
 }
+
+func (handler *DatabaseHandler) UpdatePlantPhoto(user_id string, plant_id int, new_image_path string) (string, error) {
+	query := `
+        UPDATE plants
+        SET image_url = $3
+        WHERE user_id = $1 AND plant_id = $2
+    `
+
+	// Execute the update query with the parameters
+	_, err := handler.Db.Exec(query, user_id, plant_id, new_image_path)
+	if err != nil {
+		return "", err
+	}
+
+	return "Plant photo updated successfully", nil
+}
