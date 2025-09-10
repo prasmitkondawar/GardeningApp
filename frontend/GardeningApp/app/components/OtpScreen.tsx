@@ -6,6 +6,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSearchParams } from 'expo-router/build/hooks';
+import { Text } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 export default function OtpScreen() {
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,6 @@ export default function OtpScreen() {
       Alert.alert('OTP Error', error.message);
     } else {
       Alert.alert('Success', 'You are signed in!');
-      // Optionally, update user's profile with name/other info here
       router.navigate("/HomeScreen")
     }
   };
@@ -43,38 +44,94 @@ export default function OtpScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <TextInput placeholder="Enter OTP" onChangeText={setOtp} value={otp} keyboardType="number-pad" style = {styles.input} />
-      <Button title="Verify OTP" onPress={handleVerify} disabled={loading}/>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={48}
+    >
       <TouchableOpacity style={styles.backButton} onPress={handleOrgScreen}>
-        <Ionicons name="arrow-undo-circle-outline" color={ "3B2C35" } size={30}/>
+        <Ionicons name="arrow-back" color="#52844B" size={28} />
       </TouchableOpacity>
-    </View>
+      <View style={styles.content}>
+        <Ionicons name="keypad-outline" size={48} color="#52844B" style={{ marginBottom: 16 }} />
+        <Text style={styles.title}>Enter OTP</Text>
+        <Text style={styles.subtitle}>We've sent a code to your email</Text>
+        <TextInput
+          placeholder="Enter OTP"
+          onChangeText={setOtp}
+          value={otp}
+          keyboardType="number-pad"
+          style={styles.input}
+          placeholderTextColor="#aaa"
+        />
+        <TouchableOpacity
+          style={[styles.verifyButton, loading && { opacity: 0.7 }]}
+          onPress={handleVerify}
+          disabled={loading}
+        >
+          <Text style={styles.verifyButtonText}>{loading ? "Verifying..." : "Verify OTP"}</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
-    flex:1, 
-    justifyContent:'center', 
-    alignItems:'center', 
-    padding:20
+    flex: 1,
+    backgroundColor: '#F6F6F6',
+    paddingTop: 48,
   },
-
   backButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 5,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'flex-start',
-    alignSelf: 'flex-start', 
+    position: 'absolute',
+    top: 48,
+    left: 24,
+    zIndex: 10,
+    backgroundColor: 'transparent',
+    padding: 4,
   },
-
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#52844B',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#94796b',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
   input: {
-    width: '100%', 
-    height: 40,  
-    borderWidth: 1, 
-    marginBottom: 12, 
-    paddingHorizontal: 8
+    width: '100%',
+    height: 48,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 10,
+    marginBottom: 20,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFF',
+    fontSize: 18,
+    color: '#52844B',
+  },
+  verifyButton: {
+    width: '100%',
+    backgroundColor: '#52844B',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  verifyButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
