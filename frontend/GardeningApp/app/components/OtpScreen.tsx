@@ -31,7 +31,7 @@ export default function OtpScreen() {
       Alert.alert('OTP Error', error.message);
     } else {
       Alert.alert('Success', 'You are signed in!');
-      router.navigate("/HomeScreen")
+      router.navigate("/components/CameraScreen");  // Navigate to HomeScreen after successful verification
     }
   };
 
