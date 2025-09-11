@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
-import supabase from '../config/supabase';
+import supabase from '../../config/supabase';
 import * as FileSystem from 'expo-file-system';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
