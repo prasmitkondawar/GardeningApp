@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 50,
+    paddingBottom: 120,
     paddingHorizontal: 40,
   },
   bottomLeft: {
@@ -691,6 +691,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 32,
     paddingHorizontal: 40,
+    paddingBottom: 120, // Add extra padding to avoid navigation bar
   },
   
   // Preview Buttons

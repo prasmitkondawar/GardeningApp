@@ -295,6 +295,7 @@ func (handler *DatabaseHandler) UpdatePlantPhoto(user_id string, plant_id int, n
 	// Execute the update query with the parameters
 	_, err := handler.Db.Exec(query, user_id, plant_id, new_image_path)
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 

@@ -330,9 +330,10 @@ func HandleUpdatePlantPhoto(c *gin.Context) {
 		return
 	}
 
-	plantIDStr := c.Param("plant_id") // from URL
+	plantIDStr := c.Param("plantid") // from URL
 	plantID, err := strconv.Atoi(plantIDStr)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
 		return
 	}
@@ -342,6 +343,7 @@ func HandleUpdatePlantPhoto(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
@@ -350,6 +352,7 @@ func HandleUpdatePlantPhoto(c *gin.Context) {
 
 	msg, err := Handler.UpdatePlantPhoto(userID, plantID, image_url)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
 	}
