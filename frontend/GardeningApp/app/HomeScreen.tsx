@@ -18,7 +18,7 @@ type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'HomeScreen'
 
 export default function HomeScreen() {
   // Tracks which "screen" is shown
-  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "profile">("login");
+  const [activeScreen, setActiveScreen] = useState<"home" | "camera" | "plant_directory" | "signup" | "login" | "calendar-view" | "retake-photo" | "profile">("login");
   const screenNav = useNavigation<HomeScreenProp>();
 
   // Render the active child-screen
