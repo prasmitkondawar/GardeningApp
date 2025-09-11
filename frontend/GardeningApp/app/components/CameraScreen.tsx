@@ -13,7 +13,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import supabase from '../../config/supabase';
 import * as FileSystem from 'expo-file-system';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter, usePathname } from 'expo-router';
 
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -21,6 +21,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const CameraScreen: React.FC = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const pathName = usePathname();
   const plantId = params?.plant_id ? parseInt(params.plant_id as string) : null;
   
   const [permission, requestPermission] = useCameraPermissions();
@@ -292,6 +293,10 @@ const CameraScreen: React.FC = () => {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
 
+  const goBack = () => {
+    router.navigate('/PlantDirectory');
+  };
+
   if (!permission) {
     return (
       <View style={styles.loadingContainer}>
@@ -375,7 +380,11 @@ const CameraScreen: React.FC = () => {
             <View style={styles.cameraOverlay}>
               {/* Top Bar */}
               <View style={styles.topBar}>
-                <View style={styles.topBarLeft} />
+                <View style={styles.topBarLeft}>
+                  <TouchableOpacity style={styles.backButton} onPress={goBack}>
+                    <Ionicons name="arrow-back" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </View>
                 
                 <View style={styles.topBarCenter}>
                   <Text style={styles.cameraTitle}>Camera</Text>
@@ -420,6 +429,33 @@ const CameraScreen: React.FC = () => {
             </View>
           </View>
         )}
+        
+        {/* Navigation Bar */}
+        <View style={styles.navigationBar}>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.navigate('/PlantDirectory')}
+          >
+            <Ionicons name="folder" size={24} color={pathName === "/PlantDirectory" ? "#007AFF" : "#888"} />
+            <Text style={[styles.navLabel, pathName === "/PlantDirectory" && styles.activeNavLabel]}>Plants</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.navigate('/components/CameraScreen')}
+          >
+            <Ionicons name="camera" size={24} color={pathName === "/components/CameraScreen" ? "#007AFF" : "#888"} />
+            <Text style={[styles.navLabel, pathName === "/components/CameraScreen" && styles.activeNavLabel]}>Camera</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.navigate('/components/CalendarView')}
+          >
+            <Ionicons name="calendar" size={24} color={pathName === "/components/CalendarView" ? "#007AFF" : "#888"} />
+            <Text style={[styles.navLabel, pathName === "/components/CalendarView" && styles.activeNavLabel]}>Calendar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </>
 
@@ -536,6 +572,15 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
   flipButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backdropFilter: 'blur(10px)',
+  },
+  backButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -689,6 +734,37 @@ const styles = StyleSheet.create({
   
   buttonDisabled: {
     opacity: 0.6,
+  },
+  
+  // Navigation Bar
+  navigationBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  activeNavLabel: {
+    color: '#007AFF',
   },
 });
 

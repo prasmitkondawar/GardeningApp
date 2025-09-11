@@ -14,7 +14,7 @@ import {
   Dimensions
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 import supabase from '@/config/supabase';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -44,6 +44,7 @@ const PlantDirectory: React.FC = () => {
   const [savingId, setSavingId] = useState<number | null>(null); // id of currently saving plant
 
   const router = useRouter();
+  const pathName = usePathname();
 
   const getDynamicFontSize = (text: string) => {
     if (text.length <= 10) return 27;
@@ -320,6 +321,33 @@ const PlantDirectory: React.FC = () => {
         <View style={styles.emptyContainer}>
           <Text>No plants found.</Text>
         </View>
+        
+        {/* Navigation Bar */}
+        <View style={styles.navigationBar}>
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.navigate('/PlantDirectory')}
+          >
+            <Ionicons name="folder" size={24} color={pathName === "/PlantDirectory" ? "#007AFF" : "#888"} />
+            <Text style={[styles.navLabel, pathName === "/PlantDirectory" && styles.activeNavLabel]}>Plants</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.navigate('/components/CameraScreen')}
+          >
+            <Ionicons name="camera" size={24} color={pathName === "/components/CameraScreen" ? "#007AFF" : "#888"} />
+            <Text style={[styles.navLabel, pathName === "/components/CameraScreen" && styles.activeNavLabel]}>Camera</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.navButton}
+            onPress={() => router.navigate('/components/CalendarView')}
+          >
+            <Ionicons name="calendar" size={24} color={pathName === "/components/CalendarView" ? "#007AFF" : "#888"} />
+            <Text style={[styles.navLabel, pathName === "/components/CalendarView" && styles.activeNavLabel]}>Calendar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
     );
@@ -343,7 +371,33 @@ const PlantDirectory: React.FC = () => {
         showsVerticalScrollIndicator={false}
         columnWrapperStyle={styles.row} // This ensures proper row alignment
       />
-
+      
+      {/* Navigation Bar */}
+      <View style={styles.navigationBar}>
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.navigate('/PlantDirectory')}
+        >
+          <Ionicons name="folder" size={24} color={pathName === "/PlantDirectory" ? "#007AFF" : "#888"} />
+          <Text style={[styles.navLabel, pathName === "/PlantDirectory" && styles.activeNavLabel]}>Plants</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.navigate('/components/CameraScreen')}
+        >
+          <Ionicons name="camera" size={24} color={pathName === "/components/CameraScreen" ? "#007AFF" : "#888"} />
+          <Text style={[styles.navLabel, pathName === "/components/CameraScreen" && styles.activeNavLabel]}>Camera</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.navigate('/components/CalendarView')}
+        >
+          <Ionicons name="calendar" size={24} color={pathName === "/components/CalendarView" ? "#007AFF" : "#888"} />
+          <Text style={[styles.navLabel, pathName === "/components/CalendarView" && styles.activeNavLabel]}>Calendar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -481,6 +535,37 @@ const styles = StyleSheet.create({
     right: 8,
     padding: 6,
     zIndex: 10,
+  },
+  
+  // Navigation Bar
+  navigationBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  activeNavLabel: {
+    color: '#007AFF',
   },
 });
 

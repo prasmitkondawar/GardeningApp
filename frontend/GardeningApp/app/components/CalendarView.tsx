@@ -2,6 +2,8 @@ import supabase from '@/config/supabase';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
+import { useRouter, usePathname } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Event {
   ScheduleID: number;
@@ -15,6 +17,8 @@ interface Event {
 }
 
 const CalendarView: React.FC = () => {
+  const router = useRouter();
+  const pathName = usePathname();
   const [view, setView] = useState<'week' | 'day'>('day');
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
@@ -314,6 +318,33 @@ const CalendarView: React.FC = () => {
         )}
 
       </View>
+      
+      {/* Navigation Bar */}
+      <View style={styles.navigationBar}>
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.navigate('/PlantDirectory')}
+        >
+          <Ionicons name="folder" size={24} color={pathName === "/PlantDirectory" ? "#007AFF" : "#888"} />
+          <Text style={[styles.navLabel, pathName === "/PlantDirectory" && styles.activeNavLabel]}>Plants</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.navigate('/components/CameraScreen')}
+        >
+          <Ionicons name="camera" size={24} color={pathName === "/components/CameraScreen" ? "#007AFF" : "#888"} />
+          <Text style={[styles.navLabel, pathName === "/components/CameraScreen" && styles.activeNavLabel]}>Camera</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.navButton}
+          onPress={() => router.navigate('/components/CalendarView')}
+        >
+          <Ionicons name="calendar" size={24} color={pathName === "/components/CalendarView" ? "#007AFF" : "#888"} />
+          <Text style={[styles.navLabel, pathName === "/components/CalendarView" && styles.activeNavLabel]}>Calendar</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -550,6 +581,36 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   
+  // Navigation Bar
+  navigationBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  activeNavLabel: {
+    color: '#007AFF',
+  },
 });
 
 export default CalendarView;
