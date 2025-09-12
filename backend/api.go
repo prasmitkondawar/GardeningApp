@@ -326,14 +326,15 @@ func HandleUpdatePlantPhoto(c *gin.Context) {
 	tokenString = strings.TrimSpace(tokenString)
 	userID, err := ExtractIDFromJWT(tokenString)
 	if err != nil {
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired JWT"})
 		return
 	}
 
-	plantIDStr := c.Param("plantid") // from URL
-	plantID, err := strconv.Atoi(plantIDStr)
+	plantIDstr := c.Param("plantid") // from URL
+	plantID, err := strconv.Atoi(plantIDstr)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid plant ID"})
 		return
 	}
@@ -343,16 +344,13 @@ func HandleUpdatePlantPhoto(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
-	image_url := request.ImageURL
-
-	msg, err := Handler.UpdatePlantPhoto(userID, plantID, image_url)
+	msg, err := Handler.UpdatePlantPhoto(userID, plantID, request.ImageURL)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("ERR", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plant pet name", "details": err.Error()})
 		return
 	}
