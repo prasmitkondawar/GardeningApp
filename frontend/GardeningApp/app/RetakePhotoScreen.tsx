@@ -14,12 +14,14 @@ import { Ionicons } from '@expo/vector-icons';
 import supabase from '../config/supabase';
 import * as FileSystem from 'expo-file-system';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { usePlantImage } from './contexts/PlantImageContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const RetakePhotoScreen: React.FC = () => {
   const { plant_id } = useLocalSearchParams();
   const router = useRouter();
+  const { updatePlantImage } = usePlantImage();
   
   const [permission, requestPermission] = useCameraPermissions();
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
@@ -206,7 +208,13 @@ const RetakePhotoScreen: React.FC = () => {
   const savePhoto = async () => {
     if (capturedPhoto && !isUploading) {
       try {
-        await updatePlantPhoto(capturedPhoto);
+        const result = await updatePlantPhoto(capturedPhoto);
+        
+        // Update the global plant image state to notify other screens
+        if (result && plant_id) {
+          const plantId = parseInt(plant_id as string);
+          updatePlantImage(plantId, result.image_url);
+        }
         
         Alert.alert('Success!', 'Your plant photo has been updated successfully!', [
           {

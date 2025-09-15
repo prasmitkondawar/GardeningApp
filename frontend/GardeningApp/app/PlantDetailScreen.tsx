@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import PlantHealthMeterCircular from './PlantHealthMeterCircular';
 import supabase from '@/config/supabase';
+import { usePlantImage } from './contexts/PlantImageContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,6 +34,7 @@ interface PlantCard {
 const PlantDetailScreen: React.FC = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { getPlantImage } = usePlantImage();
   const plant: PlantCard | null = params?.plant
     ? JSON.parse(params.plant as string)
     : null;
@@ -158,7 +160,12 @@ const PlantDetailScreen: React.FC = () => {
                 },
               ]}
             >
-              <Image source={{ uri: plant.ImageURL }} style={styles.heroImage} />
+              <Image 
+                source={{ 
+                  uri: plant ? (getPlantImage(plant.PlantID) || plant.ImageURL) : '' 
+                }} 
+                style={styles.heroImage} 
+              />
             </Animated.View>
 
 

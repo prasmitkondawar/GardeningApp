@@ -17,6 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useRouter, usePathname } from 'expo-router';
 import supabase from '@/config/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import { usePlantImage } from './contexts/PlantImageContext';
 
 interface PlantCard {
   ImageURL: string;
@@ -45,6 +46,7 @@ const PlantDirectory: React.FC = () => {
 
   const router = useRouter();
   const pathName = usePathname();
+  const { getPlantImage } = usePlantImage();
 
   const getDynamicFontSize = (text: string) => {
     if (text.length <= 10) return 27;
@@ -214,7 +216,7 @@ const PlantDirectory: React.FC = () => {
           } as any)}
         >
           <Image
-            source={{ uri: item.ImageURL }}
+            source={{ uri: getPlantImage(item.PlantID) || item.ImageURL }}
             style={styles.image}
             resizeMode="cover"
           />
