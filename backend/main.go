@@ -42,7 +42,7 @@ func main() {
 	// Use apiKey in your code as needed
 	log.Println("OPENAI_API_KEY loaded successfully")
 
-	connString := "postgresql://postgres.xrxswewhornndtjpwmkf:mLTwK4TAf9spNhuD@aws-0-us-west-1.pooler.supabase.com:5432/postgres?sslmode=require"
+	connString := os.Getenv("CONN_STRING")
 	err := InitDatabaseHandler(connString)
 	if err != nil {
 		log.Fatal("Error connecting to database:", err)
